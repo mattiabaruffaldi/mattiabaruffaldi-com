@@ -308,24 +308,18 @@ main { display: block; }
   color: var(--paper);
 }
 .menu::backdrop { background: var(--ink-0); }
-.menu ul { display: grid; gap: var(--s-4); }
+.menu ul { display: grid; gap: var(--s-2); }
 .menu a {
   display: inline-block;
-  font-size: clamp(2rem, 1.2rem + 6vw, 3rem);
-  font-variation-settings: 'wdth' var(--wide), 'wght' 700;
-  letter-spacing: -0.03em;
+  /* il padding tiene l'area di tocco sopra i 44px anche col testo piccolo */
+  padding-block: var(--s-3);
+  font-size: clamp(1.375rem, 1.15rem + 1.1vw, 1.625rem);
+  font-variation-settings: 'wdth' 104, 'wght' 600;
+  letter-spacing: -0.015em;
   text-transform: uppercase;
   color: var(--paper);
 }
 .menu a[aria-current='page'] { color: var(--signal); }
-.menu__mail {
-  margin-top: var(--s-8);
-  font-size: var(--t-body);
-  color: var(--paper-dim);
-  border-bottom: 1px solid var(--line-ctl);
-  padding-bottom: 2px;
-  align-self: start;
-}
 .menu__close {
   position: absolute; top: calc((var(--head-h) - 2.75rem) / 2); right: var(--gutter);
   width: 2.75rem; height: 2.75rem;

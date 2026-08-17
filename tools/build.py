@@ -372,7 +372,6 @@ def shell(*, slug, title, desc, body, og_image=None, extra_head=""):
   <nav aria-label="Sections">
     <ul>%(voci_menu)s</ul>
   </nav>
-  <a class="menu__mail" href="mailto:%(email)s">%(email)s</a>
 </dialog>
 
 <main id="main">
