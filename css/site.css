@@ -518,12 +518,8 @@ main { display: block; }
 /* ==========================================================================
    Info / contatti
    ========================================================================== */
-.info { display: grid; gap: var(--s-6); }
-@media (min-width: 56rem) {
-  /* La foto si allunga fino a dove finisce il testo: e' la riga di griglia a
-     dettarne l'altezza, non una proporzione fissa. */
-  .info { grid-template-columns: 1.35fr 1fr; gap: var(--s-8); align-items: stretch; }
-}
+/* La pagina Info e' a colonna singola: biografia, poi la griglia del
+   dietro le quinte a tutta larghezza (come il vecchio About, che gli piaceva). */
 .info__bio p { margin-top: var(--s-5); max-width: var(--measure); }
 .info__bio p:first-child {
   margin-top: 0;

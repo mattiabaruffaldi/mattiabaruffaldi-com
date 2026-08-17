@@ -67,14 +67,10 @@ localhost e GitHub Pages si comportano identici.
   display. Ospitato in locale: nessuna chiamata a Google, nessun cookie terzo.
 - **Logo:** wordmark spaziato `img/logo-2c.png` (suo), reso bianco in
   `img/wordmark.png`. Sostituisce monogramma + nome scritto.
-- **Pagina Info: niente contatti.** Ci sono gia' nel piede, ripeterli era una
-  ripetizione (l'ha fatto notare lui). Solo biografia e foto.
-- **Foto Info:** da 56rem in su l'immagine e' `position: absolute` dentro la
-  figura, cosi' NON e' lei a dettare l'altezza della riga di griglia: la
-  prende dal testo e finisce dove finiscono le frasi. Di conseguenza il
-  ritaglio e' orizzontale (~1.55), non verticale: se si cambia la lunghezza
-  della biografia, va rigenerato `img/portrait.jpg` dall'originale
-  `img/GS_240515_RBCA_Stunt_1897.jpg`.
+- **Pagina Info: biografia a colonna singola, poi la griglia del dietro le
+  quinte** (`img/bts/`, sei foto recuperate dal vecchio About di Squarespace,
+  che gli piaceva). Niente contatti (ci sono gia' nel piede) e niente ritratto
+  grande accanto al testo: la foto di Genova e' la prima della griglia.
 - **In home nessun credito cliente** sotto i video: "Unreal × …" si vede solo
   nella pagina Film. In home i link "All N films" / "All N photographs" stanno
   **sotto** la griglia, non accanto al titolo (accanto non li notava).

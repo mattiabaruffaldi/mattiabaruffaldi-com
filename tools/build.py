@@ -190,9 +190,19 @@ SET_FOTO = [
 # Mix voluto da lui: colore per la maggior parte, con tre in bianco e nero
 # che ha scelto lui (posizioni 2, 4, 9). Non passare a un blocco tutto B/N.
 ANTEPRIMA_FOTO = [
-    ("automotive", 26), ("action-sports", 3), ("action-sports", 4),
-    ("automotive", 24), ("automotive", 9), ("people", 11),
-    ("action-sports", 27), ("automotive", 17), ("people", 14),
+    ("automotive", 2), ("action-sports", 3), ("action-sports", 4),
+    ("automotive", 24), ("automotive", 9), ("people", 3),
+    ("action-sports", 27), ("people", 14), ("automotive", 17),
+]
+
+# Dietro le quinte, pagina Info. Recuperate dal vecchio About di Squarespace.
+DIETRO_LE_QUINTE = [
+    (1, "Mattia Baruffaldi with a cinema camera, the rooftops of Genoa behind him"),
+    (2, "Filming a car commercial on a dirt road, camera operator running alongside"),
+    (3, "Filming a ski racer at the start gate"),
+    (4, "Two crew members filming a slalom skier on the piste"),
+    (5, "A night shoot around a Suzuki Jimny, crew silhouetted against the sun"),
+    (6, "Shooting handheld with a cine camera on a rock face"),
 ]
 
 # Selezione film in home. Scelti fra quelli la cui anteprima YouTube e' un
@@ -619,40 +629,44 @@ def pagina_lifetalks():
 
 # ---------------------------------------------------------------- info
 def pagina_info():
+    """Biografia a tutta larghezza, poi la griglia del dietro le quinte."""
+    quinte = "\n".join(
+        """<figure class="shot reveal" data-stagger="%(st)d">
+  <img src="/img/bts/bts-%(n)02d.jpg" alt="%(alt)s"
+       width="1600" height="1067" loading="lazy" decoding="async">
+</figure>""" % {"st": i % 3, "n": n, "alt": attr(testo)}
+        for i, (n, testo) in enumerate(DIETRO_LE_QUINTE))
+
     body = """
 <div class="wrap page-head">
   <h1>Info</h1>
 </div>
 <div class="wrap section--tight">
-  <div class="info">
-    <div class="info__bio">
-      <p>I shoot film and stills for brands, mostly things that move fast.</p>
-      <p>Born and raised in the Alps, in the province of Sondrio, and now based in
-         Milan. I graduated in Public Relations and Business Communication at IULM.</p>
-      <p>I started out as a photography assistant to Alberto Alquati, and came to
-         moving images through Fabrizio Accettulli of RGB Films.</p>
-      <p>I have worked with Unreal Media House since the beginning, and it is
-         still where most of my work comes through: projects for Lamborghini,
-         Ducati, Moncler and Kappa, among others.</p>
-      <p>Between commissions I shoot LifeTalks, and I ride, ski and kite as much as
-         the calendar allows, which is usually where the personal work comes from.</p>
-    </div>
-    <figure class="info__portrait reveal">
-      <img src="/img/portrait.jpg" width="1800" height="1161" loading="lazy" decoding="async"
-           alt="Mattia Baruffaldi holding a cinema camera, the rooftops of Genoa behind him">
-    </figure>
+  <div class="info__bio">
+    <p>I shoot film and stills for brands, mostly things that move fast.</p>
+    <p>Born and raised in the Alps, in the province of Sondrio, and now based in
+       Milan. I graduated in Public Relations and Business Communication at IULM.</p>
+    <p>I started out as a photography assistant to Alberto Alquati, and came to
+       moving images through Fabrizio Accettulli of RGB Films.</p>
+    <p>I have worked with Unreal Media House since the beginning, and it is
+       still where most of my work comes through: projects for Lamborghini,
+       Ducati, Moncler and Kappa, among others.</p>
+    <p>Between commissions I shoot LifeTalks, and I ride, ski and kite as much as
+       the calendar allows, which is usually where the personal work comes from.</p>
   </div>
-
 </div>
-""" % {"email": CONTATTI["email"], "tel": CONTATTI["tel"],
-       "tel_d": CONTATTI["tel_display"], "ig": CONTATTI["instagram"],
-       "yt": CONTATTI["youtube"], "li": CONTATTI["linkedin"],
-       "alt": e(ALT["people"][8])}
+<div class="wrap section--tight">
+  <div class="sheet">
+%(quinte)s
+  </div>
+</div>
+""" % {"quinte": quinte}
 
     return shell(slug="info", title="Info — Mattia Baruffaldi",
                  desc="Filmmaker and photographer from the Italian Alps, based in "
                       "Milan. Contact, bio and links.",
                  body=body)
+
 
 
 # ---------------------------------------------------------------- 404
