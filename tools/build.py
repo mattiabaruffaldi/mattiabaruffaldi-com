@@ -192,8 +192,8 @@ SET_FOTO = [
 # Mix voluto da lui: colore per la maggior parte, con tre in bianco e nero
 # che ha scelto lui (posizioni 2, 4, 9). Non passare a un blocco tutto B/N.
 ANTEPRIMA_FOTO = [
-    ("automotive", 2), ("action-sports", 3), ("action-sports", 39),
-    ("automotive", 24), ("action-sports", 40), ("people", 3),
+    ("automotive", 2), ("action-sports", 3), ("people", 3),
+    ("action-sports", 39), ("action-sports", 40), ("automotive", 24),
     ("action-sports", 27), ("people", 14), ("automotive", 17),
 ]
 
