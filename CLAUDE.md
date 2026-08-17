@@ -12,17 +12,25 @@ Sostituisce il vecchio sito Squarespace su **www.mattiabaruffaldi.com**.
 
 - **Cartella:** `~/Desktop/WWW/mattiabaruffaldi-com`
 - **Anteprima locale:** `python3 -m http.server 8010` → http://localhost:8010
+- **Repo:** https://github.com/hellonorthsidecc-ai/mattiabaruffaldi-com — **privato**, branch `main`
 - **Pubblicazione:** GitHub Pages (vedi "Da fare" se non ancora attivo)
 
 ## Flusso di lavoro (IMPORTANTE)
 1. **Modifico i dati o i file**
 2. `python3 tools/build.py` per rigenerare le pagine
-3. L'utente controlla su **http://localhost:8010** e ricarica con Cmd+R
-4. Solo quando è soddisfatto → **push** (lo faccio io)
-5. Il push richiede `dangerouslyDisableSandbox: true` (serve il portachiavi macOS)
+3. L'utente controlla su **http://localhost:8010** e ricarica con **Cmd+Shift+R**
+   (il refresh normale non basta: CSS e JS restano in cache)
+4. Quando è soddisfatto: committo io, **ma il push lo fa lui**
 
-> L'utente NON usa git da riga di comando. Pubblico io. Non è tecnico:
-> spiegare i passaggi senza dare per scontato git/CSS.
+> ⚠️ **Non posso fare push su questo repo.** Il token nel portachiavi è quello
+> fine-grained di NSCC, autorizzato solo su quel repository: qui torna
+> `403 Write access to repository not granted`. Quindi: io committo in locale,
+> poi lui clicca **"Push origin"** in GitHub Desktop. Se un giorno aggiunge
+> questo repo ai permessi del token, il push torna a farlo Claude
+> (con `dangerouslyDisableSandbox: true`, serve il portachiavi macOS).
+
+> L'utente NON usa git da riga di comando. Non è tecnico: spiegare i passaggi
+> senza dare per scontato git/CSS.
 
 ## Come è fatto
 `tools/build.py` è il **generatore**: contiene tutti i contenuti (video, testi,
@@ -141,8 +149,16 @@ guardando la foto, nessuna ancora orfana, nessuno sfondamento orizzontale a
 bordi dei controlli 3,1:1.
 
 ## Da fare / aperto
-- [ ] **Repo GitHub + Pages non ancora creati.** Serve l'utente per creare il
-      repo; poi Settings → Pages → branch `main`, e `CNAME` è già pronto.
+- [x] Repo creato e pubblicato (privato) su `hellonorthsidecc-ai`.
+- [ ] **Pages da accendere**: Settings → Pages → Deploy from a branch →
+      `main` / `(root)`. Il file `CNAME` è già nel repo, quindi GitHub imposterà
+      da solo il dominio e mostrerà un avviso rosso sul DNS finché non si
+      cambiano i record: è normale, sparisce dopo il passaggio.
+- [ ] **Spostare il repo su un account personale suo.** Ha detto chiaramente
+      (ago 2026) che non vuole il suo sito sotto l'account `hellonorthsidecc-ai`,
+      ma ha scelto di pubblicare prima e spostare poi. Si fa con Settings →
+      Transfer ownership: si tiene tutta la cronologia, cambia solo il record
+      DNS del `www` verso `<nuovoutente>.github.io`. **Ricordarglielo.**
 - [ ] **DNS ancora su Squarespace.** Va spostato al registrar: `CNAME www` →
       `<utente>.github.io` e i 4 record A di GitHub Pages per il dominio nudo.
       Finché non si sposta, il sito live resta quello vecchio.
