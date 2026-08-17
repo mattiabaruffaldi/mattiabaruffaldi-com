@@ -55,14 +55,17 @@ localhost e GitHub Pages si comportano identici.
   dell'asse larghezza (`wdth`): **82 condensato** per wordmark ed etichette
   (coerente col suo logo esistente), **118 espanso peso 700** per i titoli
   display. Ospitato in locale: nessuna chiamata a Google, nessun cookie terzo.
-- **Motivi ricorrenti:** tacche d'angolo tipo mirino (`.ticks`); miniature
-  leggermente graduate a riposo che vanno a pieno colore all'hover (come un
-  color grading); rapporti d'aspetto reali (16:9 video, 3:2 foto).
-- **Griglia foto:** dentro una riga le misure sono **uguali**. Le foto sono
-  tutte 3:2, quindi larghezze diverse darebbero altezze diverse e buchi. Il
-  ritmo lo fa il numero di foto per riga (`RITMO` in build.py).
-- **Griglia film in home:** zigzag 7/5 → 5/7 → 6/6 con `align-items: end`, così
-  lo scarto di altezza diventa aria in alto e le didascalie si allineano.
+- **Logo:** wordmark spaziato `img/logo-2c.png` (suo), reso bianco in
+  `img/wordmark.png`. Sostituisce monogramma + nome scritto.
+- **TUTTE le griglie sono uniformi.** Feedback esplicito suo (ago 2026): non
+  gli piacciono foto e video distribuiti a misure diverse, li vuole "puliti e
+  minimal". Film 2 per riga, foto 3 per riga, nessuna eccezione, nessun
+  mosaico, nessun riquadro grande in cima. **Non riproporre layout a mosaico
+  o a zigzag.** I riquadri grandi mostravano anche la grana degli scatti.
+- **Niente tacche d'angolo.** C'erano dei segni tipo mirino agli angoli delle
+  immagini: gliele ho tolte perche' non gli piacevano. Non rimetterle.
+- **Miniature** leggermente graduate a riposo che vanno a pieno colore
+  all'hover (come un color grading): questo gli sta bene, resta.
 - **Selezione home:** solo film la cui anteprima YouTube è un **fotogramma
   pulito**. Diverse anteprime hanno titoli e loghi stampati sopra (una ha
   "3000 STEPS!!" con l'emoji): a grande dimensione fanno sembrare la pagina una
@@ -71,8 +74,34 @@ localhost e GitHub Pages si comportano identici.
   parte dopo il primo disegno, solo su schermi ≥60rem e senza reduced-motion.
 - **Video:** 22 iframe insieme affosserebbero la pagina. Anteprime locali,
   iframe creato **solo al click**, e svuotato alla chiusura per fermare l'audio.
+- **Crediti film:** `Unreal × <cliente>`. Unreal Media House e' la casa di
+  produzione con cui lavora da sempre; va nominata, non solo il brand.
+- **Home:** niente sezione "Clients" (rimossa su sua richiesta) e niente
+  striscia foto che scorre di lato: tre scatti fermi piu' il link.
 
 ## Trappole già incontrate (non ripeterle)
+- **MAI mettere `display` su `.player` / `.viewer` senza `[open]`.** Il browser
+  nasconde un `<dialog>` chiuso con `dialog:not([open]) { display: none }`, ma
+  quella regola sta nel foglio del *browser* e qualunque `display` scritto nel
+  CSS del sito la batte (l'origine autore vince sull'origine user-agent, la
+  specificita' non conta). Con `display: grid` sulla classe nuda la finestra del
+  lettore restava visibile sopra la pagina appena si apriva il sito. Bug vero,
+  trovato da lui, che io avevo liquidato come artefatto delle catture.
+- **Loop dell'hero: NON usare `loop=1&playlist=ID`.** Quel parametro trasforma
+  il video in una playlist e YouTube disegna i pulsanti
+  precedente/pausa/successivo sopra l'hero. Si usa l'API IFrame con
+  `onStateChange` → `seekTo(0)`.
+- **L'API IFrame non funziona con `host: youtube-nocookie`**: `onReady` e
+  `onStateChange` non arrivano mai. Per l'hero serve l'host standard
+  `youtube.com`. Il lettore su click (iframe semplice) resta su nocookie.
+- **Il video dell'hero si rivela solo sullo stato PLAYING.** Se l'autoplay
+  viene bloccato resta la fotografia: rivelarlo prima significa mostrare un
+  rettangolo nero.
+- **La finestra di Chrome guidata dall'automazione, se non e' in primo piano,
+  congela paint e transizioni**: le catture escono nere o a metà animazione e i
+  valori di `opacity`/`transform` restano bloccati. Misurare col DOM, e per le
+  catture disattivare le transizioni con
+  `*{transition:none !important;animation:none !important}`.
 - **L'evento `close` del `<dialog>` non scatta** in alcuni browser. Non
   appoggiarsi a quello: `watchDialog()` in `site.js` osserva l'attributo `open`
   con un MutationObserver. Prima, chiudendo una foto, la pagina restava bloccata.
@@ -103,11 +132,15 @@ bordi dei controlli 3,1:1.
 - [ ] **DNS ancora su Squarespace.** Va spostato al registrar: `CNAME www` →
       `<utente>.github.io` e i 4 record A di GitHub Pages per il dominio nudo.
       Finché non si sposta, il sito live resta quello vecchio.
-- [ ] **Manca un ritratto di lui.** La pagina Info usa `people-09` (una figura
-      in muta di spalle), che non dichiara di essere lui. Se ne fornisce uno, va
-      sostituito in `pagina_info()`.
+      **Il registrar è GoDaddy.** Il DNS lo deve cambiare lui: non ho accesso
+      al suo account e non devo inserire credenziali.
+- [x] Ritratto: `img/portrait.jpg`, taglio 3:4 da
+      `img/GS_240515_RBCA_Stunt_1897.jpg` (lui con la cinepresa, Genova dietro).
 - [ ] **Cliente non dichiarato** per "The Hyper Contrast Capsule": lasciato in
       bianco di proposito invece di indovinare. Chiederglielo.
+- [ ] **Verificare quali film NON sono Unreal.** Ho messo `Unreal × <cliente>`
+      su tutti i film con brand; se qualcuno e' passato da un'altra produzione
+      va corretto nel dizionario `FILM`.
 - [ ] Valutare una pagina privacy: l'hero carica YouTube (in modalità
       nocookie) in automatico su desktop.
 - [ ] Le foto vengono dal CDN di Squarespace, quindi già compresse da loro. Se

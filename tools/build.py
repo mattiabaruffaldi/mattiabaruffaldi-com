@@ -30,29 +30,30 @@ CONTATTI = {
     "youtube": "https://www.youtube.com/@mattiabaruffaldi_film",
 }
 
-# id YouTube, titolo mostrato, cliente (vuoto = non dichiarato)
+# id YouTube, titolo mostrato, credito (produzione × cliente; vuoto = non dichiarato).
+# Unreal Media House e' la casa di produzione con cui lavora da sempre.
 FILM = {
     "reel": [
         ("9daFPeNSXGo", "Showreel", ""),
     ],
     "automotive": [
-        ("GVQPl1QtQQ4", "Esperienza Giro USA", "Lamborghini"),
-        ("oxBlVDnw5Lo", "From the Alps to the Sea", "Lamborghini"),
-        ("8vc4HPQ3ycY", "Multistrada V4 Pikes Peak", "Ducati"),
-        ("T-nkJv4oWhI", "Multistrada V4 · Expand Your Limits", "Ducati"),
-        ("QROt4ap1GjY", "Hypermotard V2 · Never So Hyper", "Ducati"),
-        ("YKYowJ4TOcA", "Streetfighter V4", "Ducati"),
-        ("I-xkV-nLD5g", "Multistrada V2", "Ducati"),
-        ("YHMMSysS0Yo", "#BACK2BACKgnaia", "Ducati Corse"),
-        ("-3H7_iYdI9I", "The Red from Borgo Panigale Enters Motocross", "Ducati"),
-        ("KORLNLzHhwU", "Motocross · Coming 2024", "Ducati"),
-        ("BPCioSdPk-U", "Powerstage RR Limited Edition", "Ducati"),
-        ("ng4vK723AS8", "1500 TRX Lunar Edition", "RAM"),
+        ("GVQPl1QtQQ4", "Esperienza Giro USA", "Unreal × Lamborghini"),
+        ("oxBlVDnw5Lo", "From the Alps to the Sea", "Unreal × Lamborghini"),
+        ("8vc4HPQ3ycY", "Multistrada V4 Pikes Peak", "Unreal × Ducati"),
+        ("T-nkJv4oWhI", "Multistrada V4 · Expand Your Limits", "Unreal × Ducati"),
+        ("QROt4ap1GjY", "Hypermotard V2 · Never So Hyper", "Unreal × Ducati"),
+        ("YKYowJ4TOcA", "Streetfighter V4", "Unreal × Ducati"),
+        ("I-xkV-nLD5g", "Multistrada V2", "Unreal × Ducati"),
+        ("YHMMSysS0Yo", "#BACK2BACKgnaia", "Unreal × Ducati Corse"),
+        ("-3H7_iYdI9I", "The Red from Borgo Panigale Enters Motocross", "Unreal × Ducati"),
+        ("KORLNLzHhwU", "Motocross · Coming 2024", "Unreal × Ducati"),
+        ("BPCioSdPk-U", "Powerstage RR Limited Edition", "Unreal × Ducati"),
+        ("ng4vK723AS8", "1500 TRX Lunar Edition", "Unreal × RAM"),
     ],
     "apparel": [
-        ("CF3su928_Bc", "Kappa × Ducati", "Kappa"),
-        ("p5ZqRwjilKg", "Winter Collection", "Kappa"),
-        ("qqoSzrGkyf8", "US Ski Team", "Kappa"),
+        ("CF3su928_Bc", "Kappa × Ducati", "Unreal × Kappa"),
+        ("p5ZqRwjilKg", "Winter Collection", "Unreal × Kappa"),
+        ("qqoSzrGkyf8", "US Ski Team", "Unreal × Kappa"),
         ("BFilRFo1Yiw", "The Hyper Contrast Capsule", ""),
     ],
     "doc": [
@@ -187,24 +188,24 @@ SET_FOTO = [
     ("people", "People", "Athletes, riders and strangers, framed close."),
 ]
 
-# Scelta per la home: le migliori dei tre insiemi, come un provino a contatto
-STRISCIA = [
-    ("automotive", 12), ("action-sports", 3), ("people", 1), ("automotive", 23),
-    ("action-sports", 32), ("people", 17), ("automotive", 16), ("action-sports", 35),
-    ("people", 14), ("automotive", 9), ("action-sports", 27), ("people", 12),
+# Anteprima foto in home: tre scatti fermi, uno per insieme, poi il link alla
+# pagina completa. Niente striscia che scorre di lato.
+ANTEPRIMA_FOTO = [
+    ("automotive", 12),
+    ("action-sports", 3),
+    ("people", 1),
 ]
 
 # Selezione film in home. Scelti fra quelli la cui anteprima YouTube e' un
 # fotogramma pulito: diverse altre hanno titoli e loghi stampati sopra, che a
 # grande dimensione fanno sembrare la pagina una griglia di YouTube.
-# Le larghezze fanno zigzag (7/5, 5/7, 6/6) invece di ripetere riquadri uguali.
 HOME_FILM = [
-    ("tDmiGfRRpRU", "film--7"),
-    ("GVQPl1QtQQ4", "film--5"),
-    ("p5ZqRwjilKg", "film--5"),
-    ("YKYowJ4TOcA", "film--7"),
-    ("ng4vK723AS8", "film--6"),
-    ("CF3su928_Bc", "film--6"),
+    "tDmiGfRRpRU",
+    "GVQPl1QtQQ4",
+    "p5ZqRwjilKg",
+    "YKYowJ4TOcA",
+    "ng4vK723AS8",
+    "CF3su928_Bc",
 ]
 
 # L'anteprima YouTube dello showreel e' una schiacciata nera col solo titolo.
@@ -214,11 +215,8 @@ POSTER = {
                     "Showreel poster: a Lamborghini on a mountain road at dusk"),
 }
 
-# Ritmo della griglia foto: larghezze in colonne su 12, ciclate.
-# Dentro una riga le misure sono uguali: le foto sono tutte 3:2, quindi
-# larghezze diverse darebbero altezze diverse e buchi nella griglia.
-# Il ritmo lo fa il numero di foto per riga, non la loro proporzione.
-RITMO = [[6, 6], [4, 4, 4], [12], [6, 6], [4, 4, 4]]
+# La griglia foto e' uniforme (3 per riga da CSS): nessun mosaico. Le misure
+# diverse creavano buchi e i riquadri grandi mostravano la grana degli scatti.
 
 
 # ============================================================================
@@ -283,9 +281,8 @@ def shell(*, slug, title, desc, body, og_image="/og.png", extra_head=""):
 <a class="skip" href="#main">Skip to content</a>
 
 <header class="site-head">
-  <a class="brand" href="/">
-    <img src="/img/monogram.png" alt="" width="601" height="533">
-    <span class="brand__name">Mattia Baruffaldi</span>
+  <a class="brand" href="/" aria-label="Mattia Baruffaldi, home">
+    <img src="/img/wordmark.png" alt="Mattia Baruffaldi" width="640" height="30">
   </a>
   <nav class="site-nav" aria-label="Sections">
     <ul>%(voci)s</ul>
@@ -393,34 +390,24 @@ def film_item(vid, span_class="", stagger=0, level=3, eager=False, caption=True)
 
 
 def griglia_foto(chiave):
-    """Griglia a ritmo variabile: le foto sono tutte 3:2, il ritmo lo fa il layout."""
+    """Griglia uniforme: tutte le foto della stessa misura, 3 per riga."""
     alts = ALT[chiave]
+    nome_set = next(t for k, t, _ in SET_FOTO if k == chiave)
     fuori = []
-    i = 0
-    r = 0
-    while i < len(alts):
-        riga = RITMO[r % len(RITMO)]
-        r += 1
-        resto = len(alts) - i
-        if len(riga) > resto:                       # ultima riga incompleta
-            riga = [12] if resto == 1 else [6] * resto if resto == 2 else [4] * resto
-        for w in riga:
-            n = i + 1
-            # E' un <a> verso il file grande, non un <button>: senza JavaScript
-            # la foto si apre comunque a piena risoluzione.
-            fuori.append("""<figure class="shot shot--%(w)d reveal" data-stagger="%(st)d">
+    for i, testo in enumerate(alts):
+        n = i + 1
+        # E' un <a> verso il file grande, non un <button>: senza JavaScript
+        # la foto si apre comunque a piena risoluzione.
+        fuori.append("""<figure class="shot reveal" data-stagger="%(st)d">
   <a href="/img/photo/%(k)s/%(k)s-%(nn)02d.jpg" data-full="/img/photo/%(k)s/%(k)s-%(nn)02d.jpg"
      data-alt="%(alt_a)s" data-set="%(setn)s" data-idx="%(nn)d" data-count="%(tot)d"
      aria-label="Open: %(alt_a)s">
     <img src="/img/photo/%(k)s/thumb/%(k)s-%(nn)02d.jpg" alt="%(alt)s"
          width="800" height="533" loading="lazy" decoding="async">
   </a>
-</figure>""" % {"w": w, "st": i % 4, "k": chiave, "nn": n,
-                "alt": e(alts[i]), "alt_a": attr(alts[i]), "tot": len(alts),
-                "setn": next(t for k, t, _ in SET_FOTO if k == chiave)})
-            i += 1
-            if i >= len(alts):
-                break
+</figure>""" % {"st": i % 3, "k": chiave, "nn": n,
+                "alt": e(testo), "alt_a": attr(testo), "tot": len(alts),
+                "setn": nome_set})
     return "\n".join(fuori)
 
 
@@ -428,23 +415,22 @@ def griglia_foto(chiave):
 def pagina_home():
     reel = FILM["reel"][0][0]
 
-    selezione = "\n".join(
-        film_item(vid, cls, i) for i, (vid, cls) in enumerate(HOME_FILM))
+    selezione = "\n".join(film_item(vid, "", i) for i, vid in enumerate(HOME_FILM))
 
-    striscia = "\n".join(
-        """<a href="/photo/#%(k)s" aria-label="%(t)s photographs">
-  <img src="/img/photo/%(k)s/thumb/%(k)s-%(nn)02d.jpg" alt="%(alt)s"
-       width="800" height="533" loading="lazy" decoding="async">
-</a>""" % {"k": k, "nn": n, "t": next(t for kk, t, _ in SET_FOTO if kk == k),
-           "alt": e(ALT[k][n - 1])}
-        for k, n in STRISCIA)
+    anteprima = "\n".join(
+        """<figure class="peek reveal" data-stagger="%(i)d">
+  <a href="/photo/#%(k)s">
+    <img src="/img/photo/%(k)s/thumb/%(k)s-%(nn)02d.jpg" alt="%(alt)s"
+         width="800" height="533" loading="lazy" decoding="async">
+  </a>
+</figure>""" % {"i": i, "k": k, "nn": n, "alt": e(ALT[k][n - 1])}
+        for i, (k, n) in enumerate(ANTEPRIMA_FOTO))
 
     body = """
 <section class="hero">
   <div class="hero__media" data-loop="%(reel)s">
     <img src="/img/hero.jpg" alt="" width="2500" height="1667" fetchpriority="high" decoding="async">
   </div>
-  <div class="ticks" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
   <div class="hero__inner">
     <h1>
       <span class="row"><span>Mattia</span></span>
@@ -476,25 +462,11 @@ def pagina_home():
 <section class="section wrap">
   <div class="sec-head reveal">
     <h2 class="display">Photography</h2>
-    <p class="sec-head__note">Three sets: automotive, action sports, people. %(nfoto)d frames in all.</p>
+    <a class="link" href="/photo/">All %(nfoto)d photographs</a>
   </div>
-  <div class="strip">
-%(striscia)s
+  <div class="peeks">
+%(anteprima)s
   </div>
-  <p style="margin-top:var(--s-4)"><a class="link" href="/photo/">Open the full galleries</a></p>
-</section>
-
-<section class="section wrap">
-  <div class="sec-head reveal">
-    <h2 class="display">Clients</h2>
-  </div>
-  <ul class="clients reveal">
-    <li>Lamborghini</li>
-    <li>Ducati</li>
-    <li>Moncler</li>
-    <li>Kappa</li>
-    <li class="is-more">and others, through the production companies I work with.</li>
-  </ul>
 </section>
 
 <section class="section wrap">
@@ -502,7 +474,6 @@ def pagina_home():
     <div class="slab__media">
       <img src="/img/video/UggHyqDGgGQ.jpg" alt="Grazia Robustellini at home in Tirano, from LifeTalks episode one"
            width="1280" height="720" loading="lazy" decoding="async">
-      <div class="ticks" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
     </div>
     <div class="slab__body">
       <h2 class="display">LifeTalks</h2>
@@ -514,7 +485,7 @@ def pagina_home():
   </div>
 </section>
 %(dialog)s
-""" % {"reel": reel, "selezione": selezione, "striscia": striscia,
+""" % {"reel": reel, "selezione": selezione, "anteprima": anteprima,
        "nfilm": N_FILM, "nfoto": N_FOTO, "dialog": DIALOG_PLAYER}
 
     return shell(
@@ -530,20 +501,20 @@ def pagina_film():
         '<a class="link" href="#%s">%s</a>' % (k, t) for k, t, _ in GRUPPI_FILM)
 
     sezioni = [
-        '<section class="section--tight wrap">%s</section>' %
-        film_item(FILM["reel"][0][0], "film--full", 0, level=2, eager=True)
+        """<section class="section--tight wrap">
+  <div class="films">%s</div>
+</section>""" % film_item(FILM["reel"][0][0], "", 0, level=2, eager=True)
     ]
 
     for chiave, titolo, nota in GRUPPI_FILM:
         elementi = "\n".join(
-            film_item(v[0], "film--full" if i == 0 else "", i)
-            for i, v in enumerate(FILM[chiave]))
+            film_item(v[0], "", i) for i, v in enumerate(FILM[chiave]))
         sezioni.append("""<section class="section wrap" id="%(k)s">
   <div class="sec-head reveal">
     <h2 class="display">%(t)s</h2>
     <p class="sec-head__note">%(n)s</p>
   </div>
-  <div class="films films--index">
+  <div class="films">
 %(el)s
   </div>
 </section>""" % {"k": chiave, "t": e(titolo), "n": e(nota), "el": elementi})
@@ -647,9 +618,9 @@ def pagina_info():
       <p>I shoot film and stills for brands, mostly things that move fast.</p>
       <p>Born and raised in the Alps, in the province of Sondrio, and now based in
          Milan. I studied Public Relations and Business Communication at IULM.</p>
-      <p>I work freelance with production companies on projects for brands including
-         Lamborghini, Ducati, Moncler and Kappa. On a shoot I take on whatever the
-         job needs: directing, camera, edit, colour, or all of it on the smaller ones.</p>
+      <p>I have worked with Unreal Media House since the beginning, and it is
+         still where most of my work comes through: projects for Lamborghini,
+         Ducati, Moncler and Kappa, among others.</p>
       <p>Between commissions I shoot LifeTalks, and I ride, ski and kite as much as
          the calendar allows, which is usually where the personal work comes from.</p>
       <dl class="dl">
@@ -676,9 +647,8 @@ def pagina_info():
       </dl>
     </div>
     <figure class="info__portrait reveal">
-      <img src="/img/photo/people/people-09.jpg" alt="%(alt)s"
-           width="1800" height="1200" loading="lazy" decoding="async">
-      <div class="ticks" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+      <img src="/img/portrait.jpg" width="1400" height="1867" loading="lazy" decoding="async"
+           alt="Mattia Baruffaldi holding a cinema camera, the rooftops of Genoa behind him">
     </figure>
   </div>
 </div>

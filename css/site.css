@@ -216,18 +216,6 @@ main { display: block; }
 .link:hover::after { transform: scaleX(1); }
 .link--on::after { transform: scaleX(1); }
 
-/* ---------- Tacche d'inquadratura (mirino) ---------- */
-/* Firma ricorrente: quattro angoli sottili, come le guide di un mirino. */
-.ticks { position: absolute; inset: 0; pointer-events: none; }
-.ticks span {
-  position: absolute; width: clamp(14px, 2.4vw, 30px); height: clamp(14px, 2.4vw, 30px);
-  border: 1px solid color-mix(in oklch, var(--paper) 55%, transparent);
-}
-.ticks span:nth-child(1) { top: 0; left: 0; border-right: 0; border-bottom: 0; }
-.ticks span:nth-child(2) { top: 0; right: 0; border-left: 0; border-bottom: 0; }
-.ticks span:nth-child(3) { bottom: 0; left: 0; border-right: 0; border-top: 0; }
-.ticks span:nth-child(4) { bottom: 0; right: 0; border-left: 0; border-top: 0; }
-
 /* ==========================================================================
    Testata
    ========================================================================== */
@@ -244,17 +232,15 @@ main { display: block; }
   backdrop-filter: blur(14px) saturate(140%);
   border-bottom-color: var(--line-soft);
 }
-.brand {
-  display: flex; align-items: center; gap: var(--s-3);
-  font-variation-settings: 'wdth' var(--narr), 'wght' 600;
-  font-size: clamp(0.938rem, 0.85rem + 0.4vw, 1.125rem);
-  letter-spacing: 0.02em;
-  color: var(--paper);
-  white-space: nowrap;
+/* Il suo logo: wordmark spaziato, in bianco su fondo scuro. */
+.brand { display: block; flex-shrink: 0; }
+.brand img {
+  width: clamp(9.5rem, 6rem + 9vw, 14rem);
+  height: auto;
+  opacity: 0.92;
+  transition: opacity var(--dur-2) var(--out-quart);
 }
-.brand img { width: auto; height: 1.05em; opacity: 0.95; }
-.brand__name { transition: color var(--dur-1) linear; }
-.brand:hover .brand__name { color: var(--signal); }
+.brand:hover img { opacity: 1; }
 
 .site-nav ul { display: flex; align-items: center; gap: clamp(var(--s-3), 2vw, var(--s-6)); }
 .site-nav a {
@@ -278,9 +264,10 @@ main { display: block; }
 .site-nav a[aria-current='page'] { color: var(--paper); }
 .site-nav a[aria-current='page']::after { transform: scaleX(1); background: var(--paper); }
 
-@media (max-width: 30rem) {
-  .brand__name { display: none; }
-  .brand img { height: 1.6rem; }
+@media (max-width: 26rem) {
+  /* schermi molto stretti: nav piu' compatta per non stringere il logo */
+  .site-nav a { font-size: 0.625rem; letter-spacing: 0.1em; }
+  .site-head { gap: var(--s-3); }
 }
 
 /* ==========================================================================
@@ -309,12 +296,14 @@ main { display: block; }
   border: 0;
   filter: saturate(0.55) contrast(1.06) brightness(0.62);
 }
-/* il loop di sfondo copre la locandina solo quando è pronto */
+/* Il loop di sfondo copre la locandina solo quando è pronto.
+   `pointer-events: none` e un ingrandimento del 6% tengono fuori dal riquadro
+   qualsiasi elemento di interfaccia che YouTube decidesse di disegnare. */
 .hero__media iframe {
   /* riempie il contenitore mantenendo il 16:9 anche su schermi molto larghi */
-  width: max(100%, 177.78svh); height: max(100%, 56.25vw);
+  width: max(106%, 188svh); height: max(106%, 59.6vw);
   top: 50%; left: 50%; transform: translate(-50%, -50%);
-  opacity: 0; transition: opacity var(--dur-4) linear;
+  opacity: 0; transition: opacity var(--dur-3) linear;
   pointer-events: none;
 }
 .hero__media iframe.is-ready { opacity: 1; }
@@ -324,10 +313,6 @@ main { display: block; }
     linear-gradient(to top, var(--ink-0) 2%, color-mix(in oklch, var(--ink-0) 55%, transparent) 34%, transparent 68%),
     radial-gradient(120% 80% at 50% 40%, transparent 30%, color-mix(in oklch, var(--ink-0) 70%, transparent) 100%);
 }
-
-/* Le tacche restano dentro il riquadro visibile: quelle in alto altrimenti
-   finiscono sotto la testata, che invade l'hero. */
-.hero > .ticks { inset: 4.75rem 0.5rem 0.5rem; }
 
 .hero__inner { max-width: var(--max); width: 100%; margin-inline: auto; }
 .hero h1 {
@@ -384,20 +369,14 @@ main { display: block; }
 /* ==========================================================================
    Griglia film
    ========================================================================== */
-.films { display: grid; grid-template-columns: repeat(12, 1fr); gap: var(--s-5) var(--s-4); }
-.film { grid-column: span 12; }
+/* Griglia film: tutti i riquadri della stessa misura, nessuna eccezione. */
+.films {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--s-6) var(--s-4);
+}
 @media (min-width: 48rem) {
-  /* Le didascalie si allineano in basso: lo scarto di altezza tra un pezzo
-     grande e uno piccolo diventa aria in alto, non un buco a metà riga. */
-  .films { align-items: end; }
-  .film--4 { grid-column: span 4; }
-  .film--5 { grid-column: span 5; }
-  .film--6 { grid-column: span 6; }
-  .film--7 { grid-column: span 7; }
-  .film--8 { grid-column: span 8; }
-  .film--full { grid-column: span 12; }
-  .films--index .film { grid-column: span 6; }
-  .films--index .film--full { grid-column: span 12; }
+  .films { grid-template-columns: repeat(2, 1fr); }
 }
 
 .film__btn { display: block; width: 100%; text-align: left; }
@@ -453,70 +432,53 @@ main { display: block; }
   padding-top: var(--s-3);
 }
 .film__title {
-  font-size: var(--t-h3);
+  font-size: clamp(1.063rem, 0.95rem + 0.55vw, 1.438rem);
   font-variation-settings: 'wdth' 104, 'wght' 600;
   letter-spacing: -0.022em;
   color: var(--paper);
   transition: color var(--dur-1) linear;
 }
-.film--4 .film__title, .film--5 .film__title, .film--6 .film__title,
-.films--index .film__title { font-size: clamp(1.063rem, 0.95rem + 0.5vw, 1.375rem); }
-.films--index .film--full .film__title, .film--full .film__title { font-size: var(--t-h3); }
 .film__client { white-space: nowrap; flex-shrink: 0; }
 
 /* ==========================================================================
-   Striscia foto (provino a contatto)
+   Anteprima foto in home: tre scatti fermi, poi il link
    ========================================================================== */
-.strip {
-  display: flex; gap: var(--s-3);
-  overflow-x: auto; overscroll-behavior-x: contain;
-  scroll-snap-type: x mandatory;
-  padding-block: var(--s-2) var(--s-5);
-  padding-inline: var(--gutter);
-  margin-inline: calc(-1 * var(--gutter));
-  scrollbar-width: thin;
-  scrollbar-color: var(--line) transparent;
+.peeks {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--s-3);
 }
-.strip::-webkit-scrollbar { height: 3px; }
-.strip::-webkit-scrollbar-track { background: var(--line-soft); }
-.strip::-webkit-scrollbar-thumb { background: var(--line); }
-.strip > * {
-  flex: 0 0 auto;
-  width: clamp(15rem, 38vw, 30rem);
-  scroll-snap-align: start;
-}
-.strip img {
+@media (min-width: 34rem) { .peeks { grid-template-columns: repeat(3, 1fr); } }
+
+.peek a { display: block; position: relative; overflow: hidden; }
+.peek img {
   width: 100%; aspect-ratio: 3 / 2; object-fit: cover;
   background: var(--ink-1);
-  filter: saturate(0.7) brightness(0.9);
-  transition: filter var(--dur-3) var(--out-quart);
+  filter: saturate(0.72) brightness(0.9) contrast(1.03);
+  transition: filter var(--dur-3) var(--out-quart), transform var(--dur-4) var(--out-expo);
 }
-.strip a:hover img, .strip a:focus-visible img { filter: none; }
+.peek a:hover img, .peek a:focus-visible img { filter: none; transform: scale(1.03); }
 
 /* ==========================================================================
-   Provino: griglia foto a ritmo variabile
+   Provino: griglia foto uniforme
    ========================================================================== */
-.sheet { display: grid; grid-template-columns: repeat(12, 1fr); gap: var(--s-3); }
-.shot { grid-column: span 12; }
-@media (min-width: 40rem) {
-  .shot { grid-column: span 6; }
-  .shot--12 { grid-column: span 12; }
+/* Tutte della stessa misura. Nessun mosaico: con foto tutte 3:2 le misure
+   diverse creano solo buchi, e i riquadri grandi mostrano la grana. */
+.sheet {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--s-3);
 }
-@media (min-width: 64rem) {
-  .shot--4 { grid-column: span 4; }
-  .shot--5 { grid-column: span 5; }
-  .shot--6 { grid-column: span 6; }
-  .shot--7 { grid-column: span 7; }
-  .shot--12 { grid-column: span 12; }
-}
-.shot a { display: block; width: 100%; position: relative; overflow: hidden; }
+@media (min-width: 34rem) { .sheet { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 62rem) { .sheet { grid-template-columns: repeat(3, 1fr); } }
+
+.shot a { display: block; position: relative; overflow: hidden; }
 .shot img {
   width: 100%; aspect-ratio: 3 / 2; object-fit: cover;
   background: var(--ink-1);
   filter: saturate(0.72) brightness(0.9) contrast(1.03);
   transition: filter var(--dur-3) var(--out-quart), transform var(--dur-4) var(--out-expo);
 }
-.shot--12 img { aspect-ratio: 21 / 9; }
 .shot a:hover img, .shot a:focus-visible img { filter: none; transform: scale(1.03); }
 .shot a::after {
   content: ''; position: absolute; inset: 0;
@@ -524,30 +486,6 @@ main { display: block; }
   transition: box-shadow var(--dur-2) var(--out-quart);
 }
 .shot a:hover::after { box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--signal) 70%, transparent); }
-
-/* ==========================================================================
-   Clienti
-   ========================================================================== */
-.clients {
-  display: flex; flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--s-3) clamp(var(--s-5), 4vw, var(--s-8));
-}
-.clients li {
-  font-size: clamp(1.375rem, 0.8rem + 3.4vw, 3.25rem);
-  font-variation-settings: 'wdth' var(--narr), 'wght' 600;
-  letter-spacing: -0.02em;
-  text-transform: uppercase;
-  color: var(--paper);
-  line-height: 1;
-}
-.clients li.is-more {
-  font-size: var(--t-body);
-  font-variation-settings: 'wdth' 100, 'wght' 400;
-  letter-spacing: 0.02em;
-  text-transform: none;
-  color: var(--paper-mut);
-}
 
 /* ==========================================================================
    Blocco largo: LifeTalks / About
@@ -653,14 +591,21 @@ main { display: block; }
   max-height: none;
 }
 
+/* ATTENZIONE: il browser nasconde un <dialog> chiuso con
+   `dialog:not([open]) { display: none }`, ma quella regola sta nel foglio del
+   browser e QUALSIASI `display` scritto qui la batte. Quindi il display va
+   messo solo su [open], mai sulla classe nuda: altrimenti la finestra resta
+   visibile sopra la pagina appena si apre il sito. */
+.player:not([open]), .viewer:not([open]) { display: none; }
+
 .player {
-  display: grid; place-items: center;
   width: 100vw; height: 100svh;
   padding: 0; border: 0;
   background: transparent;
   color: var(--paper);
   overflow: hidden;
 }
+.player[open] { display: grid; place-items: center; }
 .player::backdrop {
   background: color-mix(in oklch, var(--ink-0) 92%, transparent);
   backdrop-filter: blur(10px);
