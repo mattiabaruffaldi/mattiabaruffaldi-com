@@ -432,19 +432,11 @@ def pagina_home():
     <img src="/img/hero.jpg" alt="" width="2500" height="1667" fetchpriority="high" decoding="async">
   </div>
   <div class="hero__inner">
-    <h1>
-      <span class="row"><span>Mattia</span></span>
-      <span class="row"><span>Baruffaldi</span></span>
-    </h1>
-    <div class="hero__sub">
-      <p>Film and photography. Born in the Alps, based in Milan.</p>
-    </div>
+    <!-- Il titolo resta per Google e per chi usa uno screen reader, ma non si
+         vede: sull'hero deve esserci solo il video. -->
+    <h1 class="visually-hidden">Mattia Baruffaldi, film and photography</h1>
     <div class="hero__actions">
-      <button class="play" type="button" data-video="%(reel)s" data-title="Showreel">
-        <span class="play__ring" aria-hidden="true"></span>
-        Play showreel
-      </button>
-      <a class="link" href="/film/">See the film work</a>
+      <a class="link link--big" href="/film/">Portfolio</a>
     </div>
   </div>
 </section>

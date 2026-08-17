@@ -64,14 +64,22 @@ localhost e GitHub Pages si comportano identici.
   o a zigzag.** I riquadri grandi mostravano anche la grana degli scatti.
 - **Niente tacche d'angolo.** C'erano dei segni tipo mirino agli angoli delle
   immagini: gliele ho tolte perche' non gli piacevano. Non rimetterle.
-- **Miniature** leggermente graduate a riposo che vanno a pieno colore
-  all'hover (come un color grading): questo gli sta bene, resta.
+- **Nessuna desaturazione, mai.** Feedback suo (ago 2026): non gli piaceva che
+  foto e video fossero smorti finche' non ci passavi sopra col mouse. Le
+  immagini vanno mostrate **coi colori naturali**, sono gia' graduate da lui.
+  All'hover si muove solo la scala. Non reintrodurre `filter: saturate(...)`
+  o `brightness(...)` sulle immagini.
+- **Hero senza scritte.** Niente nome, niente sottotitolo, niente pulsanti:
+  solo il video a tutto schermo e un unico link **Portfolio** in basso a
+  sinistra che porta a `/film/`. Il tag `<h1>` resta ma `visually-hidden`,
+  serve a Google e agli screen reader. Le due sfumature sull'hero servono
+  solo a leggere logo/menu in alto e ad agganciare la pagina nera in basso.
 - **Selezione home:** solo film la cui anteprima YouTube è un **fotogramma
   pulito**. Diverse anteprime hanno titoli e loghi stampati sopra (una ha
   "3000 STEPS!!" con l'emoji): a grande dimensione fanno sembrare la pagina una
   griglia di YouTube. Sulla pagina Film ci sono tutte, ma più piccole.
 - **Hero:** locandina fotografica + loop muto dello showreel da YouTube che
-  parte dopo il primo disegno, solo su schermi ≥60rem e senza reduced-motion.
+  parte subito, su schermi ≥48rem e senza reduced-motion.
 - **Video:** 22 iframe insieme affosserebbero la pagina. Anteprime locali,
   iframe creato **solo al click**, e svuotato alla chiusura per fermare l'audio.
 - **Crediti film:** `Unreal × <cliente>`. Unreal Media House e' la casa di

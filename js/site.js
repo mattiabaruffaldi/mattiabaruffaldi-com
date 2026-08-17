@@ -47,9 +47,6 @@
      --------------------------------------------------------------- */
   var hero = document.querySelector('.hero');
   if (hero) {
-    hero.querySelectorAll('h1 .row > span').forEach(function (span, i) {
-      span.style.setProperty('--d', i * 110 + 'ms');
-    });
     requestAnimationFrame(function () {
       requestAnimationFrame(function () { hero.classList.add('is-lit'); });
     });
