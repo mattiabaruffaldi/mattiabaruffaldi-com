@@ -187,10 +187,12 @@ SET_FOTO = [
 # pagina completa. Niente striscia che scorre di lato.
 # Scelte in bianco e nero e grafiche: quelle a colori e piu' pubblicitarie
 # sono state scartate da lui (ago 2026). La 2 e la 9 le ha tenute lui.
+# Mix voluto da lui: colore per la maggior parte, con tre in bianco e nero
+# che ha scelto lui (posizioni 2, 4, 9). Non passare a un blocco tutto B/N.
 ANTEPRIMA_FOTO = [
-    ("automotive", 19), ("action-sports", 3), ("people", 16),
-    ("automotive", 24), ("action-sports", 22), ("people", 10),
-    ("automotive", 15), ("action-sports", 31), ("people", 14),
+    ("automotive", 26), ("action-sports", 3), ("action-sports", 4),
+    ("automotive", 24), ("automotive", 9), ("people", 11),
+    ("action-sports", 27), ("automotive", 17), ("people", 14),
 ]
 
 # Selezione film in home. Scelti fra quelli la cui anteprima YouTube e' un
