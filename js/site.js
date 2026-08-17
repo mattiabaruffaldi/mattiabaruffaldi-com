@@ -10,6 +10,32 @@
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   /* ---------------------------------------------------------------
+     Altezza esatta della finestra
+
+     L'hero deve occupare lo schermo intero. Le unita' CSS non bastano:
+     `svh` sta all'altezza minima (quella con tutte le barre del browser
+     aperte), quindi a schermo intero, o quando sparisce una barra di
+     avviso, sotto resta una striscia nera. Qui si scrive l'altezza vera
+     in `--vh` e la si aggiorna a ogni cambio.
+     --------------------------------------------------------------- */
+  (function () {
+    var ultima = 0;
+    function misura() {
+      var h = window.innerHeight;
+      if (h && h !== ultima) {
+        ultima = h;
+        root.style.setProperty('--vh', h + 'px');
+      }
+    }
+    misura();
+    window.addEventListener('resize', misura);
+    window.addEventListener('orientationchange', misura);
+    document.addEventListener('fullscreenchange', misura);
+    // Safari/iOS aggiornano l'altezza con un attimo di ritardo
+    window.addEventListener('load', function () { setTimeout(misura, 60); });
+  })();
+
+  /* ---------------------------------------------------------------
      Testata: fondo opaco solo dopo che si è staccata dal bordo
      --------------------------------------------------------------- */
   var head = document.querySelector('.site-head');

@@ -289,7 +289,10 @@ main { display: block; }
   /* Il margine negativo riporta l'hero sotto la testata, cioè al bordo alto
      dello schermo; da lì un'altezza piena di viewport arriva esatta in fondo. */
   margin-top: calc(-1 * var(--head-h));
-  min-height: 100svh;
+  /* `--vh` la scrive il JS con l'altezza reale della finestra e si aggiorna a
+     ogni resize: a schermo intero, o con una barra di avviso del browser,
+     `svh` non corrisponde al vero e sotto resta una striscia nera. */
+  min-height: var(--vh, 100svh);
   display: grid; align-content: end;
   padding: calc(var(--head-h) + var(--s-6)) var(--gutter) var(--s-8);
   overflow: clip;
@@ -300,10 +303,11 @@ main { display: block; }
   overflow: hidden;
   background: var(--ink-1);
 }
-.hero__media video,
-.hero__media img {
+.hero__media > * {
   position: absolute; inset: 0;
   width: 100%; height: 100%;
+  min-width: 100%; min-height: 100%;
+  max-width: none; max-height: none;
   object-fit: cover;
   border: 0;
   /* colore pieno: sopra non c'e' piu' testo da rendere leggibile */
@@ -530,15 +534,21 @@ main { display: block; }
   max-width: none;
   letter-spacing: -0.012em;
 }
-.info__portrait { position: relative; overflow: hidden; }
+.info__portrait { position: relative; overflow: hidden; background: var(--ink-1); }
 .info__portrait img {
   width: 100%; height: 100%;
-  aspect-ratio: 4 / 3;          /* solo quando non c'e' una riga da riempire */
+  aspect-ratio: 4 / 3;
   object-fit: cover;
-  object-position: 50% 32%;     /* tiene il viso nell'inquadratura sui tagli bassi */
-  background: var(--ink-1);
+  object-position: 50% 30%;
 }
-@media (min-width: 56rem) { .info__portrait img { aspect-ratio: auto; } }
+@media (min-width: 56rem) {
+  /* La foto esce dal flusso: cosi' non e' lei a dettare l'altezza della riga,
+     ma il testo accanto. Risultato: finisce dove finiscono le frasi. */
+  .info__portrait img {
+    position: absolute; inset: 0;
+    aspect-ratio: auto;
+  }
+}
 
 /* Contatti in orizzontale sotto la biografia */
 .dl {
@@ -587,6 +597,15 @@ main { display: block; }
   transition: color var(--dur-1) linear, border-color var(--dur-1) linear;
 }
 .site-foot__mail:hover { color: var(--signal); border-color: var(--signal); }
+.site-foot__tel {
+  display: block; margin-top: var(--s-3);
+  font-size: clamp(0.938rem, 0.85rem + 0.4vw, 1.188rem);
+  font-variation-settings: 'wdth' 96, 'wght' 500;
+  letter-spacing: -0.008em;
+  color: var(--paper-dim);
+  transition: color var(--dur-1) linear;
+}
+.site-foot__tel:hover { color: var(--signal); }
 .site-foot__links { display: flex; flex-wrap: wrap; gap: var(--s-3) var(--s-5); }
 .site-foot__bar {
   display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-5);

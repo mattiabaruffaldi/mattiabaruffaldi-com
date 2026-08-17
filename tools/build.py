@@ -306,11 +306,11 @@ def shell(*, slug, title, desc, body, og_image="/og.png", extra_head=""):
     <div>
       <h2>Let&rsquo;s talk.</h2>
       <a class="site-foot__mail" href="mailto:%(email)s">%(email)s</a>
+      <a class="site-foot__tel" href="tel:%(tel)s">%(tel_d)s</a>
     </div>
     <div>
       <p class="meta" style="margin-bottom:var(--s-4)">Milan, Italy</p>
       <ul class="site-foot__links">
-        <li><a class="link" href="tel:%(tel)s">%(tel_d)s</a></li>
         <li><a class="link" href="%(ig)s" rel="me noopener" target="_blank">Instagram</a></li>
         <li><a class="link" href="%(yt)s" rel="me noopener" target="_blank">YouTube</a></li>
         <li><a class="link" href="%(li)s" rel="me noopener" target="_blank">LinkedIn</a></li>
@@ -634,34 +634,11 @@ def pagina_info():
          the calendar allows, which is usually where the personal work comes from.</p>
     </div>
     <figure class="info__portrait reveal">
-      <img src="/img/portrait.jpg" width="1400" height="1200" loading="lazy" decoding="async"
+      <img src="/img/portrait.jpg" width="1800" height="1161" loading="lazy" decoding="async"
            alt="Mattia Baruffaldi holding a cinema camera, the rooftops of Genoa behind him">
     </figure>
   </div>
 
-  <!-- Contatti a tutta larghezza, sotto la biografia -->
-  <dl class="dl reveal">
-    <div>
-      <dt>Email</dt>
-      <dd><a href="mailto:%(email)s">%(email)s</a></dd>
-    </div>
-    <div>
-      <dt>Phone</dt>
-      <dd><a href="tel:%(tel)s">%(tel_d)s</a></dd>
-    </div>
-    <div>
-      <dt>Based in</dt>
-      <dd><span>Milan, Italy</span></dd>
-    </div>
-    <div>
-      <dt>Elsewhere</dt>
-      <dd class="dl__links">
-        <a href="%(ig)s" rel="me noopener" target="_blank">Instagram</a>
-        <a href="%(yt)s" rel="me noopener" target="_blank">YouTube</a>
-        <a href="%(li)s" rel="me noopener" target="_blank">LinkedIn</a>
-      </dd>
-    </div>
-  </dl>
 </div>
 """ % {"email": CONTATTI["email"], "tel": CONTATTI["tel"],
        "tel_d": CONTATTI["tel_display"], "ig": CONTATTI["instagram"],

@@ -67,11 +67,14 @@ localhost e GitHub Pages si comportano identici.
   display. Ospitato in locale: nessuna chiamata a Google, nessun cookie terzo.
 - **Logo:** wordmark spaziato `img/logo-2c.png` (suo), reso bianco in
   `img/wordmark.png`. Sostituisce monogramma + nome scritto.
-- **Pagina Info:** la foto sta in griglia col testo e si allunga fino a dove
-  finisce la biografia (`align-items: stretch`, niente proporzione fissa da
-  56rem in su). I contatti stanno **sotto**, a tutta larghezza su quattro
-  colonne. `object-position: 50% 32%` tiene il viso dentro quando il taglio
-  si fa basso.
+- **Pagina Info: niente contatti.** Ci sono gia' nel piede, ripeterli era una
+  ripetizione (l'ha fatto notare lui). Solo biografia e foto.
+- **Foto Info:** da 56rem in su l'immagine e' `position: absolute` dentro la
+  figura, cosi' NON e' lei a dettare l'altezza della riga di griglia: la
+  prende dal testo e finisce dove finiscono le frasi. Di conseguenza il
+  ritaglio e' orizzontale (~1.55), non verticale: se si cambia la lunghezza
+  della biografia, va rigenerato `img/portrait.jpg` dall'originale
+  `img/GS_240515_RBCA_Stunt_1897.jpg`.
 - **In home nessun credito cliente** sotto i video: "Unreal × …" si vede solo
   nella pagina Film. In home i link "All N films" / "All N photographs" stanno
   **sotto** la griglia, non accanto al titolo (accanto non li notava).
@@ -103,8 +106,12 @@ localhost e GitHub Pages si comportano identici.
   griglia di YouTube. Sulla pagina Film ci sono tutte, ma più piccole.
 - **Hero a tutto schermo esatto.** `--head-h` (4.25rem) è l'altezza fissa
   della testata: l'hero la usa come margine negativo per partire dal bordo
-  alto e ha `min-height: 100svh`, così arriva esatto in fondo senza avanzi.
-  Se si cambia l'altezza della testata, si cambia solo quel token.
+  alto. L'altezza e' `var(--vh)`, che il JS scrive con `window.innerHeight`
+  vero e aggiorna a ogni resize, orientamento e `fullscreenchange`.
+  **Non tornare a `100svh` da solo:** `svh` e' l'altezza minima (tutte le
+  barre aperte), quindi a schermo intero sotto restava una striscia nera. Ha
+  segnalato il problema tre volte. Verificato a 1440x900, 1512x1400,
+  1100x1500 e 390x844: zero bande sopra e sotto.
 - **Hero: video del sito, NON YouTube.** `img/showreel-loop.mp4` (primi 24s
   dello showreel 2024, 1920×1080, muto, ~7 MB) in un `<video autoplay muted
   loop playsinline>`. La locandina è il primo fotogramma del video stesso
