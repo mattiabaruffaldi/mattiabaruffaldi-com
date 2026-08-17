@@ -469,6 +469,12 @@ main { display: block; }
 }
 .shot a:hover::after { box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--signal) 70%, transparent); }
 
+/* Separazione fra sezioni della home */
+.rule { height: 0; margin: 0; border: 0; border-top: 1px solid var(--line-soft); }
+
+/* Link in fondo a una sezione, dopo la griglia */
+.sec-more { margin-top: var(--s-6); }
+
 /* ==========================================================================
    Blocco largo: LifeTalks / About
    ========================================================================== */
@@ -509,9 +515,17 @@ main { display: block; }
    Info / contatti
    ========================================================================== */
 .info { display: grid; gap: var(--s-8); }
-@media (min-width: 56rem) { .info { grid-template-columns: 1.3fr 1fr; gap: var(--s-9); } }
+@media (min-width: 56rem) { .info { grid-template-columns: 1.55fr 1fr; gap: var(--s-8); } }
 .info__bio p { margin-top: var(--s-5); max-width: var(--measure); }
-.info__bio p:first-child { margin-top: 0; font-size: var(--t-lead); line-height: 1.42; color: var(--paper); max-width: 38ch; letter-spacing: -0.008em; }
+.info__bio p:first-child {
+  margin-top: 0;
+  /* misura calibrata per stare su una riga sola alle larghezze da scrivania */
+  font-size: clamp(1rem, 0.86rem + 0.62vw, 1.313rem);
+  line-height: 1.34;
+  color: var(--paper);
+  max-width: none;
+  letter-spacing: -0.012em;
+}
 .info__portrait { position: relative; overflow: hidden; align-self: start; }
 .info__portrait img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; }
 

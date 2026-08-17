@@ -18,8 +18,10 @@ Sostituisce il vecchio sito Squarespace su **www.mattiabaruffaldi.com**.
 ## Flusso di lavoro (IMPORTANTE)
 1. **Modifico i dati o i file**
 2. `python3 tools/build.py` per rigenerare le pagine
-3. L'utente controlla su **http://localhost:8010** e ricarica con **Cmd+Shift+R**
-   (il refresh normale non basta: CSS e JS restano in cache)
+3. L'utente controlla su **http://localhost:8010** con un normale Cmd+R:
+   `build.py` appende una firma del contenuto agli indirizzi di CSS e JS
+   (`site.css?v=9a8ad6f9`), quindi le modifiche arrivano subito. Non serve
+   piu' il refresh forzato, e vale anche per i visitatori dopo un aggiornamento.
 4. Quando è soddisfatto: committo io, **ma il push lo fa lui**
 
 > ⚠️ **Non posso fare push su questo repo.** Il token nel portachiavi è quello
@@ -65,6 +67,14 @@ localhost e GitHub Pages si comportano identici.
   display. Ospitato in locale: nessuna chiamata a Google, nessun cookie terzo.
 - **Logo:** wordmark spaziato `img/logo-2c.png` (suo), reso bianco in
   `img/wordmark.png`. Sostituisce monogramma + nome scritto.
+- **In home nessun credito cliente** sotto i video: "Unreal × …" si vede solo
+  nella pagina Film. In home i link "All N films" / "All N photographs" stanno
+  **sotto** la griglia, non accanto al titolo (accanto non li notava).
+- **Niente descrizioni sotto i titoli di sezione**, ne' conteggi tipo
+  "30 frames": le ha fatte togliere tutte (ago 2026). Titolo e basta.
+- **Due soli gruppi di film**: Automotive and motorsport, Sport and apparel.
+  La sezione Documentary e' stata eliminata, quei film stanno in Sport and
+  apparel insieme a Powerstage RR.
 - **TUTTE le griglie sono uniformi.** Feedback esplicito suo (ago 2026): non
   gli piacciono foto e video distribuiti a misure diverse, li vuole "puliti e
   minimal". Film 2 per riga, foto 3 per riga, nessuna eccezione, nessun

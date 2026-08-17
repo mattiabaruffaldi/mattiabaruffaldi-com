@@ -7,6 +7,7 @@ Per aggiornare il sito: modifica i dati, poi `python3 tools/build.py`.
 L'output e' HTML statico puro: funziona anche senza JavaScript.
 """
 
+import hashlib
 import html
 
 import os
@@ -47,7 +48,6 @@ FILM = {
         ("YHMMSysS0Yo", "#BACK2BACKgnaia", "Unreal × Ducati Corse"),
         ("-3H7_iYdI9I", "The Red from Borgo Panigale Enters Motocross", "Unreal × Ducati"),
         ("KORLNLzHhwU", "Motocross · Coming 2024", "Unreal × Ducati"),
-        ("BPCioSdPk-U", "Powerstage RR Limited Edition", "Unreal × Ducati"),
         ("ng4vK723AS8", "1500 TRX Lunar Edition", "Unreal × RAM"),
     ],
     "apparel": [
@@ -55,8 +55,7 @@ FILM = {
         ("p5ZqRwjilKg", "Winter Collection", "Unreal × Kappa"),
         ("qqoSzrGkyf8", "US Ski Team", "Unreal × Kappa"),
         ("BFilRFo1Yiw", "The Hyper Contrast Capsule", ""),
-    ],
-    "doc": [
+        ("BPCioSdPk-U", "Powerstage RR Limited Edition", "Unreal × Ducati"),
         ("tDmiGfRRpRU", "Lords of Tram", "Lorenzo Casati"),
         ("puQ4XR38yc8", "The Fastest Urban Downhill", ""),
         ("6BfEIhr-aY4", "Mountain Calls · Jonny", ""),
@@ -64,12 +63,8 @@ FILM = {
 }
 
 GRUPPI_FILM = [
-    ("automotive", "Automotive and motorsport",
-     "Launch films and race coverage for motorcycle and car brands."),
-    ("apparel", "Sport and apparel",
-     "Collection films and athlete work."),
-    ("doc", "Documentary",
-     "Longer pieces, shot closer to the person."),
+    ("automotive", "Automotive and motorsport"),
+    ("apparel", "Sport and apparel"),
 ]
 
 LIFETALKS = [
@@ -183,29 +178,27 @@ ALT = {
 }
 
 SET_FOTO = [
-    ("automotive", "Automotive", "Cars, motorcycles, and the circuits they run on."),
-    ("action-sports", "Action sports", "Snow, dirt, asphalt and water, mostly in the Alps."),
-    ("people", "People", "Athletes, riders and strangers, framed close."),
+    ("automotive", "Automotive"),
+    ("action-sports", "Action sports"),
+    ("people", "People"),
 ]
 
 # Anteprima foto in home: tre scatti fermi, uno per insieme, poi il link alla
 # pagina completa. Niente striscia che scorre di lato.
 ANTEPRIMA_FOTO = [
-    ("automotive", 12),
-    ("action-sports", 3),
-    ("people", 1),
+    ("automotive", 12), ("action-sports", 3), ("people", 1),
+    ("automotive", 23), ("action-sports", 32), ("people", 17),
+    ("automotive", 16), ("action-sports", 35), ("people", 14),
 ]
 
 # Selezione film in home. Scelti fra quelli la cui anteprima YouTube e' un
 # fotogramma pulito: diverse altre hanno titoli e loghi stampati sopra, che a
 # grande dimensione fanno sembrare la pagina una griglia di YouTube.
 HOME_FILM = [
-    "tDmiGfRRpRU",
-    "GVQPl1QtQQ4",
-    "p5ZqRwjilKg",
-    "YKYowJ4TOcA",
-    "ng4vK723AS8",
-    "CF3su928_Bc",
+    "oxBlVDnw5Lo",   # From the Alps to the Sea
+    "CF3su928_Bc",   # Kappa × Ducati
+    "8vc4HPQ3ycY",   # Multistrada V4 Pikes Peak
+    "-3H7_iYdI9I",   # The Red from Borgo Panigale Enters Motocross
 ]
 
 # L'anteprima YouTube dello showreel e' una schiacciata nera col solo titolo.
@@ -227,9 +220,24 @@ TUTTI_FILM = {v[0]: v for gruppo in FILM.values() for v in gruppo}
 for _ep in LIFETALKS:                       # gli episodi usano le stesse miniature
     TUTTI_FILM[_ep[0]] = (_ep[0], _ep[1], _ep[2])
 N_FILM = sum(len(g) for g in FILM.values())
-N_FOTO = sum(len(ALT[k]) for k, _, _ in SET_FOTO)
+N_FOTO = sum(len(ALT[k]) for k, _ in SET_FOTO)
 
 RE_ENTITA = re.compile(r"&(?![a-zA-Z]+;|#\d+;)")
+
+
+def firma(percorso):
+    """Firma breve del contenuto del file, da appendere all'indirizzo.
+
+    Serve a far arrivare subito le modifiche: senza, browser e GitHub Pages
+    tengono in cache la versione vecchia di CSS e JS e le correzioni sembrano
+    non essere state fatte.
+    """
+    intero = os.path.join(ROOT, percorso.lstrip("/"))
+    try:
+        with open(intero, "rb") as f:
+            return hashlib.sha1(f.read()).hexdigest()[:8]
+    except OSError:
+        return "0"
 
 
 def e(s):
@@ -275,7 +283,7 @@ def shell(*, slug, title, desc, body, og_image="/og.png", extra_head=""):
 <link rel="icon" href="/favicon-32.png" sizes="32x32">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preload" href="/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/site.css">
+<link rel="stylesheet" href="/css/site.css?v=%(vcss)s">
 %(extra)s</head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -300,7 +308,7 @@ def shell(*, slug, title, desc, body, og_image="/og.png", extra_head=""):
       <a class="site-foot__mail" href="mailto:%(email)s">%(email)s</a>
     </div>
     <div>
-      <p class="meta" style="margin-bottom:var(--s-4)">Milan, Italy &middot; available for commissions</p>
+      <p class="meta" style="margin-bottom:var(--s-4)">Milan, Italy</p>
       <ul class="site-foot__links">
         <li><a class="link" href="tel:%(tel)s">%(tel_d)s</a></li>
         <li><a class="link" href="%(ig)s" rel="me noopener" target="_blank">Instagram</a></li>
@@ -315,12 +323,13 @@ def shell(*, slug, title, desc, body, og_image="/og.png", extra_head=""):
   </div>
 </footer>
 
-<script src="/js/site.js" defer></script>
+<script src="/js/site.js?v=%(vjs)s" defer></script>
 </body>
 </html>
 """ % {
         "title": title, "desc": desc, "url": url, "site": SITE, "og": og_image,
         "extra": extra_head, "voci": voci, "body": body, "anno": ANNO,
+        "vcss": firma("css/site.css"), "vjs": firma("js/site.js"),
         "email": CONTATTI["email"], "tel": CONTATTI["tel"],
         "tel_d": CONTATTI["tel_display"], "ig": CONTATTI["instagram"],
         "yt": CONTATTI["youtube"], "li": CONTATTI["linkedin"],
@@ -358,14 +367,16 @@ DIALOG_VIEWER = """
 """
 
 
-def film_item(vid, span_class="", stagger=0, level=3, eager=False, caption=True):
+def film_item(vid, span_class="", stagger=0, level=3, eager=False, caption=True,
+              cliente_visibile=True):
     """Una miniatura video: bottone che apre il lettore, link a YouTube senza JS.
 
     caption=False dove il titolo e' gia' scritto accanto (pagina LifeTalks):
     ripeterlo sotto la miniatura lo mostrerebbe due volte.
     """
     _, titolo, cliente = TUTTI_FILM[vid]
-    riga = ('<p class="meta film__client">%s</p>' % e(cliente)) if cliente else ""
+    riga = ('<p class="meta film__client">%s</p>' % e(cliente)) \
+        if (cliente and cliente_visibile) else ""
     classi = " ".join(x for x in ["film", span_class, "reveal"] if x)
     poster, pw, ph, palt = POSTER.get(
         vid, ("/img/video/%s.jpg" % vid, 1280, 720, "Still from %s" % attr(titolo)))
@@ -392,7 +403,7 @@ def film_item(vid, span_class="", stagger=0, level=3, eager=False, caption=True)
 def griglia_foto(chiave):
     """Griglia uniforme: tutte le foto della stessa misura, 3 per riga."""
     alts = ALT[chiave]
-    nome_set = next(t for k, t, _ in SET_FOTO if k == chiave)
+    nome_set = next(t for k, t in SET_FOTO if k == chiave)
     fuori = []
     for i, testo in enumerate(alts):
         n = i + 1
@@ -415,7 +426,9 @@ def griglia_foto(chiave):
 def pagina_home():
     reel = FILM["reel"][0][0]
 
-    selezione = "\n".join(film_item(vid, "", i) for i, vid in enumerate(HOME_FILM))
+    selezione = "\n".join(
+        film_item(vid, "", i, cliente_visibile=False)
+        for i, vid in enumerate(HOME_FILM))
 
     anteprima = "\n".join(
         """<figure class="peek reveal" data-stagger="%(i)d">
@@ -451,22 +464,24 @@ def pagina_home():
 <section class="section wrap">
   <div class="sec-head reveal">
     <h2 class="display">Selected film</h2>
-    <a class="link" href="/film/">All %(nfilm)d films</a>
   </div>
   <div class="films">
 %(selezione)s
   </div>
+  <p class="sec-more reveal"><a class="link" href="/film/">All %(nfilm)d films</a></p>
 </section>
 
 <section class="section wrap">
   <div class="sec-head reveal">
     <h2 class="display">Photography</h2>
-    <a class="link" href="/photo/">All %(nfoto)d photographs</a>
   </div>
   <div class="peeks">
 %(anteprima)s
   </div>
+  <p class="sec-more reveal"><a class="link" href="/photo/">All %(nfoto)d photographs</a></p>
 </section>
+
+<div class="wrap"><hr class="rule"></div>
 
 <section class="section wrap">
   <div class="slab reveal">
@@ -497,7 +512,7 @@ def pagina_home():
 # ---------------------------------------------------------------- film
 def pagina_film():
     salti = " ".join(
-        '<a class="link" href="#%s">%s</a>' % (k, t) for k, t, _ in GRUPPI_FILM)
+        '<a class="link" href="#%s">%s</a>' % (k, t) for k, t in GRUPPI_FILM)
 
     sezioni = [
         """<section class="section--tight wrap">
@@ -505,30 +520,28 @@ def pagina_film():
 </section>""" % film_item(FILM["reel"][0][0], "", 0, level=2, eager=True)
     ]
 
-    for chiave, titolo, nota in GRUPPI_FILM:
+    for chiave, titolo in GRUPPI_FILM:
         elementi = "\n".join(
             film_item(v[0], "", i) for i, v in enumerate(FILM[chiave]))
         sezioni.append("""<section class="section wrap" id="%(k)s">
   <div class="sec-head reveal">
     <h2 class="display">%(t)s</h2>
-    <p class="sec-head__note">%(n)s</p>
   </div>
   <div class="films">
 %(el)s
   </div>
-</section>""" % {"k": chiave, "t": e(titolo), "n": e(nota), "el": elementi})
+</section>""" % {"k": chiave, "t": e(titolo), "el": elementi})
 
     body = """
 <div class="wrap page-head">
   <h1>Film</h1>
   <p>Commercials, launch films and documentary work, made freelance with
      production companies. Click any frame to watch it here.</p>
-  <p class="meta page-head__count">%(n)d films</p>
 </div>
 <div class="wrap"><nav class="jump" aria-label="Jump to a group">%(salti)s</nav></div>
 %(sez)s
 %(dialog)s
-""" % {"n": N_FILM, "salti": salti, "sez": "\n".join(sezioni), "dialog": DIALOG_PLAYER}
+""" % {"salti": salti, "sez": "\n".join(sezioni), "dialog": DIALOG_PLAYER}
 
     return shell(slug="film", title="Film — Mattia Baruffaldi",
                  desc="Commercials, launch films and documentary work for Lamborghini, "
@@ -539,32 +552,27 @@ def pagina_film():
 # ---------------------------------------------------------------- photo
 def pagina_photo():
     salti = " ".join(
-        '<a class="link" href="#%s">%s</a>' % (k, t) for k, t, _ in SET_FOTO)
+        '<a class="link" href="#%s">%s</a>' % (k, t) for k, t in SET_FOTO)
 
     sezioni = []
-    for chiave, titolo, nota in SET_FOTO:
+    for chiave, titolo in SET_FOTO:
         sezioni.append("""<section class="section wrap" id="%(k)s">
   <div class="sec-head reveal">
     <h2 class="display">%(t)s</h2>
-    <p class="sec-head__note">%(n)s <span class="meta">&nbsp;%(c)d frames</span></p>
   </div>
   <div class="sheet">
 %(g)s
   </div>
-</section>""" % {"k": chiave, "t": e(titolo), "n": e(nota),
-                 "c": len(ALT[chiave]), "g": griglia_foto(chiave)})
+</section>""" % {"k": chiave, "t": e(titolo), "g": griglia_foto(chiave)})
 
     body = """
 <div class="wrap page-head">
   <h1>Photography</h1>
-  <p>Shot on assignment and on my own time. Click any frame to see it large;
-     arrow keys move through the set.</p>
-  <p class="meta page-head__count">%(n)d photographs</p>
 </div>
 <div class="wrap"><nav class="jump" aria-label="Jump to a set">%(salti)s</nav></div>
 %(sez)s
 %(dialog)s
-""" % {"n": N_FOTO, "salti": salti, "sez": "\n".join(sezioni), "dialog": DIALOG_VIEWER}
+""" % {"salti": salti, "sez": "\n".join(sezioni), "dialog": DIALOG_VIEWER}
 
     return shell(slug="photo", title="Photography — Mattia Baruffaldi",
                  desc="Automotive, action sports and portrait photography by "
@@ -616,7 +624,9 @@ def pagina_info():
     <div class="info__bio">
       <p>I shoot film and stills for brands, mostly things that move fast.</p>
       <p>Born and raised in the Alps, in the province of Sondrio, and now based in
-         Milan. I studied Public Relations and Business Communication at IULM.</p>
+         Milan. I graduated in Public Relations and Business Communication at IULM.</p>
+      <p>I started out as a photography assistant to Alberto Alquati, and came to
+         moving images through Fabrizio Accettulli of RGB Films.</p>
       <p>I have worked with Unreal Media House since the beginning, and it is
          still where most of my work comes through: projects for Lamborghini,
          Ducati, Moncler and Kappa, among others.</p>
