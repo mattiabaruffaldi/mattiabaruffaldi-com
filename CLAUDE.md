@@ -73,6 +73,9 @@ localhost e GitHub Pages si comportano identici.
   quinte** (`img/bts/`, sei foto recuperate dal vecchio About di Squarespace,
   che gli piaceva). Niente contatti (ci sono gia' nel piede) e niente ritratto
   grande accanto al testo: la foto di Genova e' la prima della griglia.
+- **Le foto in home non sono cliccabili** (scelta sua, ago 2026): niente link
+  e niente reazione all'hover, che suggerirebbe un collegamento inesistente.
+  Alla galleria ci si va col link sotto la griglia.
 - **In home nessun credito cliente** sotto i video: "Unreal × …" si vede solo
   nella pagina Film. In home i link "All N films" / "All N photographs" stanno
   **sotto** la griglia, non accanto al titolo (accanto non li notava).
@@ -186,11 +189,10 @@ bordi dei controlli 3,1:1.
       al suo account e non devo inserire credenziali.
 - [x] Ritratto: `img/portrait.jpg`, taglio 3:4 da
       `img/GS_240515_RBCA_Stunt_1897.jpg` (lui con la cinepresa, Genova dietro).
-- [ ] **Cliente non dichiarato** per "The Hyper Contrast Capsule": lasciato in
-      bianco di proposito invece di indovinare. Chiederglielo.
-- [ ] **Verificare quali film NON sono Unreal.** Ho messo `Unreal × <cliente>`
-      su tutti i film con brand; se qualcuno e' passato da un'altra produzione
-      va corretto nel dizionario `FILM`.
+- [x] "The Hyper Contrast Capsule" e' **Unreal × Odlo** (confermato da lui).
+- [x] **RAM non passa da Unreal**: il credito e' solo "RAM". Tutti gli altri
+      film con brand sono Unreal, confermato.
+- [x] "RGB Films" e' scritto giusto.
 - [ ] Valutare una pagina privacy: l'hero carica YouTube (in modalità
       nocookie) in automatico su desktop.
 - [ ] Le foto vengono dal CDN di Squarespace, quindi già compresse da loro. Se

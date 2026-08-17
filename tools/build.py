@@ -48,13 +48,13 @@ FILM = {
         ("YHMMSysS0Yo", "#BACK2BACKgnaia", "Unreal × Ducati Corse"),
         ("-3H7_iYdI9I", "The Red from Borgo Panigale Enters Motocross", "Unreal × Ducati"),
         ("KORLNLzHhwU", "Motocross · Coming 2024", "Unreal × Ducati"),
-        ("ng4vK723AS8", "1500 TRX Lunar Edition", "Unreal × RAM"),
+        ("ng4vK723AS8", "1500 TRX Lunar Edition", "RAM"),  # non fatto con Unreal
     ],
     "apparel": [
         ("CF3su928_Bc", "Kappa × Ducati", "Unreal × Kappa"),
         ("p5ZqRwjilKg", "Winter Collection", "Unreal × Kappa"),
         ("qqoSzrGkyf8", "US Ski Team", "Unreal × Kappa"),
-        ("BFilRFo1Yiw", "The Hyper Contrast Capsule", ""),
+        ("BFilRFo1Yiw", "The Hyper Contrast Capsule", "Unreal × Odlo"),
         ("BPCioSdPk-U", "Powerstage RR Limited Edition", "Unreal × Ducati"),
         ("tDmiGfRRpRU", "Lords of Tram", "Lorenzo Casati"),
         ("puQ4XR38yc8", "The Fastest Urban Downhill", ""),
@@ -448,10 +448,8 @@ def pagina_home():
 
     anteprima = "\n".join(
         """<figure class="peek reveal" data-stagger="%(i)d">
-  <a href="/photo/#%(k)s">
-    <img src="/img/photo/%(k)s/thumb/%(k)s-%(nn)02d.jpg" alt="%(alt)s"
-         width="800" height="533" loading="lazy" decoding="async">
-  </a>
+  <img src="/img/photo/%(k)s/thumb/%(k)s-%(nn)02d.jpg" alt="%(alt)s"
+       width="800" height="533" loading="lazy" decoding="async">
 </figure>""" % {"i": i, "k": k, "nn": n, "alt": e(ALT[k][n - 1])}
         for i, (k, n) in enumerate(ANTEPRIMA_FOTO))
 

@@ -438,13 +438,13 @@ main { display: block; }
 }
 @media (min-width: 34rem) { .peeks { grid-template-columns: repeat(3, 1fr); } }
 
-.peek a { display: block; position: relative; overflow: hidden; }
+/* Non sono cliccabili: niente reazione al passaggio del mouse, che
+   suggerirebbe un link che non c'e'. Si va alla galleria col link sotto. */
+.peek { overflow: hidden; }
 .peek img {
   width: 100%; aspect-ratio: 3 / 2; object-fit: cover;
   background: var(--ink-1);
-  transition: transform var(--dur-4) var(--out-expo);
 }
-.peek a:hover img, .peek a:focus-visible img { transform: scale(1.03); }
 
 /* ==========================================================================
    Provino: griglia foto uniforme
