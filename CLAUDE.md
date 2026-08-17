@@ -67,6 +67,11 @@ localhost e GitHub Pages si comportano identici.
   display. Ospitato in locale: nessuna chiamata a Google, nessun cookie terzo.
 - **Logo:** wordmark spaziato `img/logo-2c.png` (suo), reso bianco in
   `img/wordmark.png`. Sostituisce monogramma + nome scritto.
+- **Pagina Info:** la foto sta in griglia col testo e si allunga fino a dove
+  finisce la biografia (`align-items: stretch`, niente proporzione fissa da
+  56rem in su). I contatti stanno **sotto**, a tutta larghezza su quattro
+  colonne. `object-position: 50% 32%` tiene il viso dentro quando il taglio
+  si fa basso.
 - **In home nessun credito cliente** sotto i video: "Unreal × …" si vede solo
   nella pagina Film. In home i link "All N films" / "All N photographs" stanno
   **sotto** la griglia, non accanto al titolo (accanto non li notava).
