@@ -2,3 +2,4 @@
 *.psd
 .venv/
 __pycache__/
+originali/

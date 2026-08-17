@@ -152,6 +152,8 @@ ALT = {
         "A rider in a hoodie blurred through the pines",
         "Mountain bikers descending a trail in a spruce forest",
         "Looking up at the treetops from under a jump",
+        "A road cyclist seen from below against the sky, a helicopter following",
+        "A kitesurfer high above the scrub, kite against a bright blue sky",
     ],
     "people": [
         "A kitesurfer holding up a competition trophy on the beach",
@@ -190,8 +192,8 @@ SET_FOTO = [
 # Mix voluto da lui: colore per la maggior parte, con tre in bianco e nero
 # che ha scelto lui (posizioni 2, 4, 9). Non passare a un blocco tutto B/N.
 ANTEPRIMA_FOTO = [
-    ("automotive", 2), ("action-sports", 3), ("action-sports", 4),
-    ("automotive", 24), ("automotive", 9), ("people", 3),
+    ("automotive", 2), ("action-sports", 3), ("action-sports", 39),
+    ("automotive", 24), ("action-sports", 40), ("people", 3),
     ("action-sports", 27), ("people", 14), ("automotive", 17),
 ]
 

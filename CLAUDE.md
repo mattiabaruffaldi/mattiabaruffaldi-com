@@ -47,7 +47,9 @@ js/site.js         testata, rivelazioni, lettore video, visore foto
 fonts/             Archivo variabile ospitato qui (2 file woff2, 176 KB)
 img/hero.jpg       fotogramma dell'hero (Lamborghini, 2500px)
 img/video/<id>.jpg 22 anteprime YouTube scaricate in locale
-img/photo/<set>/   88 foto a 1800px + `thumb/` a 800px
+img/photo/<set>/   90 foto a 1800px + `thumb/` a 800px
+img/bts/           6 foto dietro le quinte (pagina Info)
+originali/         file sorgente pesanti, ESCLUSI da git (.gitignore)
 index.html film/ photo/ lifetalks/ info/   generati
 about/ contatti/ portfolio-video/ photo/*/ ponti dai vecchi indirizzi Squarespace
 ```
