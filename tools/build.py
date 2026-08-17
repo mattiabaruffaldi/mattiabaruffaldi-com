@@ -185,10 +185,12 @@ SET_FOTO = [
 
 # Anteprima foto in home: tre scatti fermi, uno per insieme, poi il link alla
 # pagina completa. Niente striscia che scorre di lato.
+# Scelte in bianco e nero e grafiche: quelle a colori e piu' pubblicitarie
+# sono state scartate da lui (ago 2026). La 2 e la 9 le ha tenute lui.
 ANTEPRIMA_FOTO = [
-    ("automotive", 12), ("action-sports", 3), ("people", 1),
-    ("automotive", 23), ("action-sports", 32), ("people", 17),
-    ("automotive", 16), ("action-sports", 35), ("people", 14),
+    ("automotive", 19), ("action-sports", 3), ("people", 16),
+    ("automotive", 24), ("action-sports", 22), ("people", 10),
+    ("automotive", 15), ("action-sports", 31), ("people", 14),
 ]
 
 # Selezione film in home. Scelti fra quelli la cui anteprima YouTube e' un
