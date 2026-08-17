@@ -294,25 +294,14 @@ main { display: block; }
   overflow: hidden;
   background: var(--ink-1);
 }
-.hero__media img,
-.hero__media iframe {
+.hero__media video,
+.hero__media img {
   position: absolute; inset: 0;
   width: 100%; height: 100%;
   object-fit: cover;
   border: 0;
   /* colore pieno: sopra non c'e' piu' testo da rendere leggibile */
 }
-/* Il loop di sfondo copre la locandina solo quando è pronto.
-   `pointer-events: none` e un ingrandimento del 6% tengono fuori dal riquadro
-   qualsiasi elemento di interfaccia che YouTube decidesse di disegnare. */
-.hero__media iframe {
-  /* riempie il contenitore mantenendo il 16:9 anche su schermi molto larghi */
-  width: max(106%, 188svh); height: max(106%, 59.6vw);
-  top: 50%; left: 50%; transform: translate(-50%, -50%);
-  opacity: 0; transition: opacity var(--dur-3) linear;
-  pointer-events: none;
-}
-.hero__media iframe.is-ready { opacity: 1; }
 .hero__media::after {
   content: ''; position: absolute; inset: 0;
   background:

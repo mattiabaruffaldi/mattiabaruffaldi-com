@@ -428,8 +428,15 @@ def pagina_home():
 
     body = """
 <section class="hero">
-  <div class="hero__media" data-loop="%(reel)s">
-    <img src="/img/hero.jpg" alt="" width="2500" height="1667" fetchpriority="high" decoding="async">
+  <!-- Video ospitato qui, non YouTube: parte all'istante, senza comandi
+       sopra e senza una fotografia d'attesa. La locandina è il primo
+       fotogramma del video stesso, così non si vede alcun cambio. -->
+  <div class="hero__media">
+    <video class="hero__video" poster="/img/showreel-poster.jpg"
+           muted loop playsinline autoplay preload="auto"
+           aria-hidden="true" tabindex="-1" width="1920" height="1080">
+      <source src="/img/showreel-loop.mp4" type="video/mp4">
+    </video>
   </div>
   <div class="hero__inner">
     <!-- Il titolo resta per Google e per chi usa uno screen reader, ma non si

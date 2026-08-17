@@ -78,8 +78,15 @@ localhost e GitHub Pages si comportano identici.
   pulito**. Diverse anteprime hanno titoli e loghi stampati sopra (una ha
   "3000 STEPS!!" con l'emoji): a grande dimensione fanno sembrare la pagina una
   griglia di YouTube. Sulla pagina Film ci sono tutte, ma più piccole.
-- **Hero:** locandina fotografica + loop muto dello showreel da YouTube che
-  parte subito, su schermi ≥48rem e senza reduced-motion.
+- **Hero: video del sito, NON YouTube.** `img/showreel-loop.mp4` (primi 24s
+  dello showreel 2024, 1920×1080, muto, ~7 MB) in un `<video autoplay muted
+  loop playsinline>`. La locandina è il primo fotogramma del video stesso
+  (`img/showreel-poster.jpg`), così non si vede nessun cambio di immagine.
+  Sorgente: `~/Desktop/FILM/SHOWREEL/2024/export/Showreel_2024_V2.mp4`,
+  ricodificabile con ffmpeg (installato; yt-dlp no).
+  **Motivo:** con l'embed YouTube comparivano i comandi del player sopra
+  l'hero e si vedeva la fotografia d'attesa prima della partenza. Non
+  tornare a YouTube per l'hero. Il lettore su click resta YouTube.
 - **Video:** 22 iframe insieme affosserebbero la pagina. Anteprime locali,
   iframe creato **solo al click**, e svuotato alla chiusura per fermare l'audio.
 - **Crediti film:** `Unreal × <cliente>`. Unreal Media House e' la casa di
@@ -95,16 +102,11 @@ localhost e GitHub Pages si comportano identici.
   specificita' non conta). Con `display: grid` sulla classe nuda la finestra del
   lettore restava visibile sopra la pagina appena si apriva il sito. Bug vero,
   trovato da lui, che io avevo liquidato come artefatto delle catture.
-- **Loop dell'hero: NON usare `loop=1&playlist=ID`.** Quel parametro trasforma
-  il video in una playlist e YouTube disegna i pulsanti
-  precedente/pausa/successivo sopra l'hero. Si usa l'API IFrame con
-  `onStateChange` → `seekTo(0)`.
-- **L'API IFrame non funziona con `host: youtube-nocookie`**: `onReady` e
-  `onStateChange` non arrivano mai. Per l'hero serve l'host standard
-  `youtube.com`. Il lettore su click (iframe semplice) resta su nocookie.
-- **Il video dell'hero si rivela solo sullo stato PLAYING.** Se l'autoplay
-  viene bloccato resta la fotografia: rivelarlo prima significa mostrare un
-  rettangolo nero.
+- **Niente YouTube nell'hero.** Provato e scartato: con `loop=1&playlist=ID`
+  YouTube disegna i pulsanti precedente/pausa/successivo sopra l'hero; con
+  l'API IFrame e `host: youtube-nocookie` gli eventi non arrivano affatto; e
+  in ogni caso prima della partenza si vedeva la locandina. Risolto ospitando
+  il file video.
 - **La finestra di Chrome guidata dall'automazione, se non e' in primo piano,
   congela paint e transizioni**: le catture escono nere o a metà animazione e i
   valori di `opacity`/`transform` restano bloccati. Misurare col DOM, e per le
