@@ -73,6 +73,10 @@
   --s-9: clamp(4rem, 3rem + 5vw, 7.5rem);
   --s-10: clamp(6rem, 4rem + 8vw, 11rem);
 
+  /* Altezza fissa della testata. L'hero la usa per partire dal bordo alto
+     dello schermo ed arrivare esatto in fondo, senza avanzi. */
+  --head-h: 4.25rem;
+
   --gutter: clamp(1.125rem, 0.6rem + 3vw, 3.5rem);
   --measure: 68ch;
   --max: 96rem;
@@ -178,7 +182,7 @@ ul { list-style: none; padding: 0; }
 .bleed { width: 100%; padding-inline: var(--gutter); }
 main { display: block; }
 /* La testata è appiccicata in alto: le ancore devono fermarsi sotto di essa. */
-:target, [id] { scroll-margin-top: 5.5rem; }
+:target, [id] { scroll-margin-top: calc(var(--head-h) + 1.5rem); }
 .section { padding-block: var(--s-9); }
 .section--tight { padding-block: var(--s-8); }
 
@@ -229,7 +233,8 @@ main { display: block; }
   position: sticky; top: 0; z-index: var(--z-sticky);
   display: flex; align-items: center; justify-content: space-between;
   gap: var(--s-5);
-  padding: var(--s-4) var(--gutter);
+  height: var(--head-h);
+  padding-inline: var(--gutter);
   transition: background var(--dur-2) linear, border-color var(--dur-2) linear;
   border-bottom: 1px solid transparent;
 }
@@ -281,11 +286,12 @@ main { display: block; }
    ========================================================================== */
 .hero {
   position: relative;
-  min-height: min(92svh, 60rem);
+  /* Il margine negativo riporta l'hero sotto la testata, cioè al bordo alto
+     dello schermo; da lì un'altezza piena di viewport arriva esatta in fondo. */
+  margin-top: calc(-1 * var(--head-h));
+  min-height: 100svh;
   display: grid; align-content: end;
-  padding: var(--s-8) var(--gutter) var(--s-8);
-  margin-top: calc(-1 * (var(--s-4) * 2 + 2.5rem));  /* passa sotto la testata */
-  padding-top: calc(var(--s-9) + 3rem);
+  padding: calc(var(--head-h) + var(--s-6)) var(--gutter) var(--s-8);
   overflow: clip;
   isolation: isolate;
 }

@@ -78,6 +78,10 @@ localhost e GitHub Pages si comportano identici.
   pulito**. Diverse anteprime hanno titoli e loghi stampati sopra (una ha
   "3000 STEPS!!" con l'emoji): a grande dimensione fanno sembrare la pagina una
   griglia di YouTube. Sulla pagina Film ci sono tutte, ma più piccole.
+- **Hero a tutto schermo esatto.** `--head-h` (4.25rem) è l'altezza fissa
+  della testata: l'hero la usa come margine negativo per partire dal bordo
+  alto e ha `min-height: 100svh`, così arriva esatto in fondo senza avanzi.
+  Se si cambia l'altezza della testata, si cambia solo quel token.
 - **Hero: video del sito, NON YouTube.** `img/showreel-loop.mp4` (primi 24s
   dello showreel 2024, 1920×1080, muto, ~7 MB) in un `<video autoplay muted
   loop playsinline>`. La locandina è il primo fotogramma del video stesso
