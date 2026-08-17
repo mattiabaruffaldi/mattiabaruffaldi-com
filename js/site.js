@@ -120,6 +120,24 @@
   }
 
   /* ---------------------------------------------------------------
+     Menu da telefono
+     --------------------------------------------------------------- */
+  var burger = document.querySelector('.burger');
+  var menu = document.getElementById('menu');
+  if (burger && menu) {
+    burger.addEventListener('click', function () { menu.showModal(); });
+    menu.querySelector('.menu__close').addEventListener('click', function () { menu.close(); });
+    // toccare una voce naviga: la finestra va chiusa perche' il corpo
+    // pagina resti scorrevole se il browser riusa la pagina dalla cronologia
+    menu.querySelectorAll('a').forEach(function (a) {
+      a.addEventListener('click', function () { menu.close(); });
+    });
+    watchDialog(menu,
+      function () { burger.setAttribute('aria-expanded', 'true'); },
+      function () { burger.setAttribute('aria-expanded', 'false'); burger.focus(); });
+  }
+
+  /* ---------------------------------------------------------------
      Lettore video: iframe creato solo al click (22 embed insieme
      affosserebbero la pagina)
      --------------------------------------------------------------- */

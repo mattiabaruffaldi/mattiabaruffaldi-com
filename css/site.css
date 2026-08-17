@@ -275,11 +275,68 @@ main { display: block; }
 .site-nav a[aria-current='page'] { color: var(--paper); }
 .site-nav a[aria-current='page']::after { transform: scaleX(1); background: var(--paper); }
 
-@media (max-width: 26rem) {
-  /* schermi molto stretti: nav piu' compatta per non stringere il logo */
-  .site-nav a { font-size: 0.625rem; letter-spacing: 0.1em; }
-  .site-head { gap: var(--s-3); }
+/* ---------- Menu da telefono ---------- */
+/* Due linee, non tre: bastano a farsi riconoscere e sono piu' pulite. */
+.burger {
+  display: none;
+  width: 2.75rem; height: 2.75rem;         /* area comoda da toccare */
+  margin-right: calc(-1 * var(--s-3));
+  position: relative;
 }
+.burger span {
+  position: absolute; left: 50%; width: 1.375rem; height: 1.5px;
+  background: var(--paper);
+  transform: translateX(-50%);
+  transition: transform var(--dur-2) var(--out-quart);
+}
+.burger span:first-child { top: calc(50% - 4px); }
+.burger span:last-child { top: calc(50% + 3px); width: 0.875rem; margin-left: 0.25rem; }
+.burger:hover span { background: var(--signal); }
+
+@media (max-width: 47.99rem) {
+  .site-nav { display: none; }
+  .burger { display: block; }
+}
+
+.menu:not([open]) { display: none; }
+.menu[open] {
+  display: flex; flex-direction: column; justify-content: center;
+  width: 100vw; height: var(--vh, 100svh);
+  padding: var(--gutter);
+  border: 0;
+  background: var(--ink-0);
+  color: var(--paper);
+}
+.menu::backdrop { background: var(--ink-0); }
+.menu ul { display: grid; gap: var(--s-4); }
+.menu a {
+  display: inline-block;
+  font-size: clamp(2rem, 1.2rem + 6vw, 3rem);
+  font-variation-settings: 'wdth' var(--wide), 'wght' 700;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  color: var(--paper);
+}
+.menu a[aria-current='page'] { color: var(--signal); }
+.menu__mail {
+  margin-top: var(--s-8);
+  font-size: var(--t-body);
+  color: var(--paper-dim);
+  border-bottom: 1px solid var(--line-ctl);
+  padding-bottom: 2px;
+  align-self: start;
+}
+.menu__close {
+  position: absolute; top: calc((var(--head-h) - 2.75rem) / 2); right: var(--gutter);
+  width: 2.75rem; height: 2.75rem;
+}
+.menu__close span {
+  position: absolute; top: 50%; left: 50%;
+  width: 1.5rem; height: 1.5px; background: var(--paper);
+}
+.menu__close span:first-child { transform: translate(-50%, -50%) rotate(45deg); }
+.menu__close span:last-child { transform: translate(-50%, -50%) rotate(-45deg); }
+.menu__close:hover span { background: var(--signal); }
 
 /* ==========================================================================
    Hero home
@@ -473,6 +530,36 @@ main { display: block; }
 }
 .shot a:hover::after { box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--signal) 70%, transparent); }
 
+/* ---------- Pulsante: per i link che devono farsi notare ---------- */
+.btn {
+  display: inline-flex; align-items: center; gap: var(--s-3);
+  padding: var(--s-4) var(--s-6);
+  border: 1px solid var(--line-ctl);
+  color: var(--paper);
+  font-variation-settings: 'wdth' var(--narr), 'wght' 600;
+  font-size: clamp(0.813rem, 0.75rem + 0.3vw, 0.938rem);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  transition: border-color var(--dur-2) var(--out-quart),
+              background var(--dur-2) var(--out-quart),
+              color var(--dur-2) var(--out-quart);
+}
+.btn__arrow {
+  width: 1.5rem; height: 1px; background: currentColor;
+  position: relative; flex-shrink: 0;
+  transition: width var(--dur-2) var(--out-quart);
+}
+.btn__arrow::after {
+  content: ''; position: absolute; right: 0; top: 50%;
+  width: 7px; height: 7px;
+  border-top: 1px solid currentColor; border-right: 1px solid currentColor;
+  transform: translateY(-50%) rotate(45deg);
+}
+.btn:hover, .btn:focus-visible {
+  background: var(--signal); border-color: var(--signal); color: var(--ink-0);
+}
+.btn:hover .btn__arrow { width: 2.25rem; }
+
 /* Separazione fra sezioni della home */
 .rule { height: 0; margin: 0; border: 0; border-top: 1px solid var(--line-soft); }
 
@@ -615,7 +702,7 @@ main { display: block; }
    ========================================================================== */
 /* Un <dialog> modale nasce con `margin: auto` e un `max-height` del browser.
    Vanno azzerati, altrimenti il contenuto sfonda il fondo dello schermo. */
-.player, .viewer {
+.player, .viewer, .menu {
   margin: 0;
   inset: 0;
   max-width: none;

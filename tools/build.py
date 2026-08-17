@@ -9,6 +9,7 @@ L'output e' HTML statico puro: funziona anche senza JavaScript.
 
 import hashlib
 import html
+import json
 
 import os
 import re
@@ -240,6 +241,43 @@ N_FOTO = sum(len(ALT[k]) for k, _ in SET_FOTO)
 
 RE_ENTITA = re.compile(r"&(?![a-zA-Z]+;|#\d+;)")
 
+# Scheda "chi e'" per i motori di ricerca. Va in ogni pagina: e' cosi' che
+# Google collega dominio, nome, mestiere e profili social alla stessa persona.
+def dati_strutturati(slug):
+    persona = {
+        "@type": "Person",
+        "@id": SITE + "/#mattia",
+        "name": "Mattia Baruffaldi",
+        "url": SITE + "/",
+        "image": SITE + "/img/bts/bts-01.jpg",
+        "jobTitle": "Filmmaker and photographer",
+        "email": "mailto:" + CONTATTI["email"],
+        "telephone": CONTATTI["tel"],
+        "address": {"@type": "PostalAddress",
+                    "addressLocality": "Milan", "addressCountry": "IT"},
+        "alumniOf": {"@type": "CollegeOrUniversity",
+                     "name": "IULM University, Milan"},
+        "knowsAbout": ["Filmmaking", "Photography", "Automotive",
+                       "Motorsport", "Action sports"],
+        "sameAs": [CONTATTI["instagram"], CONTATTI["youtube"], CONTATTI["linkedin"]],
+    }
+    grafo = [persona, {
+        "@type": "WebSite",
+        "@id": SITE + "/#sito",
+        "url": SITE + "/",
+        "name": "Mattia Baruffaldi",
+        "inLanguage": "en",
+        "publisher": {"@id": SITE + "/#mattia"},
+    }]
+    if slug == "photo":
+        grafo.append({"@type": "ImageGallery", "name": "Photography",
+                      "url": SITE + "/photo/", "author": {"@id": SITE + "/#mattia"}})
+    if slug == "info":
+        grafo.append({"@type": "ProfilePage", "url": SITE + "/info/",
+                      "mainEntity": {"@id": SITE + "/#mattia"}})
+    return json.dumps({"@context": "https://schema.org", "@graph": grafo},
+                      ensure_ascii=False, separators=(",", ":"))
+
 
 def firma(percorso):
     """Firma breve del contenuto del file, da appendere all'indirizzo.
@@ -267,11 +305,17 @@ def attr(s):
     return html.escape(pulito, quote=True)
 
 
-def shell(*, slug, title, desc, body, og_image="/og.png", extra_head=""):
+def shell(*, slug, title, desc, body, og_image=None, extra_head=""):
     """Guscio comune: head, testata, corpo, piede, finestre modali."""
     url = SITE + ("/" if slug == "" else "/%s/" % slug)
+    if og_image is None:
+        og_image = "/img/og/%s.jpg" % (slug or "home")
     nav = [("film", "Film"), ("photo", "Photo"), ("lifetalks", "LifeTalks"), ("info", "Info")]
     voci = "".join(
+        '<li><a href="/%s/"%s>%s</a></li>' % (
+            s, ' aria-current="page"' if s == slug else "", n)
+        for s, n in nav)
+    voci_menu = "".join(
         '<li><a href="/%s/"%s>%s</a></li>' % (
             s, ' aria-current="page"' if s == slug else "", n)
         for s, n in nav)
@@ -291,10 +335,14 @@ def shell(*, slug, title, desc, body, og_image="/og.png", extra_head=""):
 <meta property="og:title" content="%(title)s">
 <meta property="og:description" content="%(desc)s">
 <meta property="og:url" content="%(url)s">
-<meta property="og:image" content="%(site)s%(og)s?v=1">
+<meta property="og:image" content="%(site)s%(og)s">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="%(title)s">
+<meta property="og:locale" content="en_GB">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="author" content="Mattia Baruffaldi">
+<script type="application/ld+json">%(jsonld)s</script>
 
 <link rel="icon" href="/favicon-32.png" sizes="32x32">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -311,7 +359,21 @@ def shell(*, slug, title, desc, body, og_image="/og.png", extra_head=""):
   <nav class="site-nav" aria-label="Sections">
     <ul>%(voci)s</ul>
   </nav>
+  <button class="burger" type="button" aria-expanded="false" aria-controls="menu"
+          aria-label="Open menu">
+    <span aria-hidden="true"></span><span aria-hidden="true"></span>
+  </button>
 </header>
+
+<dialog class="menu" id="menu" aria-label="Menu">
+  <button class="menu__close" type="button" aria-label="Close menu">
+    <span aria-hidden="true"></span><span aria-hidden="true"></span>
+  </button>
+  <nav aria-label="Sections">
+    <ul>%(voci_menu)s</ul>
+  </nav>
+  <a class="menu__mail" href="mailto:%(email)s">%(email)s</a>
+</dialog>
 
 <main id="main">
 %(body)s
@@ -344,8 +406,10 @@ def shell(*, slug, title, desc, body, og_image="/og.png", extra_head=""):
 </html>
 """ % {
         "title": title, "desc": desc, "url": url, "site": SITE, "og": og_image,
-        "extra": extra_head, "voci": voci, "body": body, "anno": ANNO,
+        "extra": extra_head, "voci": voci, "voci_menu": voci_menu,
+        "body": body, "anno": ANNO,
         "vcss": firma("css/site.css"), "vjs": firma("js/site.js"),
+        "jsonld": dati_strutturati(slug),
         "email": CONTATTI["email"], "tel": CONTATTI["tel"],
         "tel_d": CONTATTI["tel_display"], "ig": CONTATTI["instagram"],
         "yt": CONTATTI["youtube"], "li": CONTATTI["linkedin"],
@@ -482,7 +546,7 @@ def pagina_home():
   <div class="films">
 %(selezione)s
   </div>
-  <p class="sec-more reveal"><a class="link" href="/film/">All %(nfilm)d films</a></p>
+  <p class="sec-more reveal"><a class="btn" href="/film/">See all films<span class="btn__arrow" aria-hidden="true"></span></a></p>
 </section>
 
 <section class="section wrap">
@@ -492,7 +556,7 @@ def pagina_home():
   <div class="peeks">
 %(anteprima)s
   </div>
-  <p class="sec-more reveal"><a class="link" href="/photo/">All %(nfoto)d photographs</a></p>
+  <p class="sec-more reveal"><a class="btn" href="/photo/">See all photographs<span class="btn__arrow" aria-hidden="true"></span></a></p>
 </section>
 
 <div class="wrap"><hr class="rule"></div>
@@ -560,7 +624,7 @@ def pagina_film():
     return shell(slug="film", title="Film — Mattia Baruffaldi",
                  desc="Commercials, launch films and documentary work for Lamborghini, "
                       "Ducati, Kappa, RAM and others.",
-                 body=body, og_image="/og.png")
+                 body=body)
 
 
 # ---------------------------------------------------------------- photo
@@ -624,7 +688,7 @@ def pagina_lifetalks():
     return shell(slug="lifetalks", title="LifeTalks — Mattia Baruffaldi",
                  desc="A personal documentary project: the lives of ordinary people "
                       "with an uncommon story.",
-                 body=body, og_image="/og.png")
+                 body=body)
 
 
 # ---------------------------------------------------------------- info

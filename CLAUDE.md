@@ -73,6 +73,17 @@ localhost e GitHub Pages si comportano identici.
   quinte** (`img/bts/`, sei foto recuperate dal vecchio About di Squarespace,
   che gli piaceva). Niente contatti (ci sono gia' nel piede) e niente ritratto
   grande accanto al testo: la foto di Genova e' la prima della griglia.
+- **Menu da telefono:** sotto 48rem la nav sparisce e compare un pulsante a
+  due linee che apre un `<dialog>` a tutto schermo. **Il `<dialog>` va incluso
+  nella regola che azzera `margin` e `max-height`** (`.player, .viewer, .menu`),
+  altrimenti il margine di default del browser gli impedisce di coprire lo
+  schermo.
+- **I link di sezione in home sono pulsanti** (`.btn`), non testine: quelli
+  piccoli non li notava. E senza numeri: "See all films", non "All 20 films".
+- **SEO:** ogni pagina ha titolo e descrizione propri, canonical, anteprima
+  social dedicata in `img/og/`, e un blocco JSON-LD (`Person` + `WebSite`,
+  piu' `ImageGallery` su Photo e `ProfilePage` su Info) generato da
+  `dati_strutturati()`. Sitemap e robots.txt aggiornati dal build.
 - **Le foto in home non sono cliccabili** (scelta sua, ago 2026): niente link
   e niente reazione all'hover, che suggerirebbe un collegamento inesistente.
   Alla galleria ci si va col link sotto la griglia.
