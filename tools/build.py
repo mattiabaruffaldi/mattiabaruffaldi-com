@@ -775,6 +775,40 @@ def scrivi(percorso, testo):
     print("  %-42s %6.1f KB" % (percorso, len(testo.encode()) / 1024))
 
 
+def timbra_a_mano():
+    """Aggiorna la firma di CSS e JS nelle pagine scritte a mano.
+
+    `/studio/` e `/quote/` non le genera questo script, quindi restavano senza
+    firma: il browser teneva in cache la versione vecchia di `quote.css` e
+    `quote.js` e le modifiche sembravano non essere arrivate. Qui i file NON
+    si riscrivono, si aggiorna solo il `?v=` dei due indirizzi.
+    """
+    print("\nFirmo le pagine scritte a mano:")
+    for percorso in ("studio/index.html", "quote/index.html"):
+        intero = os.path.join(ROOT, percorso)
+        try:
+            with open(intero, encoding="utf-8") as f:
+                testo = f.read()
+        except OSError:
+            print("  %-42s assente, salto" % percorso)
+            continue
+
+        nuovo = testo
+        for risorsa in ("/css/quote.css", "/js/quote.js"):
+            nuovo = re.sub(
+                re.escape(risorsa) + r'(?:\?v=[0-9a-f]+)?(?=")',
+                risorsa + "?v=" + firma(risorsa),
+                nuovo,
+            )
+
+        if nuovo == testo:
+            print("  %-42s gia' a posto" % percorso)
+            continue
+        with open(intero, "w", encoding="utf-8") as f:
+            f.write(nuovo)
+        print("  %-42s firmato" % percorso)
+
+
 def main():
     print("Genero le pagine:")
     scrivi("index.html", pagina_home())
@@ -806,6 +840,8 @@ def main():
     scrivi("robots.txt",
            "User-agent: *\nAllow: /\n\nSitemap: %s/sitemap.xml\n" % SITE)
     scrivi("CNAME", "www.mattiabaruffaldi.com\n")
+
+    timbra_a_mano()
 
     print("\n%d film, %d foto." % (N_FILM + len(LIFETALKS), N_FOTO))
 

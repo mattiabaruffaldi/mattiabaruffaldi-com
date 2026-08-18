@@ -258,6 +258,18 @@ serve un servizio esterno (Cloudflare Pages + KV, o simili), che e' un cambio di
 categoria, non un'aggiunta.
 
 ## Trappole già incontrate (non ripeterle)
+- **L'archivio dei preventivi e' legato all'indirizzo del sito.** `localhost:8010`
+  e `mattiabaruffaldi.com` sono due origini diverse per il browser, quindi due
+  `localStorage` separati che non si vedono fra loro. Un preventivo creato in
+  locale NON compare online e viceversa: si passa da **Esporta / Importa**.
+  Successo ad ago 2026: gli avevo creato tre preventivi su localhost e lui li
+  cercava sul sito pubblicato. Prima di dire "e' fatto", guardare su quale
+  indirizzo sta lavorando lui.
+- **`/studio/` e `/quote/` non le genera `build.py`**, quindi non prendevano la
+  firma anti-cache e il browser serviva `quote.css`/`quote.js` vecchi: le
+  modifiche sembravano non arrivate. Ora `timbra_a_mano()` in `build.py`
+  aggiorna solo il `?v=` di quei due indirizzi senza riscrivere le pagine.
+  **Lanciare `python3 tools/build.py` anche quando si toccano solo quei file.**
 - **Il tuo strumento Write puo' scrivere byte NUL** al posto di uno spazio
   dentro una stringa (successo ad ago 2026 in `studio/index.html`: `' '`
   diventato `"\0"`). I sintomi: `grep` smette di rispondere sul file perche' lo
