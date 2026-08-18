@@ -232,6 +232,7 @@
       <span class="barra__sp"></span>
       <button class="b b--min" type="button" id="arc-exp">Esporta</button>
       <button class="b b--min" type="button" id="arc-imp">Importa</button>
+      <button class="b b--pieno" type="button" id="arc-new">+ Nuovo preventivo</button>
       <button class="b" type="button" id="arc-x">Chiudi</button>
     </div>
     <div class="arc__c" id="arc-lista"></div>
@@ -259,8 +260,7 @@
         <div class="campo"><label for="f-n">N. preventivo</label><input id="f-n" data-k="n"></div>
         <div class="campo"><label for="f-dt">Data</label><input id="f-dt" data-k="dt"></div>
         <div class="campo"><label for="f-gg">Giornate di produzione</label>
-          <input id="f-gg" data-k="gg" type="number" min="1" step="1">
-          <p class="aiuto">Valgono per le voci a giornata. Dove sono diverse, scrivile sulla riga.</p></div>
+          <input id="f-gg" data-k="gg" type="number" min="1" step="1"></div>
         <div class="campo campo--largo"><label for="f-t">Titolo</label>
           <input id="f-t" data-k="t" placeholder="VVENA Campaign 2026"></div>
         <div class="campo campo--largo"><label for="f-s">Sottotitolo</label>
@@ -742,7 +742,7 @@
         '\n\nNon si torna indietro.')) return;
       var el = arcLeggi().filter(function (y) { return y.id !== e1.id; });
       arcScrivi(el);
-      if (suo) { d = PREVENTIVO.vuoto(d); if (!Array.isArray(d.mag)) d.mag = [];
+      if (suo) { d = PREVENTIVO.vuoto(); if (!Array.isArray(d.mag)) d.mag = [];
                  aperto = 0; daModello(); disegnaVoci(); disegnaMag(); aggiorna(); }
       contaArc(); arcDisegna();
     }
@@ -807,19 +807,32 @@
   $('#b-pdf').addEventListener('click', async function () {
     window.open(await indirizzo(), '_blank', 'noopener');
   });
-  $('#b-new').addEventListener('click', function () {
+  function nuovoPreventivo() {
     archiviaBozza(true);
-    var salvo = d.t && d.t.trim();
-    if (!confirm('Nuovo preventivo? Le tariffe restano, il resto si azzera.\n\n' +
-      (salvo ? 'Quello aperto adesso è in Archivio: lo ritrovi quando vuoi.'
-             : 'Attenzione: quello aperto adesso non ha un titolo, quindi non è in Archivio e va perso.'))) return;
-    d = PREVENTIVO.vuoto(d);
+    // Se la bozza aperta e' ancora intonsa non c'e' niente da perdere:
+    // chiedere conferma sarebbe solo un ostacolo in piu'.
+    var intatta = !(d.t || '').trim() && !(d.cl || '').trim() && PREVENTIVO.conti(d).tot === 0;
+    if (!intatta && !confirm('Nuovo preventivo? Si riparte da zero, tariffe comprese.\n\n' +
+      ((d.t || '').trim()
+        ? 'Quello aperto adesso è in Archivio: lo ritrovi quando vuoi.'
+        : 'Attenzione: quello aperto adesso non ha un titolo, quindi non è in Archivio e va perso.'))) return false;
+    d = PREVENTIVO.vuoto();
     if (!Array.isArray(d.mag)) d.mag = [];
     aperto = 0;
     daModello(); disegnaVoci(); disegnaMag(); aggiorna();
+    return true;
+  }
+  $('#b-new').addEventListener('click', nuovoPreventivo);
+  $('#arc-new').addEventListener('click', function () {
+    if (nuovoPreventivo()) { $('#arc').close(); $('#f-cl').focus(); }
   });
 
   daModello(); disegnaVoci(); disegnaMag(); aggiorna(); contaArc();
+
+  // La "home" dello studio e' l'Archivio: si apre di li' e da li' si sceglie
+  // se riprendere un preventivo o farne uno nuovo (sua richiesta, ago 2026).
+  arcDisegna();
+  $('#arc').showModal();
 })();
 </script>
 </body>

@@ -44,18 +44,21 @@
      dd = giorni, u = unita', p = prezzo unitario, f = dicitura al posto
      del prezzo ("Included", "By client", "TBD").
 
-     I PREZZI QUI SONO A ZERO DI PROPOSITO. Questo file sta in un repository
-     pubblico: scriverci le sue tariffe significherebbe pubblicare il suo
-     listino. Li digita lui la prima volta e il browser se li ricorda; il
-     pulsante "Ricomincia" li conserva.
+     I PREZZI QUI SONO A ZERO DI PROPOSITO, e restano a zero anche quando
+     apre un preventivo nuovo. Due motivi: questo file sta in un repository
+     pubblico, quindi scriverci le sue tariffe significherebbe pubblicare il
+     suo listino; e le tariffe le vuole rimettere ogni volta a mano (sua
+     richiesta, ago 2026), perche' cambiano da lavoro a lavoro e una cifra
+     ereditata di nascosto e' peggio di un campo vuoto. Le tariffe dei
+     preventivi gia' fatti restano dentro i preventivi, in Archivio.
      ------------------------------------------------------------------ */
   PREVENTIVO.catalogo = [
-    { t: 'Script & development', i: [
+    { t: 'Script, storyboard & development', i: [
       { d: 'Copy, script and development', n: '', dd: 0, u: 1, p: 0 },
       { d: 'Creative concept', n: '', dd: 0, u: 1, p: 0 },
       { d: 'Storyboard', n: '', dd: 0, u: 1, p: 0 }
     ]},
-    { t: 'Producers', i: [
+    { t: 'Pre-production', i: [
       { d: 'Project manager', n: '', dd: 0, u: 1, p: 0 },
       { d: 'Producer', n: '', dd: 0, u: 1, p: 0 },
       { d: 'Production assistant', n: '', dd: 0, u: 1, p: 0 }
@@ -85,17 +88,6 @@
       { d: 'Drone', n: 'DJI Inspire III', dd: 1, u: 1, p: 0 },
       { d: 'Hard drives', n: 'master + backup', dd: 0, u: 2, p: 0 }
     ]},
-    { t: 'Travel', i: [
-      { d: 'Trip', n: '', dd: 1, u: 1, p: 0, f: 'TBD' },
-      { d: 'Drone trip', n: '', dd: 1, u: 1, p: 0, f: 'TBD' },
-      { d: 'Mileage', n: '', dd: 0, u: 1, p: 0, f: 'TBD' }
-    ]},
-    { t: 'Travel & accommodation', i: [
-      { d: 'Travel', n: '', dd: 1, u: 1, p: 0, f: 'TBD' },
-      { d: 'Hotel', n: '', dd: 1, u: 1, p: 0, f: 'TBD' },
-      { d: 'Food dinner', n: '', dd: 1, u: 1, p: 0, f: 'TBD' },
-      { d: 'Food lunch', n: '', dd: 1, u: 1, p: 0, f: 'TBD' }
-    ]},
     { t: 'Post production', i: [
       { d: 'Documentary', n: '16:9 · 60’ · 4K', dd: 0, u: 1, p: 0 },
       { d: 'Main film', n: '16:9 · 1’30” · 4K', dd: 0, u: 1, p: 0 },
@@ -108,6 +100,14 @@
       { d: 'Motion graphics', n: '', dd: 0, u: 1, p: 0 },
       { d: 'Subtitles', n: '', dd: 0, u: 1, p: 0 }
     ]},
+    { t: 'Travel & accommodation', i: [
+      { d: 'Travel', n: '', dd: 1, u: 1, p: 0, f: 'TBD' },
+      { d: 'Drone travel', n: '', dd: 1, u: 1, p: 0, f: 'TBD' },
+      { d: 'Mileage', n: '', dd: 0, u: 1, p: 0, f: 'TBD' },
+      { d: 'Hotel', n: '', dd: 1, u: 1, p: 0, f: 'TBD' },
+      { d: 'Food lunch', n: '', dd: 1, u: 1, p: 0, f: 'TBD' },
+      { d: 'Food dinner', n: '', dd: 1, u: 1, p: 0, f: 'TBD' }
+    ]},
     { t: 'Miscellaneous', i: [
       { d: 'Location & permits', n: '', dd: 0, u: 1, p: 0, f: 'TBD' },
       { d: 'Production insurance', n: '', dd: 0, u: 1, p: 0, f: 'TBD' },
@@ -116,22 +116,12 @@
     ]}
   ];
 
-  PREVENTIVO.vuoto = function (precedente) {
+  // Un preventivo nuovo parte sempre col catalogo pulito: nessuna tariffa
+  // ereditata dal precedente. Le mette lui ogni volta.
+  PREVENTIVO.vuoto = function () {
     var oggi = new Date();
-    // Le tariffe si ereditano dal preventivo precedente: non stanno nel
-    // codice, quindi l'unico posto dove vivono e' il suo browser.
     var catalogo = JSON.parse(JSON.stringify(PREVENTIVO.catalogo));
-    if (precedente && precedente.g) {
-      catalogo.forEach(function (g) {
-        var vecchio = precedente.g.find(function (x) { return x.t === g.t; });
-        if (!vecchio) return;
-        g.i.forEach(function (v) {
-          var w = (vecchio.i || []).find(function (x) { return x.d === v.d; });
-          if (w && w.p) v.p = w.p;
-        });
-      });
-    }
-    var mesi = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
+    var mesi =['January', 'February', 'March', 'April', 'May', 'June', 'July',
                 'August', 'September', 'October', 'November', 'December'];
     return {
       n: '1',

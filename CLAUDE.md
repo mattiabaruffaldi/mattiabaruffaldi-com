@@ -185,9 +185,16 @@ Strumento suo per fare preventivi, nato ad agosto 2026 dal preventivo VVENA.
   browser non ce l'ha). Senza compressione superava i 4.000 caratteri e
   certi programmi di posta spezzano i link lunghi.
 - **NON scrivere le sue tariffe in `js/quote.js`:** il repository e' pubblico,
-  sarebbe come pubblicare il listino. Nel catalogo i prezzi stanno a zero; li
-  digita lui e restano nel `localStorage` del suo browser. "Nuovo preventivo"
-  eredita le tariffe dal precedente.
+  sarebbe come pubblicare il listino. Nel catalogo i prezzi stanno a zero.
+- **Le tariffe NON si ereditano** da un preventivo all'altro (sua richiesta,
+  ago 2026): "le metto io ogni volta". `PREVENTIVO.vuoto()` non prende piu' il
+  preventivo precedente. Le tariffe dei lavori gia' fatti restano dentro i
+  preventivi salvati in Archivio, da dove si riaprono o si duplicano.
+- **Blocchi di default** (ordine deciso da lui, ago 2026): Script, storyboard
+  & development · Pre-production · Production crew · Equipment · Post
+  production · Travel & accommodation · Miscellaneous. Un solo blocco trasferte
+  (prima erano due, "Travel" e "Travel & accommodation"). I nomi nel catalogo
+  sono in inglese corretto perche' finiscono nel PDF che legge il cliente.
 - Le due pagine sono `noindex` e non sono linkate da nessuna parte, ne' stanno
   nella sitemap. **Non metterle in `robots.txt`**: elencarle la' significa
   rivelarne l'indirizzo a chiunque legga quel file.
@@ -199,6 +206,10 @@ Strumento suo per fare preventivi, nato ad agosto 2026 dal preventivo VVENA.
 Ritrova i preventivi fatti, li riapre, li duplica, li modifica, e li organizza
 **in cartelle per cliente**. Tutto dentro `/studio/`, pulsante **Archivio**
 nella barra in alto (col numero di preventivi salvati accanto).
+
+- **L'Archivio e' la "home" dello studio** (sua richiesta, ago 2026): aprendo
+  `/studio/` compare per primo, e da li' si sceglie se riprendere un preventivo
+  o farne uno nuovo col pulsante "+ Nuovo preventivo".
 
 **Vincolo che ha deciso tutto:** il repository e' pubblico, quindi i preventivi
 non si possono committare. L'archivio sta **nel browser**, chiave
