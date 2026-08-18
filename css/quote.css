@@ -38,11 +38,11 @@
   --q-font: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
 
   --q-page: 210mm;
-  /* 14mm: margine dignitoso ma non sprecone. A 18mm il documento sforava
+  /* 13mm: margine dignitoso ma non sprecone. A 18mm il documento sforava
      l'A4 e ogni foglio si portava dietro una seconda pagina quasi vuota.
      Le spaziature qui sotto sono state misurate contro i 297mm della
      pagina, non scelte a occhio: vedi la nota sulla stampa in fondo. */
-  --q-pad: 14mm;
+  --q-pad: 13mm;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -301,7 +301,13 @@
 @media print {
   .q-body { background: #fff; }
   .no-print { display: none !important; }
-  .q-sheet {
+  /* `.q-sheet + .q-sheet` (due classi) e' piu' specifico di `.q-sheet` e
+     vinceva anche qui dentro: in stampa i fogli 2 e 3 partivano 10mm piu'
+     in basso e sforavano di un pelo. Un pelo costa una pagina intera,
+     perche' la coda va sulla pagina dopo e il salto forzato ne apre
+     un'altra ancora. Va nominato tutte e due o non si azzera. */
+  .q-sheet,
+  .q-sheet + .q-sheet {
     width: auto; min-height: 0; margin: 0; box-shadow: none;
     padding: var(--q-pad);
     break-after: page;

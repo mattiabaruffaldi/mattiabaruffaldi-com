@@ -232,11 +232,21 @@ dietro una seconda pagina quasi vuota e il PDF usciva di 6 pagine invece di 3.
   i fogli vengono 247-285mm, cioe' 12-50mm di margine.
 - **Le stesse misure valgono a schermo e in stampa**: l'anteprima e' il PDF.
   Non rimettere le spaziature dentro `@media print` soltanto.
-- **Se tocchi una spaziatura del documento, rimisura.** Bastano pochi
-  millimetri perche' un foglio sfori. Il modo veloce: caricare `/quote/` in
-  un iframe, iniettare
-  `.q-sheet{width:210mm;min-height:0;margin:0}` e confrontare l'altezza con
-  297mm (1123px a 96dpi).
+- **Se tocchi una spaziatura del documento, rimisura**, e misura come misura
+  la stampa:
+  - **contando i margini**, non solo `getBoundingClientRect().height`. La
+    prima volta li avevo esclusi: a schermo tornava, in PDF no.
+  - con `?x=<timestamp>` **prima** del cancelletto nell'indirizzo
+    dell'iframe, se no il browser serve la pagina e il CSS dalla cache e si
+    misura la versione vecchia senza accorgersene.
+- **`.q-sheet + .q-sheet` (due classi) batte `.q-sheet` (una) anche dentro
+  `@media print`.** Il `margin: 0` del blocco di stampa non azzerava il
+  `margin-top: 10mm` fra i fogli: in stampa i fogli 2 e 3 partivano 10mm
+  piu' in basso e sforavano di un pelo. Un pelo costa **una pagina intera**,
+  perche' la coda va sulla pagina dopo e il salto forzato ne apre un'altra.
+  Nel blocco di stampa vanno nominati **tutti e due** i selettori.
+- Margine di sicurezza attuale: 14mm nel caso peggiore (Origin). Sotto i
+  10mm conviene tagliare qualcosa.
 - Nello studio, accanto al totale, c'e' **quante pagine viene il PDF**
   (`contaPagine()`): disegna il documento fuori campo e lo misura. Diventa
   ambra quando un foglio non ci sta in una pagina sola. Serve a non dover
