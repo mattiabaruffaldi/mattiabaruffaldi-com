@@ -195,6 +195,33 @@ Strumento suo per fare preventivi, nato ad agosto 2026 dal preventivo VVENA.
   browser la localizzazione italiana e' incompleta e sparisce il punto delle
   migliaia (5500 invece di 5.500).
 
+### Archivio dei preventivi — DA FARE (chiesto ago 2026)
+Vuole ritrovare tutti i preventivi fatti, riaprirli, duplicarli, modificarli, e
+organizzarli **in cartelle per cliente**.
+
+**Vincolo che decide tutto:** il repository e' pubblico, quindi i preventivi non
+si possono committare. L'archivio deve stare **nel browser**
+(`localStorage`, o `IndexedDB` se cresce). Ogni preventivo pesa ~2 KB, ce ne
+stanno migliaia.
+
+Impianto proposto:
+- una chiave `mb-archivio` con un elenco di
+  `{id, cliente, titolo, n, agg, dati}` (`agg` = data ultimo salvataggio);
+- `mb-preventivo` resta la bozza aperta, come adesso;
+- in `/studio/` una vista **Archivio** che raggruppa per `cliente` (le
+  "cartelle" sono il campo cliente, non una struttura a parte: piu' semplice e
+  non si rompe mai), con per ogni riga: apri · duplica · rinomina · elimina;
+- salvataggio automatico della bozza corrente in archivio quando ha un titolo.
+
+**Da dirgli in modo chiaro quando si fa:** se svuota i dati del browser, o
+cambia computer, l'archivio sparisce. Quindi servono **Esporta** e **Importa**
+(un file `.json` che si salva dove vuole) e va spiegato che quello e' il vero
+backup. Non promettergli una sincronia che un sito statico non puo' dare.
+
+Se un domani vuole l'archivio davvero condiviso fra i suoi dispositivi, allora
+serve un servizio esterno (Cloudflare Pages + KV, o simili): e' un cambio di
+categoria, non un'aggiunta.
+
 ## Trappole già incontrate (non ripeterle)
 - **MAI mettere `display` su `.player` / `.viewer` senza `[open]`.** Il browser
   nasconde un `<dialog>` chiuso con `dialog:not([open]) { display: none }`, ma
