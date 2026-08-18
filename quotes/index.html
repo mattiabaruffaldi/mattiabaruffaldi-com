@@ -116,7 +116,9 @@
     var voci = await Promise.all(pacco.q.map(async function (q) {
       var c = PREVENTIVO.conti(q);
       var indirizzo = '/quote/#' + await PREVENTIVO.impacchetta(q);
-      return '<a class="x-voce" href="' + esc(indirizzo) + '">' +
+      // Scheda nuova: chi confronta tre preventivi vuole tornare all'indice
+      // senza perderlo, e tenerne aperti due per confrontarli.
+      return '<a class="x-voce" href="' + esc(indirizzo) + '" target="_blank" rel="noopener">' +
         '<div>' +
           '<p class="x-eti">Quotation ' + esc(q.n || '') + '</p>' +
           '<h2 class="x-nome">' + esc(q.t || 'Untitled') + '</h2>' +

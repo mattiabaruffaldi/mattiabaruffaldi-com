@@ -204,6 +204,24 @@ Strumento suo per fare preventivi, nato ad agosto 2026 dal preventivo VVENA.
   nella sitemap. **Non metterle in `robots.txt`**: elencarle la' significa
   rivelarne l'indirizzo a chiunque legga quel file.
 
+### Lucchetto su `/studio/` (ago 2026)
+`CHIAVE_HASH` in `studio/index.html` contiene l'**impronta SHA-256** della
+password, mai la password: il repository e' pubblico e chiunque legge quel
+file. Vuota = studio aperto senza chiedere niente.
+
+- **Per impostarla:** lui apre `/studio/#password`, scrive la password che
+  vuole, e manda il codice che compare. La password non esce dal suo
+  computer e non deve mai finire in una conversazione o in un commit.
+- Lo sblocco sta in `sessionStorage`: non richiede finche' non chiude il
+  browser, e non resta in giro dopo.
+- **Non e' sicurezza, e non va raccontata come tale.** Il controllo sta nel
+  browser di chi guarda: chi apre gli strumenti da sviluppatore entra
+  comunque, e i preventivi nel `localStorage` si leggono lo stesso. Tiene
+  fuori chi capita sull'indirizzo o chi si siede al suo computer.
+- Se un domani servisse protezione vera servirebbe un servizio esterno
+  (stessa conversazione dei link corti), oppure cifrare l'archivio con la
+  password — che pero' vuol dire perdere tutto se la dimentica.
+
 ### Il PDF deve stare in 3 pagine (ago 2026)
 Ogni `.q-sheet` deve entrare in **una** pagina A4. Prima non ci entrava: i
 fogli venivano 302-369mm contro i 297 disponibili, quindi ognuno si portava

@@ -62,6 +62,30 @@
     overflow: hidden; clip-path: inset(50%); white-space: nowrap;
   }
 
+  /* ---------- lucchetto ---------- */
+  .chiave {
+    position: fixed; inset: 0; z-index: 100;
+    display: grid; place-items: center; padding: var(--sp-4);
+    background: var(--s-fondo);
+  }
+  .chiave[hidden] { display: none; }
+  .chiave__c {
+    display: grid; gap: var(--sp-3); width: min(22rem, 100%);
+    padding: var(--sp-6) var(--sp-5);
+    border: 1px solid var(--s-bordo); border-radius: 6px; background: var(--s-piano);
+  }
+  .chiave__c .marchio { margin-bottom: var(--sp-3); }
+  .chiave__c input { font-size: var(--fs-4); padding: var(--sp-3); }
+  .chiave__c .b { padding: var(--sp-3); }
+  .chiave__e { margin: 0; min-height: 1.2em; font-size: var(--fs-2); color: var(--s-rosso); }
+  .chiave__nota { margin: 0; font-size: var(--fs-1); color: var(--s-tenue); line-height: 1.5; }
+  .chiave__cod {
+    font-family: ui-monospace, Menlo, monospace; font-size: var(--fs-2);
+    word-break: break-all; user-select: all; color: var(--s-oro);
+    background: var(--s-fondo); border: 1px solid var(--s-bordo);
+    border-radius: var(--r); padding: var(--sp-2);
+  }
+
   /* ---------- viste ---------- */
   .vista { display: none; }
   #app[data-vista="home"] #v-home { display: block; }
@@ -508,6 +532,18 @@
 </style>
 </head>
 <body>
+
+<!-- Lucchetto. Vedi la nota lunga nel codice: tiene fuori chi passa di qui,
+     non chi sa guardare. -->
+<div class="chiave" id="chiave" hidden>
+  <form class="chiave__c" id="chiave-f">
+    <div class="marchio"><b>Studio</b><span>Preventivi</span></div>
+    <label for="chiave-p">Password</label>
+    <input id="chiave-p" type="password" autocomplete="current-password" autofocus>
+    <p class="chiave__e" id="chiave-e" role="alert"></p>
+    <button class="b b--pieno" type="submit">Entra</button>
+  </form>
+</div>
 
 <div id="app" data-vista="home">
 
@@ -1619,10 +1655,85 @@
     }
   });
 
+  /* ==================================================================
+     Lucchetto
+
+     COSA FA E COSA NON FA. Questo sito e' statico e il suo repository e'
+     pubblico: qualunque controllo sta nel browser di chi guarda, quindi
+     chi apre gli strumenti da sviluppatore entra comunque, e i preventivi
+     nel `localStorage` si leggono lo stesso. Serve a tenere fuori chi
+     capita qui o chi si siede al suo computer, non chi sa quello che fa.
+     Per questo nel codice non c'e' la password ma la sua impronta
+     SHA-256, che non si legge all'indietro: cosi' chi guarda il sorgente
+     (chiunque, e' pubblico) non si porta via una password che lui magari
+     usa anche altrove.
+
+     PER IMPOSTARLA: aprire /studio/#password, scrivere la password
+     desiderata, copiare il codice che compare e metterlo qui sotto in
+     CHIAVE_HASH. La password non esce mai dal suo computer.
+     Finche' CHIAVE_HASH e' vuota, lo studio si apre senza chiedere niente.
+     ================================================================== */
+  var CHIAVE_HASH = '';
+  var SBLOCCO = 'mb-studio-aperto';
+
+  async function impronta(testo) {
+    var b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(testo));
+    return [].map.call(new Uint8Array(b), function (x) {
+      return ('0' + x.toString(16)).slice(-2);
+    }).join('');
+  }
+
+  function avvia() {
+    $('#chiave').hidden = true;
+    daModello(); disegnaVoci(); disegnaMag();
+    segnaSalvataggio(null);
+    dallIndirizzo();
+  }
+
+  // Strumento per generare l'impronta: non mostra e non salva niente,
+  // calcola e basta. Raggiungibile anche a lucchetto chiuso, perche' non
+  // rivela nulla di quello che c'e' dentro.
+  function strumentoPassword() {
+    $('#chiave').hidden = false;
+    $('#chiave-f').innerHTML =
+      '<div class="marchio"><b>Studio</b><span>Imposta la password</span></div>' +
+      '<label for="chiave-p">Scrivi la password che vuoi</label>' +
+      '<input id="chiave-p" type="text" autocomplete="off" spellcheck="false">' +
+      '<div class="chiave__cod" id="chiave-out">—</div>' +
+      '<p class="chiave__nota">Copia questo codice e mandalo a chi cura il sito: ' +
+      'e’ l’impronta della password, non la password. ' +
+      'Dal codice non si puo’ risalire a quello che hai scritto.</p>';
+    $('#chiave-p').addEventListener('input', async function () {
+      $('#chiave-out').textContent = this.value ? await impronta(this.value) : '—';
+    });
+    $('#chiave-p').focus();
+  }
+
   /* ---------- avvio ---------- */
-  daModello(); disegnaVoci(); disegnaMag();
-  segnaSalvataggio(null);
-  dallIndirizzo();
+  if (location.hash === '#password') {
+    strumentoPassword();
+  } else if (!CHIAVE_HASH || sessionStorage.getItem(SBLOCCO) === CHIAVE_HASH) {
+    avvia();
+  } else {
+    $('#chiave').hidden = false;
+    $('#chiave-p').focus();
+    $('#chiave-f').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      var p = $('#chiave-p');
+      var giusta = (await impronta(p.value)) === CHIAVE_HASH;
+      if (giusta) {
+        sessionStorage.setItem(SBLOCCO, CHIAVE_HASH);   // non richiede finche' non chiudi il browser
+        avvia();
+        return;
+      }
+      // mezzo secondo di attesa: non ferma nessuno, ma toglie la voglia
+      // di provare a mano una password dopo l'altra
+      $('#chiave-e').textContent = '';
+      await new Promise(function (r) { setTimeout(r, 500); });
+      $('#chiave-e').textContent = 'Password sbagliata.';
+      p.value = ''; p.focus();
+    });
+  }
 })();
 </script>
 </body>
