@@ -260,16 +260,7 @@
   .vuoto h2 { margin: 0 0 var(--sp-2); font-size: var(--fs-6); font-weight: 600; }
   .vuoto p { margin: 0 auto var(--sp-4); max-width: 42ch; color: var(--s-tenue); font-size: var(--fs-3); }
 
-  /* ---------- nota e avviso ---------- */
-  .nota {
-    margin: var(--sp-6) 0 0; padding-top: var(--sp-3);
-    max-width: 74ch;                        /* misura di lettura */
-    border-top: 1px solid var(--s-bordo);
-    font-size: var(--fs-2); line-height: 1.6; color: var(--s-tenue);
-    text-wrap: pretty;
-  }
-  .nota b { color: var(--s-testo); font-weight: 500; }
-
+  /* ---------- avviso ---------- */
   /* Esporta / Importa sono manutenzione, non l'azione principale:
      restano raggiungibili ma non competono col pulsante pieno. */
   .b--quieto { border-color: transparent; color: var(--s-tenue); }
@@ -473,11 +464,6 @@
       </div>
       <div class="filtri" id="filtri"></div>
       <div id="elenco"></div>
-      <p class="nota">
-        L’archivio sta <b>solo in questo browser, su questo computer</b>. Se svuoti i dati
-        di navigazione o cambi computer, sparisce. Il backup vero è <b>Esporta</b>: salva un
-        file dove vuoi, e <b>Importa</b> lo rimette a posto.
-      </p>
     </main>
   </div>
 </div>
