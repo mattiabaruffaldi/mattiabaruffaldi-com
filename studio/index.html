@@ -6,7 +6,7 @@
 <title>Studio preventivi</title>
 <meta name="robots" content="noindex, nofollow, noarchive">
 <link rel="icon" href="/favicon-32.png" sizes="32x32">
-<link rel="stylesheet" href="/css/quote.css?v=dd9efd06">
+<link rel="stylesheet" href="/css/quote.css?v=14ce3697">
 <style>
   /* ==================================================================
      Studio preventivi — due viste in una pagina:
@@ -308,6 +308,12 @@
     padding: var(--sp-2) clamp(var(--sp-3), 2vw, var(--sp-5));
     background: var(--s-piano); border-bottom: 1px solid var(--s-bordo);
   }
+  /* Quante pagine viene il PDF, senza doverlo stampare per scoprirlo. */
+  .pagine {
+    font-size: var(--fs-2); color: var(--s-tenue); white-space: nowrap;
+    padding: 3px var(--sp-2); border: 1px solid var(--s-bordo); border-radius: 999px;
+  }
+  .pagine[data-lungo="1"] { color: var(--s-oro); border-color: #6a5326; }
   .indietro {
     display: inline-flex; align-items: center; gap: 6px;
     padding: var(--sp-2) var(--sp-3); border: 1px solid transparent; border-radius: var(--r);
@@ -557,6 +563,7 @@
     <span class="stato" id="e-stato-w" data-v="bozza">
       <select id="e-stato" aria-label="Stato del preventivo"></select>
     </span>
+    <span class="pagine" id="t-pag" title="Quante pagine viene il PDF"></span>
     <div class="barra__t"><small>Totale</small><b id="t-tot">0,00 €</b></div>
     <button class="b" type="button" id="b-ante">Anteprima</button>
     <button class="b" type="button" id="b-pdf">PDF</button>
@@ -759,6 +766,49 @@
     };
     if (subito) fai(); else salvaFra = setTimeout(fai, 700);
   }
+  /* ---------- quante pagine viene il PDF ----------
+     Le spaziature del documento sono le stesse a schermo e in stampa, quindi
+     basta disegnarlo fuori campo e misurarlo contro i 297mm dell'A4. Cosi'
+     lui lo sa mentre scrive, invece di scoprirlo stampando. */
+  var A4PX = 297 / 25.4 * 96;
+  var righello = null, pagineFra = null;
+  function contaPagine() {
+    if (!righello) {
+      righello = document.createElement('div');
+      righello.className = 'q-body';          // serve per ereditare corpo e interlinea giusti
+      righello.setAttribute('aria-hidden', 'true');
+      righello.style.cssText = 'position:fixed;left:-99999px;top:0;width:210mm;' +
+                               'visibility:hidden;pointer-events:none;background:#fff';
+      document.body.appendChild(righello);
+    }
+    righello.innerHTML = PREVENTIVO.disegna(d);
+    var pagine = 0, spezzato = false;
+    righello.querySelectorAll('.q-sheet').forEach(function (s) {
+      s.style.minHeight = '0';
+      s.style.margin = '0';
+      s.style.boxShadow = 'none';
+      var n = Math.max(1, Math.ceil(s.getBoundingClientRect().height / A4PX));
+      if (n > 1) spezzato = true;
+      pagine += n;
+    });
+    return { pagine: pagine, spezzato: spezzato };
+  }
+  function mostraPagine() {
+    clearTimeout(pagineFra);
+    pagineFra = setTimeout(function () {
+      var el = $('#t-pag');
+      if (!el) return;
+      try {
+        var r = contaPagine();
+        el.textContent = r.pagine + (r.pagine === 1 ? ' pagina' : ' pagine');
+        el.dataset.lungo = r.spezzato ? '1' : '0';
+        el.title = r.spezzato
+          ? 'Il PDF viene ' + r.pagine + ' pagine: un foglio non ci sta in una sola e continua su quella dopo.'
+          : 'Il PDF viene ' + r.pagine + ' pagine, una per foglio.';
+      } catch (e) { el.textContent = ''; }
+    }, 350);
+  }
+
   function segnaSalvataggio(ms) {
     var el = $('#e-salv');
     if (!el) return;                 // la pagina si sta chiudendo
@@ -1521,6 +1571,7 @@
       PREVENTIVO.euro(c.tot, 1) + '</b></div>';
 
     $('#t-tot').textContent = PREVENTIVO.euro(c.tot, 1);
+    mostraPagine();
     try { localStorage.setItem(CHIAVE, JSON.stringify(d)); } catch (e) {}
     archiviaBozza();
   }

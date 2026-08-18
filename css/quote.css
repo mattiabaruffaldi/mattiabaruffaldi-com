@@ -38,7 +38,11 @@
   --q-font: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
 
   --q-page: 210mm;
-  --q-pad: 18mm;
+  /* 14mm: margine dignitoso ma non sprecone. A 18mm il documento sforava
+     l'A4 e ogni foglio si portava dietro una seconda pagina quasi vuota.
+     Le spaziature qui sotto sono state misurate contro i 297mm della
+     pagina, non scelte a occhio: vedi la nota sulla stampa in fondo. */
+  --q-pad: 14mm;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -68,7 +72,7 @@
 .q-sheet + .q-sheet { margin-top: 10mm; }
 
 .q-num {
-  position: absolute; right: var(--q-pad); bottom: 10mm;
+  position: absolute; right: var(--q-pad); bottom: 7mm;
   font-size: 7.5pt; letter-spacing: 0.1em; color: #a5a5ad;
 }
 
@@ -81,7 +85,7 @@
 .q-role {
   font-variation-settings: 'wdth' 88, 'wght' 500;
   font-size: 7pt; letter-spacing: 0.3em; text-transform: uppercase;
-  color: var(--q-ink-3); margin: 3mm 0 0;
+  color: var(--q-ink-3); margin: 2mm 0 0;
 }
 .q-contact {
   text-align: right; font-size: 7.6pt; line-height: 1.75; color: var(--q-ink-2);
@@ -91,7 +95,7 @@
 .q-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10mm; }
 .q-runhead {
   display: flex; justify-content: space-between; align-items: baseline;
-  padding-bottom: 3mm; border-bottom: 1.5px solid var(--q-rule);
+  padding-bottom: 2mm; border-bottom: 1.5px solid var(--q-rule);
   font-variation-settings: 'wdth' 88, 'wght' 500;
   font-size: 8.5pt; letter-spacing: 0.26em; text-transform: uppercase;
 }
@@ -104,43 +108,43 @@
 .q-title {
   font-variation-settings: 'wdth' 92, 'wght' 600;
   font-size: 28pt; line-height: 1.05; letter-spacing: -0.005em;
-  text-transform: uppercase; margin: 4mm 0 0;
+  text-transform: uppercase; margin: 3mm 0 0;
 }
 .q-sub {
   font-variation-settings: 'wdth' 88, 'wght' 500;
   font-size: 8pt; letter-spacing: 0.24em; text-transform: uppercase;
-  color: var(--q-ink-3); margin: 4mm 0 0;
+  color: var(--q-ink-3); margin: 2.5mm 0 0;
 }
 
 .q-h2 {
   font-variation-settings: 'wdth' 92, 'wght' 500;
   font-size: 13pt; letter-spacing: 0.02em; text-transform: uppercase;
-  margin: 0 0 2.5mm;
+  margin: 0 0 2mm;
 }
-.q-section { margin-top: 9mm; }
+.q-section { margin-top: 5mm; }
 .q-section > .q-h2 { padding-bottom: 2mm; border-bottom: 1.5px solid var(--q-rule); }
-.q-text { margin: 5mm 0 0; max-width: 62ch; color: var(--q-ink); }
+.q-text { margin: 3.5mm 0 0; max-width: 62ch; color: var(--q-ink); }
 
 /* ---------- Riepilogo budget ---------- */
-.q-sum { margin-top: 5mm; }
+.q-sum { margin-top: 3.5mm; }
 .q-sum__row {
   display: flex; justify-content: space-between; align-items: baseline; gap: 8mm;
-  padding: 4mm 0; border-bottom: 1px solid var(--q-hair);
+  padding: 2.3mm 0; border-bottom: 1px solid var(--q-hair);
 }
 .q-sum__t {
   font-variation-settings: 'wdth' 88, 'wght' 600;
   font-size: 9pt; letter-spacing: 0.16em; text-transform: uppercase;
 }
-.q-sum__n { font-size: 7.8pt; color: var(--q-ink-3); margin-top: 1.5mm; letter-spacing: 0.01em; }
+.q-sum__n { font-size: 7.8pt; color: var(--q-ink-3); margin-top: 1mm; letter-spacing: 0.01em; }
 .q-sum__v {
   font-variation-settings: 'wdth' 92, 'wght' 400;
   font-size: 15pt; white-space: nowrap; font-variant-numeric: tabular-nums;
 }
 
-.q-tot { margin-top: 7mm; }
+.q-tot { margin-top: 3.5mm; }
 .q-tot__row {
   display: flex; justify-content: space-between; align-items: baseline;
-  padding: 2.5mm 0;
+  padding: 1.6mm 0;
 }
 .q-tot__l {
   font-variation-settings: 'wdth' 88, 'wght' 500;
@@ -150,7 +154,7 @@
 .q-tot__v { font-variation-settings: 'wght' 600; font-variant-numeric: tabular-nums; }
 .q-grand {
   display: flex; justify-content: space-between; align-items: center;
-  margin-top: 4mm; padding: 6mm 7mm;
+  margin-top: 2.5mm; padding: 3.5mm 6mm;
   background: var(--q-ink); color: #fff;
 }
 .q-grand span {
@@ -163,15 +167,15 @@
 }
 
 /* ---------- Dettaglio ---------- */
-.q-table { width: 100%; border-collapse: collapse; margin-top: 5mm; }
+.q-table { width: 100%; border-collapse: collapse; margin-top: 3.5mm; }
 .q-table thead th {
   font-variation-settings: 'wdth' 88, 'wght' 500;
   font-size: 7pt; letter-spacing: 0.2em; text-transform: uppercase;
   color: var(--q-ink-3); text-align: right; font-weight: 400;
-  padding: 0 0 2.5mm; border-bottom: 1px solid var(--q-hair);
+  padding: 0 0 2mm; border-bottom: 1px solid var(--q-hair);
 }
 .q-table thead th:first-child { text-align: left; }
-.q-table td { padding: 3mm 0; border-bottom: 1px solid var(--q-hair); vertical-align: baseline; text-align: right; }
+.q-table td { padding: 1.5mm 0; border-bottom: 1px solid var(--q-hair); vertical-align: baseline; text-align: right; }
 .q-table td:first-child { text-align: left; padding-right: 6mm; }
 /* Le colonne non avevano spazio fra loro: incolonnate a destra e con le
    intestazioni spaziate, "DAYS" e "UNITS" finivano attaccate e si leggeva
@@ -185,7 +189,7 @@
 .q-table thead th:nth-child(4) { width: 26mm; }
 .q-table thead th:nth-child(5) { width: 28mm; }
 .q-table .q-grp td {
-  padding: 4mm 0 2.5mm; border-bottom: 0; background: var(--q-band);
+  padding: 2.2mm 0 1.4mm; border-bottom: 0; background: var(--q-band);
   padding-inline: 3mm;
 }
 .q-grp__n {
@@ -200,7 +204,7 @@
 .q-sub-row td {
   font-variation-settings: 'wdth' 88, 'wght' 500;
   font-size: 7.5pt; letter-spacing: 0.2em; text-transform: uppercase;
-  color: var(--q-ink-3); border-bottom: 0; padding-top: 2mm;
+  color: var(--q-ink-3); border-bottom: 0; padding-top: 1.2mm;
 }
 .q-sub-row td:last-child {
   font-size: 12pt; letter-spacing: 0; color: var(--q-ink);
@@ -217,22 +221,22 @@
 }
 
 /* ---------- Consegne, incluso/escluso, condizioni ---------- */
-.q-list { margin: 5mm 0 0; padding: 0; list-style: none; }
+.q-list { margin: 3.5mm 0 0; padding: 0; list-style: none; }
 .q-list li {
   display: flex; justify-content: space-between; align-items: baseline; gap: 6mm;
-  padding: 3mm 0; border-bottom: 1px solid var(--q-hair);
+  padding: 1.6mm 0; border-bottom: 1px solid var(--q-hair);
 }
 .q-list b { font-variation-settings: 'wght' 500; }
 .q-list .q-qty { font-variation-settings: 'wdth' 92, 'wght' 400; font-size: 12pt; font-variant-numeric: tabular-nums; }
 
-.q-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 9mm; margin-top: 8mm; }
+.q-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; margin-top: 4mm; }
 .q-h3 {
   font-variation-settings: 'wdth' 88, 'wght' 500;
   font-size: 8pt; letter-spacing: 0.24em; text-transform: uppercase;
-  padding-bottom: 2mm; border-bottom: 1px solid var(--q-hair); margin: 0 0 3mm;
+  padding-bottom: 1.5mm; border-bottom: 1px solid var(--q-hair); margin: 0 0 2mm;
 }
 .q-bul { margin: 0; padding: 0; list-style: none; }
-.q-bul li { display: flex; gap: 3mm; padding: 1.6mm 0; font-size: 9.6pt; line-height: 1.4; }
+.q-bul li { display: flex; gap: 3mm; padding: .8mm 0; font-size: 9.6pt; line-height: 1.4; }
 /* Pallino, non lineetta: la lineetta era larga quanto una parola e tirava
    l'occhio piu' del testo. Misure in em, cosi' resta proporzionato se il
    corpo cambia; il margine lo centra sulla prima riga anche quando la voce
@@ -242,17 +246,17 @@
   width: .3em; height: .3em; margin-top: .55em;
   border-radius: 50%; background: var(--q-ink-3);
 }
-.q-note { margin-top: 4mm; font-size: 8.6pt; color: var(--q-ink-3); }
+.q-note { margin-top: 2.5mm; font-size: 8.6pt; color: var(--q-ink-3); }
 
-.q-terms { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm 9mm; margin-top: 5mm; }
+.q-terms { display: grid; grid-template-columns: 1fr 1fr; gap: 3.5mm 9mm; margin-top: 3.5mm; }
 .q-term__l {
   font-variation-settings: 'wdth' 88, 'wght' 500;
   font-size: 7.5pt; letter-spacing: 0.24em; text-transform: uppercase;
-  color: var(--q-ink-3); margin: 0 0 1.5mm;
+  color: var(--q-ink-3); margin: 0 0 1mm;
 }
 .q-term p { margin: 0; }
 
-.q-sign { display: grid; grid-template-columns: 1fr 1fr; gap: 9mm; margin-top: auto; padding-top: 12mm; }
+.q-sign { display: grid; grid-template-columns: 1fr 1fr; gap: 9mm; margin-top: auto; padding-top: 6mm; }
 .q-sign__l {
   font-variation-settings: 'wdth' 88, 'wght' 500;
   font-size: 7.5pt; letter-spacing: 0.22em; text-transform: uppercase; color: var(--q-ink-3);
@@ -288,6 +292,12 @@
 /* ---------- Stampa ---------- */
 @page { size: A4; margin: 0; }
 
+/* Le spaziature del documento sono tarate perche' ogni foglio stia in una
+   pagina A4. Misurate, non scelte a occhio: con i tre preventivi VVENA i
+   fogli vengono 247-285mm su 297 disponibili, cioe' 12-50mm di margine.
+   Se tocchi una spaziatura qui sopra, rimisura: bastano pochi millimetri
+   perche' un foglio sfori e si porti dietro una pagina quasi vuota.
+   Le stesse misure valgono a schermo, cosi' l'anteprima e' il PDF. */
 @media print {
   .q-body { background: #fff; }
   .no-print { display: none !important; }
@@ -300,6 +310,16 @@
   .q-grand { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .q-table .q-grp td { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   tr, .q-sum__row, .q-list li { break-inside: avoid; }
+
+  /* Se un preventivo e' davvero lungo il dettaglio deve poter continuare
+     sulla pagina dopo: quello che non deve succedere e' che si spezzi in
+     un punto stupido. Questi blocchi restano interi. */
+  .q-tot, .q-grand, .q-sign, .q-term, .q-cols > div { break-inside: avoid; }
+  /* Un'intestazione di blocco da sola in fondo alla pagina, con le sue
+     voci girate a quella dopo, e' il difetto tipico delle tabelle lunghe. */
+  .q-table .q-grp { break-after: avoid; }
+  .q-table .q-sub-row { break-before: avoid; }
+  thead { display: table-header-group; }   /* le intestazioni si ripetono */
 }
 
 /* ---------- Schermi stretti: il foglio si adatta ---------- */

@@ -204,6 +204,29 @@ Strumento suo per fare preventivi, nato ad agosto 2026 dal preventivo VVENA.
   nella sitemap. **Non metterle in `robots.txt`**: elencarle la' significa
   rivelarne l'indirizzo a chiunque legga quel file.
 
+### Il PDF deve stare in 3 pagine (ago 2026)
+Ogni `.q-sheet` deve entrare in **una** pagina A4. Prima non ci entrava: i
+fogli venivano 302-369mm contro i 297 disponibili, quindi ognuno si portava
+dietro una seconda pagina quasi vuota e il PDF usciva di 6 pagine invece di 3.
+
+- Il margine del foglio (`--q-pad`) e' **14mm**, non 18. Le spaziature del
+  documento sono **misurate**, non scelte a occhio: coi tre preventivi VVENA
+  i fogli vengono 247-285mm, cioe' 12-50mm di margine.
+- **Le stesse misure valgono a schermo e in stampa**: l'anteprima e' il PDF.
+  Non rimettere le spaziature dentro `@media print` soltanto.
+- **Se tocchi una spaziatura del documento, rimisura.** Bastano pochi
+  millimetri perche' un foglio sfori. Il modo veloce: caricare `/quote/` in
+  un iframe, iniettare
+  `.q-sheet{width:210mm;min-height:0;margin:0}` e confrontare l'altezza con
+  297mm (1123px a 96dpi).
+- Nello studio, accanto al totale, c'e' **quante pagine viene il PDF**
+  (`contaPagine()`): disegna il documento fuori campo e lo misura. Diventa
+  ambra quando un foglio non ci sta in una pagina sola. Serve a non dover
+  stampare per scoprirlo.
+- Per i preventivi davvero lunghi il dettaglio continua sulla pagina dopo:
+  e' giusto. Le regole di stampa tengono interi totali, firme e condizioni,
+  e non lasciano l'intestazione di un blocco da sola in fondo alla pagina.
+
 ### `/quotes/` — piu' preventivi in un link solo (ago 2026)
 Pagina con una casella per preventivo (numero, titolo, sottotitolo, scope,
 totale, "Open quotation"); ogni casella apre `/quote/` col suo preventivo.
