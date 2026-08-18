@@ -1070,7 +1070,17 @@
     if (!sel) return;
     var id = sel.dataset.statoDi;
     var a = arcLeggi();
-    a.forEach(function (y) { if (y.id === id) { y.stato = sel.value; y.agg = Date.now(); } });
+    a.forEach(function (y) {
+      if (y.id !== id) return;
+      y.stato = sel.value;
+      // ANCHE dentro il preventivo, non solo sull'etichetta della riga.
+      // Senza questa riga i due valori divergevano: aprendo il preventivo
+      // l'editor leggeva quello vecchio da `dati.st`, e tornando indietro il
+      // salvataggio automatico lo riscriveva sopra. Effetto: uno stato messo
+      // a mano tornava da solo a quello di prima.
+      if (y.dati) y.dati.st = sel.value;
+      y.agg = Date.now();
+    });
     arcScrivi(a);
     if (id === d.id) { d.st = sel.value; mostraStatoEditor(); }
     sel.closest('.stato').dataset.v = sel.value;
