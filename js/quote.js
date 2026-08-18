@@ -165,8 +165,7 @@
       urn: 'TV advertising, billboards, OOH and sponsored social media are not included and will be quoted separately.',
       h: 'mb',
       gg: 1,
-      rv: 4,
-      rvl: 'Rivalsa INPS 4%',
+      mag: [{ l: 'Rivalsa INPS 4%', p: 4 }],
       vl: '10 days from presentation.',
       iv: '30% on acceptance, 70% on delivery.',
       pg: 'Bank transfer, 60 days end of month.',
@@ -199,11 +198,25 @@
   PREVENTIVO.totaleVoce = totaleVoce;
   PREVENTIVO.totaleGruppo = totaleGruppo;
 
+  // Le maggiorazioni si applicano a cascata: l'agency fee sul budget, e
+  // l'IVA su budget + agency fee. E' cosi' che si fa, e permette di averle
+  // insieme invece che una al posto dell'altra.
+  PREVENTIVO.maggiorazioni = function (d) {
+    if (Array.isArray(d.mag)) return d.mag.filter(function (m) { return m && m.p; });
+    if (d.rv) return [{ l: d.rvl || 'Maggiorazione', p: Number(d.rv) }];  // formato vecchio
+    return [];
+  };
+
   PREVENTIVO.conti = function (d) {
     var attivi = (d.g || []).filter(function (g) { return totaleGruppo(g, d) > 0; });
     var fee = attivi.reduce(function (s, g) { return s + totaleGruppo(g, d); }, 0);
-    var riv = Math.round(fee * (Number(d.rv) || 0)) / 100;
-    return { attivi: attivi, fee: fee, riv: riv, tot: fee + riv };
+    var corrente = fee;
+    var righe = PREVENTIVO.maggiorazioni(d).map(function (m) {
+      var v = Math.round(corrente * Number(m.p)) / 100;
+      corrente += v;
+      return { l: m.l, p: Number(m.p), v: v };
+    });
+    return { attivi: attivi, fee: fee, mag: righe, tot: corrente };
   };
 
   // Formattazione scritta a mano invece di Intl: in alcuni browser la
@@ -307,6 +320,13 @@
       '</td><td class="q-num-cell">' + val + '</td></tr>';
   }
 
+  function righeMag(c) {
+    return c.mag.map(function (m) {
+      return '<div class="q-tot__row"><span class="q-tot__l">' + esc(m.l) +
+        '</span><span class="q-tot__v">' + PREVENTIVO.euro(m.v, 1) + '</span></div>';
+    }).join('');
+  }
+
   PREVENTIVO.disegna = function (d) {
     var c = PREVENTIVO.conti(d);
     var h = PREVENTIVO.testa(d);
@@ -336,8 +356,7 @@
       '<div class="q-tot">' +
       '<div class="q-tot__row"><span class="q-tot__l">Fee</span>' +
       '<span class="q-tot__v">' + PREVENTIVO.euro(c.fee, 1) + '</span></div>' +
-      (c.riv ? '<div class="q-tot__row"><span class="q-tot__l">' + esc(d.rvl || 'Rivalsa') +
-        '</span><span class="q-tot__v">' + PREVENTIVO.euro(c.riv, 1) + '</span></div>' : '') +
+      righeMag(c) +
       '<div class="q-grand"><span>Total</span><strong>' +
       PREVENTIVO.euro(c.tot, 1) + '</strong></div></div>' +
       (d.nt ? '<p class="q-note">' + esc(d.nt) + '</p>' : '') +
@@ -363,8 +382,7 @@
       '<div class="q-tot">' +
       '<div class="q-tot__row"><span class="q-tot__l">Fee</span>' +
       '<span class="q-tot__v">' + PREVENTIVO.euro(c.fee, 1) + '</span></div>' +
-      (c.riv ? '<div class="q-tot__row"><span class="q-tot__l">' + esc(d.rvl || 'Rivalsa') +
-        '</span><span class="q-tot__v">' + PREVENTIVO.euro(c.riv, 1) + '</span></div>' : '') +
+      righeMag(c) +
       '<div class="q-tot__row" style="border-top:1.5px solid var(--q-rule);padding-top:4mm">' +
       '<span class="q-tot__l" style="color:var(--q-ink)">Total</span>' +
       '<span class="q-sum__v">' + PREVENTIVO.euro(c.tot, 1) + '</span></div></div>' +
@@ -400,7 +418,10 @@
         (d.urn ? '<p class="q-note">' + esc(d.urn) + '</p>' : '') + '</div>' : '') +
       '<div class="q-section"><h3 class="q-h2">Terms</h3><div class="q-terms">' +
       condizione('Validity', d.vl) +
-      condizione('Fee', PREVENTIVO.euro(c.fee, 1) + (c.riv ? ' plus ' + (d.rv || 0) + '% INPS contribution.' : '')) +
+      condizione('Fee', PREVENTIVO.euro(c.fee, 1) +
+        (c.mag.length ? ' plus ' + c.mag.map(function (m) {
+          return m.p + '% ' + m.l.replace(/\s*\d+([.,]\d+)?\s*%\s*/, ' ').trim();
+        }).join(' and ') + '.' : '.')) +
       condizione('Invoicing', d.iv) +
       condizione('Payment', d.pg) +
       condizione('Withdrawal', d.wd) +

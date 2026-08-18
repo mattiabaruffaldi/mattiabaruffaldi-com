@@ -8,169 +8,239 @@
 <link rel="icon" href="/favicon-32.png" sizes="32x32">
 <link rel="stylesheet" href="/css/quote.css">
 <style>
-  body { background: #1b1b1f; color: #ececef; font-family: 'Archivo', system-ui, sans-serif; }
-  .app { display: grid; gap: 0; }
-  @media (min-width: 76rem) { .app { grid-template-columns: 30rem 1fr; align-items: start; } }
-
-  .pan { padding: 20px clamp(14px, 2vw, 24px) 20px; }
-  @media (min-width: 76rem) {
-    .pan { position: sticky; top: 0; max-height: 100vh; overflow-y: auto;
-           border-right: 1px solid #33333a; }
+  :root {
+    --s-fondo: #16161a;
+    --s-piano: #1e1e24;
+    --s-piano2: #26262e;
+    --s-bordo: #33333d;
+    --s-testo: #edeef1;
+    --s-tenue: #8d8d99;
+    --s-oro: #f2b45c;
   }
-  .ante { background: #3a3a3e; padding: 14px 0 60px; }
-
-  h1 { font-size: 15px; letter-spacing: .2em; text-transform: uppercase;
-       font-weight: 500; margin: 0 0 4px; }
-  .sott { font-size: 12px; color: #9a9aa4; margin: 0 0 22px; line-height: 1.5; }
-
-  fieldset { border: 0; border-top: 1px solid #33333a; margin: 0 0 4px; padding: 18px 0 6px; }
-  legend { font-size: 10px; letter-spacing: .2em; text-transform: uppercase;
-           color: #f2b45c; padding-right: 10px; }
-  label { display: block; font-size: 10px; letter-spacing: .14em; text-transform: uppercase;
-          color: #9a9aa4; margin: 12px 0 5px; }
-  input, textarea, select {
-    width: 100%; padding: 9px 10px; border: 1px solid #3f3f47; border-radius: 2px;
-    background: #232329; color: #ececef; font: inherit; font-size: 13px;
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--s-fondo); color: var(--s-testo);
+    font-family: 'Archivo', system-ui, sans-serif; font-size: 14px;
   }
-  input:focus, textarea:focus, select:focus { outline: 2px solid #f2b45c; outline-offset: 1px; border-color: transparent; }
-  textarea { min-height: 76px; resize: vertical; line-height: 1.5; }
-  .aiuto { font-size: 11px; color: #85858f; margin: 6px 0 0; line-height: 1.45; }
-  .voce__c input.pers { border-color: #f2b45c; color: #f2b45c; }
-  .due { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .tre { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  button, input, select, textarea { font: inherit; color: inherit; }
 
-  .voce { display: grid; grid-template-columns: 22px 1fr; gap: 8px;
-          padding: 9px 0; border-bottom: 1px solid #2a2a31; align-items: start; }
-  .voce input[type=checkbox] { width: 16px; height: 16px; margin-top: 3px; accent-color: #f2b45c; }
-  .voce__d { font-size: 12.5px; line-height: 1.35; }
-  .voce__n { font-size: 11px; color: #85858f; }
-  .voce__c { display: grid; grid-template-columns: 3.4rem 3.4rem 1fr 5.2rem; gap: 6px; margin-top: 7px; }
-  .voce__c input { padding: 6px 7px; font-size: 12px; text-align: right; }
-  .voce__c input[type=text] { text-align: left; }
-  .voce.off .voce__c, .voce.off .voce__n { display: none; }
-  .voce.off .voce__d { color: #6d6d77; }
-  .mini { font-size: 9px; letter-spacing: .12em; text-transform: uppercase; color: #6d6d77;
-          display: grid; grid-template-columns: 3.4rem 3.4rem 1fr 5.2rem; gap: 6px; margin: 10px 0 2px; }
-  .mini span { text-align: right; }
-  .mini span:nth-child(3) { text-align: left; }
+  /* ---------- barra in alto ---------- */
+  .barra {
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px clamp(12px, 2vw, 22px);
+    background: var(--s-piano); border-bottom: 1px solid var(--s-bordo);
+  }
+  .barra__n { font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: var(--s-tenue); }
+  .barra__sp { flex: 1 }
+  .barra__t { text-align: right; line-height: 1.15; }
+  .barra__t small { display: block; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--s-tenue); }
+  .barra__t b { font-size: 19px; font-weight: 500; font-variant-numeric: tabular-nums; }
 
-  .blocco { border-top: 1px solid #33333a; }
+  .b {
+    padding: 9px 14px; border: 1px solid var(--s-bordo); border-radius: 3px;
+    background: none; cursor: pointer; white-space: nowrap;
+    font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+    transition: border-color .15s, color .15s, background .15s;
+  }
+  .b:hover { border-color: var(--s-oro); color: var(--s-oro); }
+  .b--pieno { background: var(--s-oro); border-color: var(--s-oro); color: #16161a; }
+  .b--pieno:hover { filter: brightness(1.08); color: #16161a; }
+  .b--on { border-color: var(--s-oro); color: var(--s-oro); }
+
+  /* ---------- impianto ---------- */
+  .scena { display: grid; grid-template-columns: 1fr; }
+  .scena.con-ante { grid-template-columns: 1fr; }
+  @media (min-width: 68rem) {
+    .scena.con-ante { grid-template-columns: 1fr 26rem; }
+  }
+  .modulo { padding: 22px clamp(12px, 2vw, 22px) 90px; max-width: 82rem; margin-inline: auto; width: 100%; }
+  .ante {
+    display: none; background: #3a3a3e; border-left: 1px solid var(--s-bordo);
+    padding: 12px 0 40px; overflow-y: auto;
+  }
+  .scena.con-ante .ante { display: block; }
+  .scena.con-ante .modulo { margin-inline: 0; }
+  @media (min-width: 68rem) {
+    .ante { position: sticky; top: 49px; max-height: calc(100vh - 49px); }
+    .ante .q-sheet { transform: scale(.62); transform-origin: top center;
+                     margin-bottom: -38%; }
+  }
+
+  /* ---------- sezioni ---------- */
+  .sez { margin-bottom: 30px; }
+  .sez__t {
+    font-size: 10px; letter-spacing: .24em; text-transform: uppercase;
+    color: var(--s-oro); margin: 0 0 12px;
+  }
+  .griglia { display: grid; gap: 12px 14px; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); }
+  .campo { display: grid; gap: 5px; }
+  .campo--largo { grid-column: 1 / -1; }
+  label, .eti { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--s-tenue); }
+  input, select, textarea {
+    width: 100%; padding: 9px 10px; border: 1px solid var(--s-bordo);
+    border-radius: 3px; background: var(--s-piano); font-size: 13px;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: 2px solid var(--s-oro); outline-offset: 1px; border-color: transparent;
+  }
+  textarea { min-height: 72px; resize: vertical; line-height: 1.5; }
+  .aiuto { font-size: 11px; color: var(--s-tenue); margin: 5px 0 0; }
+
+  /* ---------- blocchi ---------- */
+  .blocco { border: 1px solid var(--s-bordo); border-radius: 4px; margin-bottom: 8px; background: var(--s-piano); }
+  .blocco.is-on { border-color: #4a4a57; }
   .blocco__t {
-    display: flex; justify-content: space-between; align-items: center; gap: 10px;
-    width: 100%; padding: 15px 0; background: none; border: 0; color: inherit;
-    font: inherit; cursor: pointer; text-align: left;
+    display: flex; align-items: center; gap: 12px; width: 100%;
+    padding: 13px 14px; background: none; border: 0; cursor: pointer; text-align: left;
   }
-  .blocco__t span:first-child {
-    font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: #cfcfd6;
+  .blocco__t::before {
+    content: ''; width: 6px; height: 6px; flex-shrink: 0;
+    border-right: 1.5px solid var(--s-tenue); border-bottom: 1.5px solid var(--s-tenue);
+    transform: rotate(-45deg); transition: transform .18s;
   }
-  .blocco.is-on .blocco__t span:first-child { color: #f2b45c; }
-  .blocco__v { font-size: 12px; color: #85858f; font-variant-numeric: tabular-nums; }
-  .blocco__t::after {
-    content: ''; width: 7px; height: 7px; flex-shrink: 0;
-    border-right: 1.5px solid #85858f; border-bottom: 1.5px solid #85858f;
-    transform: rotate(45deg) translate(-2px, -2px); transition: transform .18s;
-  }
-  .blocco.is-on .blocco__t::after { transform: rotate(-135deg) translate(-3px, -3px); }
-  .blocco__c { display: none; padding-bottom: 16px; }
+  .blocco.is-on .blocco__t::before { transform: rotate(45deg); }
+  .blocco__nome { flex: 1; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; }
+  .blocco.is-on .blocco__nome { color: var(--s-oro); }
+  .blocco__q { font-size: 11px; color: var(--s-tenue); }
+  .blocco__v { font-size: 13px; font-variant-numeric: tabular-nums; min-width: 6rem; text-align: right; }
+  .blocco__c { display: none; padding: 4px 14px 14px; }
   .blocco.is-on .blocco__c { display: block; }
-  .blocco__az { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
-  .blocco__az button { flex: 1 1 auto; }
 
-  .tit { margin: 0 0 4px; font-size: 13px; font-weight: 500; letter-spacing: .04em; }
-  .agg { padding: 7px 12px; border: 1px dashed #4a4a53; border-radius: 2px;
-         background: none; color: #9a9aa4; font: inherit; font-size: 11px; cursor: pointer;
-         letter-spacing: .1em; text-transform: uppercase; }
-  .agg--go { border-style: solid; border-color: #f2b45c; color: #f2b45c; }
-  .agg--no:hover { border-color: #e0603f; color: #e0603f; }
-  .agg:hover { border-color: #f2b45c; color: #f2b45c; }
+  /* ---------- righe ---------- */
+  .intest, .riga {
+    display: grid; align-items: center; gap: 8px;
+    grid-template-columns: 24px minmax(9rem, 1.4fr) minmax(7rem, 1fr) 4.2rem 4.2rem 6.5rem 6.5rem 6.5rem 30px;
+  }
+  .intest {
+    font-size: 9px; letter-spacing: .14em; text-transform: uppercase;
+    color: #6e6e7b; padding: 8px 0 6px; border-bottom: 1px solid var(--s-bordo);
+  }
+  .intest span:nth-child(n+4) { text-align: right; }
+  .riga { padding: 5px 0; border-bottom: 1px solid #26262e; }
+  .riga input { padding: 7px 8px; font-size: 12.5px; background: transparent; border-color: transparent; }
+  .riga input:hover { border-color: var(--s-bordo); }
+  .riga input:focus { background: var(--s-piano2); }
+  .riga .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .riga .tot { text-align: right; font-variant-numeric: tabular-nums; font-size: 12.5px; padding-right: 8px; }
+  .riga input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--s-oro); padding: 0; }
+  .riga.spenta > *:not(:first-child):not(:nth-child(2)) { opacity: .3; pointer-events: none; }
+  .riga.spenta input:nth-child(2) { color: var(--s-tenue); }
+  .riga .pers { color: var(--s-oro); border-color: #6a5326; }
+  .x {
+    width: 26px; height: 26px; border: 0; background: none; color: #5e5e6b;
+    cursor: pointer; border-radius: 3px; font-size: 16px; line-height: 1;
+  }
+  .x:hover { background: #3a2320; color: #e0603f; }
+  @media (max-width: 60rem) {
+    .intest { display: none; }
+    .riga { grid-template-columns: 24px 1fr 30px; row-gap: 4px; }
+    .riga > :nth-child(3) { grid-column: 2 / 4; }
+    .riga > :nth-child(n+4):not(:last-child) { grid-column: span 1; }
+    .riga { grid-template-areas: none; }
+  }
 
-  .tot { display: flex; justify-content: space-between; align-items: baseline;
-         padding: 14px 0; border-top: 1px solid #33333a; margin-top: 10px; font-size: 13px; }
-  .tot b { font-size: 20px; font-weight: 500; font-variant-numeric: tabular-nums; }
+  .azioni-b { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .b--min { padding: 7px 11px; font-size: 10px; border-style: dashed; }
 
-  .azioni { display: grid; gap: 8px; padding: 20px 0 0; margin-top: 24px;
-            border-top: 1px solid #3f3f47; }
-  .link { width: 100%; font-size: 11px; word-break: break-all; color: #9a9aa4;
-          background: #232329; border: 1px solid #3f3f47; padding: 9px 10px; border-radius: 2px;
-          max-height: 84px; overflow-y: auto; }
-  .ok { color: #f2b45c; font-size: 12px; min-height: 16px; }
+  /* ---------- maggiorazioni ---------- */
+  .mag { display: grid; gap: 8px; }
+  .mag__r { display: grid; grid-template-columns: 1fr 6rem 7rem 30px; gap: 8px; align-items: center; }
+  .mag__v { text-align: right; font-variant-numeric: tabular-nums; font-size: 13px; color: var(--s-tenue); }
+  .conto { display: grid; gap: 6px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--s-bordo); }
+  .conto__r { display: flex; justify-content: space-between; font-size: 13px; }
+  .conto__r b { font-variant-numeric: tabular-nums; }
+  .conto__r--tot { padding-top: 8px; border-top: 1px solid var(--s-bordo); font-size: 17px; }
+
+  .esito { font-size: 11px; color: var(--s-oro); min-height: 15px; }
+  .link { font-size: 10px; word-break: break-all; color: var(--s-tenue);
+          background: var(--s-piano); border: 1px solid var(--s-bordo);
+          padding: 8px 10px; border-radius: 3px; max-height: 66px; overflow-y: auto; }
 </style>
 </head>
 <body>
 
-<div class="app">
-  <div class="pan">
-    <h1>Studio preventivi</h1>
-    <p class="sott">Spunta le voci che servono, metti i numeri. Il preventivo si
-      aggiorna a destra. I dati restano nel tuo browser e dentro il link: non
-      vengono salvati sul sito. Le tariffe che scrivi se le ricorda questo
-      browser, e restano anche quando fai un preventivo nuovo.</p>
+<div class="barra">
+  <span class="barra__n">Studio preventivi</span>
+  <span class="barra__sp"></span>
+  <div class="barra__t"><small>Totale</small><b id="t-tot">0,00 €</b></div>
+  <button class="b" type="button" id="b-ante">Anteprima</button>
+  <button class="b" type="button" id="b-pdf">PDF</button>
+  <button class="b b--pieno" type="button" id="b-link">Link cliente</button>
+  <button class="b" type="button" id="b-new">Nuovo</button>
+</div>
 
-    <fieldset>
-      <legend>Progetto</legend>
-      <label for="f-h">Intestato a</label>
-      <select id="f-h" data-k="h">
-        <option value="mb">Mattia Baruffaldi</option>
-        <option value="unreal">Unreal Srl</option>
-      </select>
-      <div class="due">
-        <div><label for="f-n">N. preventivo</label><input id="f-n" data-k="n"></div>
-        <div><label for="f-dt">Data</label><input id="f-dt" data-k="dt"></div>
+<div class="scena" id="scena">
+  <div class="modulo">
+
+    <section class="sez">
+      <h2 class="sez__t">Progetto</h2>
+      <div class="griglia">
+        <div class="campo"><label for="f-h">Intestato a</label>
+          <select id="f-h" data-k="h">
+            <option value="mb">Mattia Baruffaldi</option>
+            <option value="unreal">Unreal Srl</option>
+          </select></div>
+        <div class="campo"><label for="f-cl">Cliente</label><input id="f-cl" data-k="cl" placeholder="VVENA"></div>
+        <div class="campo"><label for="f-n">N. preventivo</label><input id="f-n" data-k="n"></div>
+        <div class="campo"><label for="f-dt">Data</label><input id="f-dt" data-k="dt"></div>
+        <div class="campo"><label for="f-gg">Giornate di produzione</label>
+          <input id="f-gg" data-k="gg" type="number" min="1" step="1">
+          <p class="aiuto">Valgono per le voci a giornata. Dove sono diverse, scrivile sulla riga.</p></div>
+        <div class="campo campo--largo"><label for="f-t">Titolo</label>
+          <input id="f-t" data-k="t" placeholder="VVENA Campaign 2026"></div>
+        <div class="campo campo--largo"><label for="f-s">Sottotitolo</label>
+          <input id="f-s" data-k="s" placeholder="Asset shooting · 2 days · 2 talent"></div>
+        <div class="campo campo--largo"><label for="f-sc">Scope</label>
+          <textarea id="f-sc" data-k="sc"></textarea></div>
       </div>
-      <label for="f-gg">Giornate di produzione</label>
-      <input id="f-gg" data-k="gg" type="number" min="1" step="1">
-      <p class="aiuto">Valgono per tutte le voci a giornata. Se una ne fa di
-        diverse (il drone, gli eventi) scrivi il numero solo su quella riga.</p>
-      <label for="f-cl">Cliente</label><input id="f-cl" data-k="cl" placeholder="VVENA">
-      <label for="f-t">Titolo</label><input id="f-t" data-k="t" placeholder="VVENA Campaign 2026">
-      <label for="f-s">Sottotitolo</label>
-      <input id="f-s" data-k="s" placeholder="Asset shooting · 2 days · 2 talent">
-      <label for="f-sc">Scope</label><textarea id="f-sc" data-k="sc"></textarea>
-    </fieldset>
+    </section>
 
-    <fieldset>
-      <legend>Voci</legend>
+    <section class="sez">
+      <h2 class="sez__t">Voci</h2>
       <div id="gruppi"></div>
-      <div class="tot"><span>Fee</span><b id="t-fee">0,00 €</b></div>
-      <label for="f-pre">Cosa si aggiunge al totale</label>
-      <select id="f-pre">
-        <option value="riv4">Rivalsa INPS 4% — regime forfettario</option>
-        <option value="iva22">IVA 22%</option>
-        <option value="agency10">Agency fee 10%</option>
-        <option value="zero">Niente</option>
-        <option value="alt">Altro — lo scrivo io</option>
-      </select>
-      <div class="due">
-        <div><label for="f-rv">Percentuale</label><input id="f-rv" data-k="rv" type="number" step="0.5"></div>
-        <div><label for="f-rvl">Come si chiama</label><input id="f-rvl" data-k="rvl" placeholder="Agency fee 10%"></div>
+      <button class="b b--min" type="button" id="b-blocco" style="margin-top:8px">+ nuovo blocco</button>
+    </section>
+
+    <section class="sez">
+      <h2 class="sez__t">Cosa si aggiunge al totale</h2>
+      <div class="mag" id="mag"></div>
+      <div class="azioni-b">
+        <button class="b b--min" type="button" data-pre="Rivalsa INPS 4%|4">+ Rivalsa INPS 4%</button>
+        <button class="b b--min" type="button" data-pre="VAT 22%|22">+ IVA 22%</button>
+        <button class="b b--min" type="button" data-pre="Agency fee 10%|10">+ Agency fee 10%</button>
+        <button class="b b--min" type="button" data-pre="|0">+ altra</button>
       </div>
-      <div class="tot"><span>Totale</span><b id="t-tot">0,00 €</b></div>
-    </fieldset>
+      <p class="aiuto">Si sommano una dopo l'altra: l'agency fee sul budget, l'IVA su budget più agency fee.</p>
+      <div class="conto" id="conto"></div>
+    </section>
 
-    <fieldset>
-      <legend>Condizioni</legend>
-      <label for="f-vl">Validità</label><input id="f-vl" data-k="vl">
-      <label for="f-iv">Fatturazione</label><input id="f-iv" data-k="iv">
-      <label for="f-pg">Pagamento</label><input id="f-pg" data-k="pg">
-      <label for="f-wd">Recesso</label><input id="f-wd" data-k="wd">
-      <label for="f-nt">Nota fiscale (IVA)</label><textarea id="f-nt" data-k="nt"></textarea>
-    </fieldset>
-
-    <fieldset>
-      <legend>Testi</legend>
-      <label for="f-inc">Incluso — una riga per voce</label><textarea id="f-inc" data-k="inc"></textarea>
-      <label for="f-exc">Escluso — una riga per voce</label><textarea id="f-exc" data-k="exc"></textarea>
-    </fieldset>
-
-    <div class="azioni">
-      <button class="q-btn q-btn--go" type="button" id="b-link">Copia il link per il cliente</button>
-      <div class="link" id="out">—</div>
-      <p class="ok" id="msg"></p>
-      <div class="due">
-        <button class="q-btn" type="button" id="b-pdf">Apri e stampa in PDF</button>
-        <button class="q-btn" type="button" id="b-new">Nuovo preventivo</button>
+    <section class="sez">
+      <h2 class="sez__t">Condizioni</h2>
+      <div class="griglia">
+        <div class="campo"><label for="f-vl">Validità</label><input id="f-vl" data-k="vl"></div>
+        <div class="campo"><label for="f-iv">Fatturazione</label><input id="f-iv" data-k="iv"></div>
+        <div class="campo"><label for="f-pg">Pagamento</label><input id="f-pg" data-k="pg"></div>
+        <div class="campo campo--largo"><label for="f-wd">Recesso</label><input id="f-wd" data-k="wd"></div>
+        <div class="campo campo--largo"><label for="f-nt">Nota fiscale</label>
+          <textarea id="f-nt" data-k="nt" style="min-height:52px"></textarea></div>
       </div>
-    </div>
+    </section>
+
+    <section class="sez">
+      <h2 class="sez__t">Testi</h2>
+      <div class="griglia">
+        <div class="campo"><label for="f-inc">Incluso — una riga per voce</label>
+          <textarea id="f-inc" data-k="inc"></textarea></div>
+        <div class="campo"><label for="f-exc">Escluso — una riga per voce</label>
+          <textarea id="f-exc" data-k="exc"></textarea></div>
+      </div>
+    </section>
+
+    <section class="sez">
+      <div class="esito" id="msg"></div>
+      <div class="link" id="out" hidden></div>
+    </section>
   </div>
 
   <div class="ante"><div id="ante"></div></div>
@@ -180,230 +250,247 @@
 <script>
 (function () {
   var CHIAVE = 'mb-preventivo';
-  var d;
+  var d, aperto = 0;
 
   try { d = JSON.parse(localStorage.getItem(CHIAVE)) || PREVENTIVO.vuoto(); }
   catch (e) { d = PREVENTIVO.vuoto(); }
-  if (!d.g) d = PREVENTIVO.vuoto();
+  if (!d || !d.g) d = PREVENTIVO.vuoto();
+  if (!Array.isArray(d.mag)) {                       // dal formato vecchio
+    d.mag = d.rv ? [{ l: d.rvl || 'Maggiorazione', p: Number(d.rv) }] : [];
+    delete d.rv; delete d.rvl;
+  }
 
-  /* ---- campi semplici ---- */
+  var $ = function (s) { return document.querySelector(s); };
+  var esc = function (t) { return String(t == null ? '' : t).replace(/"/g, '&quot;'); };
+
+  /* ---------- campi semplici ---------- */
   var campi = [].slice.call(document.querySelectorAll('[data-k]'));
   function daModello() {
     campi.forEach(function (el) {
       var v = d[el.dataset.k];
       el.value = Array.isArray(v) ? v.join('\n') : (v == null ? '' : v);
     });
-    var t = document.getElementById('f-pre');
-    if (t && typeof sceltaAttuale === 'function') t.value = sceltaAttuale();
   }
   campi.forEach(function (el) {
     el.addEventListener('input', function () {
       var k = el.dataset.k, v = el.value;
       if (k === 'inc' || k === 'exc') v = v.split('\n').filter(function (x) { return x.trim(); });
-      else if (k === 'rv' || k === 'gg') v = Number(v) || 0;
+      else if (k === 'gg') v = Number(v) || 0;
       d[k] = v;
       aggiorna();
     });
   });
 
-  /* ---- voci: un blocco alla volta ---- */
-  var aperto = 0;
-
+  /* ---------- blocchi e righe ---------- */
   function disegnaVoci() {
-    var html = d.g.map(function (g, gi) {
+    $('#gruppi').innerHTML = d.g.map(function (g, gi) {
       var righe = g.i.map(function (v, vi) {
-        // Se la spunta e' gia' stata toccata comanda quella. Prima si guardava
-        // il prezzo, e una voce spuntata ma ancora senza cifra si rispuntava
-        // da sola al primo ridisegno.
         var attiva = (v.on === undefined) ? (v.p > 0 || !!v.f) : !!v.on;
-        return '<div class="voce' + (attiva ? '' : ' off') + '" data-g="' + gi + '" data-v="' + vi + '">' +
-          '<input type="checkbox"' + (attiva ? ' checked' : '') + ' aria-label="Includi ' + v.d + '">' +
-          '<div><div class="voce__d">' + v.d +
-          (v.n ? '<div class="voce__n">' + v.n + '</div>' : '') + '</div>' +
-          '<div class="voce__c">' +
-          '<input type="number" class="' + (v.ddx ? 'pers' : '') + '" value="' +
-          (v.dd ? PREVENTIVO.giorni(v, d) : '') + '" data-f="dd" placeholder="gg"' +
-          (v.dd ? '' : ' disabled title="Questa voce non va a giornata"') + '>' +
-          '<input type="number" value="' + (v.u || 1) + '" data-f="u" placeholder="q.tà">' +
-          '<input type="text" value="' + (v.f || '') + '" data-f="f" placeholder="oppure: Included">' +
-          '<input type="number" value="' + (v.p || '') + '" data-f="p" placeholder="€">' +
-          '</div></div></div>';
+        return '<div class="riga' + (attiva ? '' : ' spenta') + '" data-g="' + gi + '" data-v="' + vi + '">' +
+          '<input type="checkbox"' + (attiva ? ' checked' : '') + ' aria-label="Includi">' +
+          '<input value="' + esc(v.d) + '" data-f="d" aria-label="Voce">' +
+          '<input value="' + esc(v.n) + '" data-f="n" placeholder="nota" aria-label="Nota">' +
+          '<input class="num' + (v.ddx ? ' pers' : '') + '" type="number" value="' +
+            (v.dd ? PREVENTIVO.giorni(v, d) : '') + '" data-f="dd" aria-label="Giorni"' +
+            (v.dd ? '' : ' disabled') + '>' +
+          '<input class="num" type="number" value="' + (v.u || 1) + '" data-f="u" aria-label="Quantità">' +
+          '<input value="' + esc(v.f) + '" data-f="f" placeholder="Included…" aria-label="Dicitura">' +
+          '<input class="num" type="number" value="' + (v.p || '') + '" data-f="p" placeholder="€" aria-label="Prezzo">' +
+          '<span class="tot">' + (PREVENTIVO.totaleVoce(v, d) ? PREVENTIVO.euro(PREVENTIVO.totaleVoce(v, d)) : '') + '</span>' +
+          '<button class="x" type="button" data-delv="' + gi + '.' + vi + '" aria-label="Elimina voce">&times;</button>' +
+          '</div>';
       }).join('');
+
       var tot = PREVENTIVO.totaleGruppo(g, d);
-      var ultimo = gi === d.g.length - 1;
+      var quante = g.i.filter(function (v) { return v.on === undefined ? (v.p > 0 || v.f) : v.on; }).length;
       return '<div class="blocco' + (gi === aperto ? ' is-on' : '') + '">' +
-        '<button class="blocco__t" type="button" data-apri="' + gi + '"' +
-        ' aria-expanded="' + (gi === aperto) + '">' +
-        '<span>' + g.t + '</span>' +
-        '<span class="blocco__v">' + (tot ? PREVENTIVO.euro(tot) : '') + '</span>' +
-        '</button><div class="blocco__c">' +
-        '<input class="tit" value="' + g.t.replace(/"/g, '&quot;') +
-        '" data-gt="' + gi + '" aria-label="Titolo del blocco">' +
-        '<div class="mini"><span>Giorni</span><span>Q.tà</span><span>Dicitura</span><span>Prezzo</span></div>' +
+        '<button class="blocco__t" type="button" data-apri="' + gi + '">' +
+        '<span class="blocco__nome">' + esc(g.t) + '</span>' +
+        '<span class="blocco__q">' + (quante ? quante + ' voci' : '') + '</span>' +
+        '<span class="blocco__v">' + (tot ? PREVENTIVO.euro(tot) : '') + '</span></button>' +
+        '<div class="blocco__c">' +
+        '<div class="campo" style="margin-bottom:6px"><label>Nome del blocco</label>' +
+        '<input value="' + esc(g.t) + '" data-gt="' + gi + '"></div>' +
+        '<div class="intest"><span></span><span>Voce</span><span>Nota</span><span>Giorni</span>' +
+        '<span>Q.tà</span><span>Dicitura</span><span>Prezzo</span><span>Totale</span><span></span></div>' +
         righe +
-        '<div class="blocco__az">' +
-        '<button class="agg" type="button" data-add="' + gi + '">+ voce</button>' +
-        '<button class="agg" type="button" data-dup="' + gi + '">+ duplica blocco</button>' +
-        '<button class="agg agg--no" type="button" data-del="' + gi + '">Elimina blocco</button>' +
-        (ultimo ? '' : '<button class="agg agg--go" type="button" data-next="' + gi + '">Avanti →</button>') +
+        '<div class="azioni-b">' +
+        '<button class="b b--min" type="button" data-add="' + gi + '">+ voce</button>' +
+        '<button class="b b--min" type="button" data-dup="' + gi + '">Duplica blocco</button>' +
+        '<button class="b b--min" type="button" data-del="' + gi + '">Elimina blocco</button>' +
+        (gi === d.g.length - 1 ? '' :
+          '<button class="b b--min b--on" type="button" data-next="' + gi + '">Avanti &rarr;</button>') +
         '</div></div></div>';
     }).join('');
-    document.getElementById('gruppi').innerHTML = html;
   }
 
-  document.getElementById('gruppi').addEventListener('click', function (e) {
-    var b = e.target.closest('[data-apri],[data-add],[data-dup],[data-del],[data-next]');
+  $('#gruppi').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-apri],[data-add],[data-dup],[data-del],[data-delv],[data-next]');
     if (!b) return;
     var s = b.dataset;
 
-    if (s.apri !== undefined) {
-      aperto = (aperto === Number(s.apri)) ? -1 : Number(s.apri);
-      disegnaVoci();
-      return;
-    }
-    if (s.next !== undefined) {
-      aperto = Number(s.next) + 1;
-      disegnaVoci();
-      document.querySelectorAll('.blocco')[aperto]
-        .scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-      return;
-    }
+    if (s.apri !== undefined) { aperto = (aperto === +s.apri) ? -1 : +s.apri; disegnaVoci(); return; }
+    if (s.next !== undefined) { aperto = +s.next + 1; disegnaVoci();
+      document.querySelectorAll('.blocco')[aperto].scrollIntoView({ block: 'nearest', behavior: 'smooth' }); return; }
     if (s.add !== undefined) {
-      var nome = prompt('Nome della voce da aggiungere');
-      if (!nome) return;
-      d.g[s.add].i.push({ d: nome, n: '', dd: 0, u: 1, p: 0, on: true });
+      d.g[s.add].i.push({ d: 'Nuova voce', n: '', dd: 0, u: 1, p: 0, on: true });
       disegnaVoci(); aggiorna();
+      var r = document.querySelectorAll('.blocco')[+s.add].querySelectorAll('.riga');
+      r[r.length - 1].querySelector('[data-f=d]').select();
       return;
+    }
+    if (s.delv !== undefined) {
+      var p = s.delv.split('.');
+      d.g[p[0]].i.splice(p[1], 1);
+      disegnaVoci(); aggiorna(); return;
     }
     if (s.del !== undefined) {
-      var j = Number(s.del);
-      if (!confirm('Eliminare il blocco "' + d.g[j].t + '"?')) return;
-      d.g.splice(j, 1);
+      if (!confirm('Eliminare il blocco "' + d.g[+s.del].t + '"?')) return;
+      d.g.splice(+s.del, 1);
       if (aperto >= d.g.length) aperto = d.g.length - 1;
-      disegnaVoci(); aggiorna();
-      return;
+      disegnaVoci(); aggiorna(); return;
     }
     if (s.dup !== undefined) {
-      var i = Number(s.dup);
-      var copia = JSON.parse(JSON.stringify(d.g[i]));
-      copia.t = copia.t + ' B';
-      d.g.splice(i + 1, 0, copia);
-      aperto = i + 1;
+      var c = JSON.parse(JSON.stringify(d.g[+s.dup]));
+      c.t += ' B';
+      d.g.splice(+s.dup + 1, 0, c);
+      aperto = +s.dup + 1;
       disegnaVoci(); aggiorna();
     }
   });
 
-  document.getElementById('gruppi').addEventListener('input', function (e) {
+  $('#gruppi').addEventListener('input', function (e) {
     if (e.target.dataset.gt !== undefined) {
-      d.g[e.target.dataset.gt].t = e.target.value;
-      var eti = e.target.closest('.blocco').querySelector('.blocco__t span');
-      if (eti) eti.textContent = e.target.value;
+      var gi = e.target.dataset.gt;
+      d.g[gi].t = e.target.value;
+      e.target.closest('.blocco').querySelector('.blocco__nome').textContent = e.target.value;
       aggiorna(); return;
     }
-    var box = e.target.closest('.voce'); if (!box) return;
+    var box = e.target.closest('.riga'); if (!box) return;
     var v = d.g[box.dataset.g].i[box.dataset.v];
+    var f = e.target.dataset.f;
+
     if (e.target.type === 'checkbox') {
       v.on = e.target.checked;
-      box.classList.toggle('off', !e.target.checked);
+      box.classList.toggle('spenta', !e.target.checked);
+    } else if (f === 'dd') {
+      v.ddx = e.target.value !== '';
+      v.dd = Number(e.target.value) || (v.ddx ? 0 : 1);
+      e.target.classList.toggle('pers', !!v.ddx);
+    } else if (f === 'd' || f === 'n' || f === 'f') {
+      v[f] = e.target.value;
     } else {
-      var f = e.target.dataset.f;
-      if (f === 'dd') {
-        // campo vuoto = torna a seguire le giornate di produzione
-        v.ddx = e.target.value !== '';
-        v.dd = Number(e.target.value) || (v.ddx ? 0 : 1);
-        e.target.classList.toggle('pers', !!v.ddx);
-      } else {
-        v[f] = (f === 'f') ? e.target.value : (Number(e.target.value) || 0);
-      }
-      if (f === 'p' && v.p > 0) v.on = true;
+      v[f] = Number(e.target.value) || 0;
+      if (f === 'p' && v.p > 0 && v.on === undefined) v.on = true;
     }
+    var cella = box.querySelector('.tot');
+    if (cella) { var t = PREVENTIVO.totaleVoce(v, d); cella.textContent = t ? PREVENTIVO.euro(t) : ''; }
     aggiorna();
   });
 
-  /* ---- aggiornamento ---- */
+  $('#b-blocco').addEventListener('click', function () {
+    var nome = prompt('Nome del blocco'); if (!nome) return;
+    d.g.push({ t: nome, i: [{ d: 'Nuova voce', n: '', dd: 0, u: 1, p: 0, on: true }] });
+    aperto = d.g.length - 1;
+    disegnaVoci(); aggiorna();
+  });
+
+  /* ---------- maggiorazioni ---------- */
+  function disegnaMag() {
+    var c = PREVENTIVO.conti(d);
+    $('#mag').innerHTML = d.mag.map(function (m, i) {
+      return '<div class="mag__r">' +
+        '<input value="' + esc(m.l) + '" data-m="' + i + '" data-mf="l" placeholder="Come si chiama">' +
+        '<input class="num" type="number" step="0.5" value="' + m.p + '" data-m="' + i + '" data-mf="p">' +
+        '<span class="mag__v">' + PREVENTIVO.euro((c.mag[i] || {}).v || 0, 1) + '</span>' +
+        '<button class="x" type="button" data-delm="' + i + '" aria-label="Elimina">&times;</button>' +
+        '</div>';
+    }).join('') || '<p class="aiuto">Nessuna maggiorazione: il totale è il budget.</p>';
+  }
+  $('#mag').addEventListener('input', function (e) {
+    var i = e.target.dataset.m; if (i === undefined) return;
+    d.mag[i][e.target.dataset.mf] = e.target.dataset.mf === 'p'
+      ? (Number(e.target.value) || 0) : e.target.value;
+    aggiorna();
+  });
+  $('#mag').addEventListener('click', function (e) {
+    var i = e.target.dataset.delm; if (i === undefined) return;
+    d.mag.splice(i, 1); disegnaMag(); aggiorna();
+  });
+  document.querySelectorAll('[data-pre]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var p = b.dataset.pre.split('|');
+      d.mag.push({ l: p[0], p: Number(p[1]) });
+      disegnaMag(); aggiorna();
+    });
+  });
+
+  /* ---------- aggiornamento ---------- */
   function aggiorna() {
     var c = PREVENTIVO.conti(d);
-    document.querySelectorAll('.voce').forEach(function (box) {
-      var v = d.g[box.dataset.g] && d.g[box.dataset.g].i[box.dataset.v];
+
+    document.querySelectorAll('.riga').forEach(function (box) {
+      var g = d.g[box.dataset.g]; if (!g) return;
+      var v = g.i[box.dataset.v]; if (!v) return;
       var campo = box.querySelector('[data-f=dd]');
-      if (v && campo && v.dd && !v.ddx && document.activeElement !== campo) {
+      if (campo && v.dd && !v.ddx && document.activeElement !== campo) {
         campo.value = PREVENTIVO.giorni(v, d);
       }
+      var cella = box.querySelector('.tot');
+      if (cella) { var t = PREVENTIVO.totaleVoce(v, d); cella.textContent = t ? PREVENTIVO.euro(t) : ''; }
     });
     document.querySelectorAll('.blocco').forEach(function (b, i) {
-      var v = b.querySelector('.blocco__v');
-      if (v && d.g[i]) {
-        var t = PREVENTIVO.totaleGruppo(d.g[i], d);
-        v.textContent = t ? PREVENTIVO.euro(t) : '';
-      }
+      if (!d.g[i]) return;
+      var t = PREVENTIVO.totaleGruppo(d.g[i], d);
+      b.querySelector('.blocco__v').textContent = t ? PREVENTIVO.euro(t) : '';
     });
-    document.getElementById('t-fee').textContent = PREVENTIVO.euro(c.fee, 1);
-    document.getElementById('t-tot').textContent = PREVENTIVO.euro(c.tot, 1);
-    document.getElementById('ante').innerHTML = PREVENTIVO.disegna(d);
+    document.querySelectorAll('.mag__r').forEach(function (r, i) {
+      r.querySelector('.mag__v').textContent = PREVENTIVO.euro((c.mag[i] || {}).v || 0, 1);
+    });
+
+    $('#conto').innerHTML =
+      '<div class="conto__r"><span>Budget</span><b>' + PREVENTIVO.euro(c.fee, 1) + '</b></div>' +
+      c.mag.map(function (m) {
+        return '<div class="conto__r"><span>' + esc(m.l) + '</span><b>' +
+          PREVENTIVO.euro(m.v, 1) + '</b></div>';
+      }).join('') +
+      '<div class="conto__r conto__r--tot"><span>Totale</span><b>' +
+      PREVENTIVO.euro(c.tot, 1) + '</b></div>';
+
+    $('#t-tot').textContent = PREVENTIVO.euro(c.tot, 1);
+    if ($('#scena').classList.contains('con-ante')) $('#ante').innerHTML = PREVENTIVO.disegna(d);
     try { localStorage.setItem(CHIAVE, JSON.stringify(d)); } catch (e) {}
   }
+
+  /* ---------- azioni ---------- */
+  $('#b-ante').addEventListener('click', function () {
+    var on = $('#scena').classList.toggle('con-ante');
+    $('#b-ante').classList.toggle('b--on', on);
+    if (on) $('#ante').innerHTML = PREVENTIVO.disegna(d);
+  });
 
   async function indirizzo() {
     return location.origin + '/quote/#' + await PREVENTIVO.codifica(d);
   }
-
-  document.getElementById('b-link').addEventListener('click', async function () {
+  $('#b-link').addEventListener('click', async function () {
     var u = await indirizzo();
-    document.getElementById('out').textContent = u;
-    var msg = document.getElementById('msg');
-    try {
-      await navigator.clipboard.writeText(u);
-      msg.textContent = 'Copiato (' + u.length + ' caratteri). Incollalo nella mail.';
-    } catch (e) {
-      msg.textContent = 'Selezionalo qui sopra e copialo a mano.';
-    }
+    var out = $('#out'); out.hidden = false; out.textContent = u;
+    try { await navigator.clipboard.writeText(u);
+      $('#msg').textContent = 'Link copiato (' + u.length + ' caratteri). Incollalo nella mail.';
+    } catch (e) { $('#msg').textContent = 'Selezionalo qui sotto e copialo a mano.'; }
   });
-
-  document.getElementById('b-pdf').addEventListener('click', async function () {
+  $('#b-pdf').addEventListener('click', async function () {
     window.open(await indirizzo(), '_blank', 'noopener');
   });
-
-  document.getElementById('b-new').addEventListener('click', function () {
+  $('#b-new').addEventListener('click', function () {
     if (!confirm('Nuovo preventivo? Le tariffe restano, il resto si azzera.')) return;
     d = PREVENTIVO.vuoto(d);
-    daModello(); disegnaVoci(); aggiorna();
+    if (!Array.isArray(d.mag)) d.mag = [];
+    aperto = 0;
+    daModello(); disegnaVoci(); disegnaMag(); aggiorna();
   });
 
-  /* ---- maggiorazione: scelte pronte ----
-     L'IVA e la rivalsa non convivono con la stessa nota in fondo: scegliendo
-     l'IVA la dicitura del forfettario si toglie da sola, altrimenti il
-     preventivo direbbe insieme "IVA 22%" e "operazione senza IVA". */
-  var NOTA_FORFAIT = 'Operazione senza applicazione dell\u2019IVA ai sensi ' +
-    'dell\u2019art. 1, commi 54-89, L. 190/2014.';
-  var SCELTE = {
-    riv4:     { rv: 4,  rvl: 'Rivalsa INPS 4%', nt: NOTA_FORFAIT },
-    iva22:    { rv: 22, rvl: 'VAT 22%',         nt: '' },
-    agency10: { rv: 10, rvl: 'Agency fee 10%' },
-    zero:     { rv: 0,  rvl: '' }
-  };
-  var pre = document.getElementById('f-pre');
-
-  function sceltaAttuale() {
-    for (var k in SCELTE) {
-      if (SCELTE[k].rv === Number(d.rv) && SCELTE[k].rvl === (d.rvl || '')) return k;
-    }
-    return 'alt';
-  }
-
-  pre.addEventListener('change', function () {
-    var v = SCELTE[pre.value];
-    if (!v) return;                       // "Altro": lascia fare a lui
-    d.rv = v.rv; d.rvl = v.rvl;
-    if (v.nt !== undefined) d.nt = v.nt;
-    daModello(); aggiorna();
-  });
-  [document.getElementById('f-rv'), document.getElementById('f-rvl')]
-    .forEach(function (el) {
-      el.addEventListener('input', function () { pre.value = sceltaAttuale(); });
-    });
-
-  daModello(); disegnaVoci(); aggiorna();
-  pre.value = sceltaAttuale();
+  daModello(); disegnaVoci(); disegnaMag(); aggiorna();
 })();
 </script>
 </body>

@@ -168,10 +168,14 @@ Strumento suo per fare preventivi, nato ad agosto 2026 dal preventivo VVENA.
   4 mentre la troupe ne fa 11). Svuotando il campo giorni si torna a seguire
   il valore globale. Nel link le giornate viaggiano gia' risolte, cosi'
   `/quote/` non deve sapere nulla di questo meccanismo.
-- **Maggiorazione a scelte pronte:** rivalsa INPS 4%, IVA 22%, agency fee 10%,
-  niente, oppure a mano. **Scegliendo l'IVA la nota del forfettario si toglie
-  da sola**, altrimenti il preventivo direbbe insieme "VAT 22%" e "operazione
-  senza applicazione dell'IVA".
+- **Maggiorazioni multiple** (`d.mag`, elenco di `{l, p}`): rivalsa, IVA e
+  agency fee possono stare **insieme**, non si escludono. Si applicano **a
+  cascata**: l'agency fee sul budget, l'IVA su budget + agency fee. I pulsanti
+  aggiungono quelle pronte, la × le toglie.
+- **Lo studio e' a tutta pagina** con l'anteprima a scomparsa (pulsante
+  "Anteprima"): a lui interessa vedere i campi, non il layout. Le righe sono
+  una tabella: voce · nota · giorni · q.ta' · dicitura · prezzo · totale · ×.
+  **Il nome di ogni voce e' modificabile**, e ogni voce si elimina con la ×.
 - `/quote/` — quello che vede il cliente, e da cui si stampa il PDF.
 - **I dati del preventivo NON stanno sul sito**: viaggiano nel link dopo il
   cancelletto (`/quote/#z...`). Quella parte il browser non la manda mai al
