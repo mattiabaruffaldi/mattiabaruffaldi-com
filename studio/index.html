@@ -311,7 +311,17 @@
   .scena.con-ante .modulo { margin-inline: 0; }
   @media (min-width: 68rem) {
     .ante { position: sticky; top: 53px; max-height: calc(100vh - 53px); }
-    .ante .q-sheet { transform: scale(.62); transform-origin: top center; margin-bottom: -38%; }
+    /* Il foglio e' A4 (210mm ≈ 794px) dentro una colonna di 26rem: va
+       ridotto della misura giusta, non "a occhio", o esce dal bordo destro.
+       Origine in alto a sinistra e margine negativo in mm: le percentuali
+       si calcolano sulla larghezza del contenitore, non sull'altezza. */
+    .ante { --scala: .49; padding-inline: var(--sp-3); }
+    .ante .q-sheet {
+      transform: scale(var(--scala));
+      transform-origin: top left;
+      margin: 0 0 calc((var(--scala) - 1) * 297mm);
+    }
+    .ante .q-sheet + .q-sheet { margin-top: 0; }
   }
 
   .sez { margin-bottom: var(--sp-6); }
@@ -812,7 +822,15 @@
             (rinominando === x.id
               ? '<input class="rinomina" value="' + esc(titolo) + '" aria-label="Nuovo titolo">'
               : '<button class="apri" type="button" data-apri="' + esc(x.id) + '">' + escT(titolo) + '</button>') +
-            (mostraCliente ? '<span class="sotto">' + escT(cartellaDi(x)) + '</span>' : '') +
+            // Cliente e sottotitolo: due preventivi dello stesso lavoro hanno
+            // lo stesso titolo (e' il titolo del documento), e a distinguerli
+            // e' il sottotitolo — "2 days · 2 talent" contro "1 day · 1 talent".
+            (function () {
+              var pezzi = [];
+              if (mostraCliente) pezzi.push(cartellaDi(x));
+              if (x.dati && x.dati.s) pezzi.push(x.dati.s);
+              return pezzi.length ? '<span class="sotto">' + escT(pezzi.join(' · ')) + '</span>' : '';
+            })() +
             '<span class="meta-m">n. ' + escT(x.n || '—') + ' · ' + quando(x.agg) +
               ' · ' + PREVENTIVO.euro(x.tot || 0, 1) + '</span>' +
           '</td>' +
