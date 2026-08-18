@@ -129,20 +129,21 @@
            ('0' + (x.getMonth() + 1)).slice(-2) + '-' + coda;
   };
 
-  // Un preventivo nuovo parte sempre col catalogo pulito: nessuna tariffa
-  // ereditata dal precedente. Le mette lui ogni volta.
-  PREVENTIVO.vuoto = function () {
-    var oggi = new Date();
-    var catalogo = JSON.parse(JSON.stringify(PREVENTIVO.catalogo));
-    var mesi =['January', 'February', 'March', 'April', 'May', 'June', 'July',
-                'August', 'September', 'October', 'November', 'December'];
-    return {
-      n: PREVENTIVO.numero(oggi),
-      dt: mesi[oggi.getMonth()] + ' ' + oggi.getFullYear(),
-      t: '',
-      s: '',
-      sc: '',
-      g: catalogo,
+  /* ------------------------------------------------------------------
+     Testi standard
+
+     Consegne, incluso, escluso, diritti d'uso, condizioni e nota fiscale
+     sono quasi sempre gli stessi. Nel link non ci vanno: ci va solo il
+     numero di versione (`dv`), e chi legge li rimette. Sono un quinto del
+     peso di un preventivo.
+
+     ** QUESTE VERSIONI NON SI MODIFICANO MAI. ** Se un domani cambia le sue
+     condizioni si aggiunge la 2 e si sposta `PREVENTIVO.DV`: un preventivo
+     gia' mandato deve continuare a mostrare le condizioni con cui e' stato
+     mandato, anche fra due anni.
+     ------------------------------------------------------------------ */
+  PREVENTIVO.PREDEFINITI = {
+    1: {
       dl: [
         { d: 'Main campaign film', n: '16:9 · 1’30” · 4K', q: '1' },
         { d: 'Social contents', n: '9:16 · 15/30” · 1080p', q: '3' },
@@ -166,15 +167,46 @@
         { b: 'Print', t: 'magazines and printed editorial or promotional media' }
       ],
       urn: 'TV advertising, billboards, OOH and sponsored social media are not included and will be quoted separately.',
-      h: 'mb',
-      gg: 1,
-      mag: [{ l: 'Rivalsa INPS 4%', p: 4 }],
       vl: '10 days from presentation.',
       iv: '30% on acceptance, 70% on delivery.',
       pg: 'Bank transfer, 60 days end of month.',
       wd: 'Documented expenses and lost profit, set at 60% of the agreed fee.',
       nt: 'Operazione senza applicazione dell’IVA ai sensi dell’art. 1, commi 54-89, L. 190/2014.'
-    };
+    }
+  };
+  PREVENTIVO.DV = 1;
+  PREVENTIVO.predefiniti = function (dv) {
+    return PREVENTIVO.PREDEFINITI[dv] || null;
+  };
+  // Rimette i testi standard che nel link non c'erano. Un link vecchio non
+  // ha `dv` e se li portava dentro tutti: quello si lascia com'e'.
+  PREVENTIVO.completa = function (q) {
+    var pred = PREVENTIVO.predefiniti(q && q.dv);
+    if (!pred) return q;
+    var pieno = JSON.parse(JSON.stringify(pred));
+    Object.keys(q).forEach(function (k) { pieno[k] = q[k]; });
+    return pieno;
+  };
+
+  // Un preventivo nuovo parte sempre col catalogo pulito: nessuna tariffa
+  // ereditata dal precedente. Le mette lui ogni volta.
+  PREVENTIVO.vuoto = function () {
+    var oggi = new Date();
+    var catalogo = JSON.parse(JSON.stringify(PREVENTIVO.catalogo));
+    var mesi = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
+                'August', 'September', 'October', 'November', 'December'];
+    var d = JSON.parse(JSON.stringify(PREVENTIVO.PREDEFINITI[PREVENTIVO.DV]));
+    d.dv = PREVENTIVO.DV;
+    d.n = PREVENTIVO.numero(oggi);
+    d.dt = mesi[oggi.getMonth()] + ' ' + oggi.getFullYear();
+    d.t = '';
+    d.s = '';
+    d.sc = '';
+    d.g = catalogo;
+    d.h = 'mb';
+    d.gg = 1;
+    d.mag = [{ l: 'Rivalsa INPS 4%', p: 4 }];
+    return d;
   };
 
   /* ------------------------------------------------------------------
@@ -243,13 +275,22 @@
   // e "Perso" e' l'ultima cosa che deve viaggiare dentro un preventivo.
   PREVENTIVO.compatta = function (d) {
     var c = {};
+    var pred = PREVENTIVO.predefiniti(d.dv);
     Object.keys(d).forEach(function (k) {
       var v = d[k];
       if (k === 'id' || k === 'st') return;
+      if (pred && Object.prototype.hasOwnProperty.call(pred, k)) {
+        // Campo con un testo standard: lo salto solo se e' IDENTICO. Se lui
+        // l'ha svuotato va scritto lo stesso, se no chi legge ci rimetterebbe
+        // il predefinito e il preventivo direbbe una cosa che lui ha tolto.
+        if (JSON.stringify(v) !== JSON.stringify(pred[k])) c[k] = v;
+        return;
+      }
       if (v === '' || v == null) return;
       if (Array.isArray(v) && !v.length) return;
       c[k] = v;
     });
+    if (pred) c.dv = d.dv;
     c.g = (d.g || []).map(function (g) {
       return { t: g.t, i: (g.i || []).filter(function (v) {
         return v.on !== false && (PREVENTIVO.totaleVoce(v, d) > 0 || v.f);
@@ -349,6 +390,7 @@
   }
 
   PREVENTIVO.disegna = function (d) {
+    d = PREVENTIVO.completa(d);           // rimette i testi standard
     var c = PREVENTIVO.conti(d);
     var h = PREVENTIVO.testa(d);
     var contatti = h.righe.map(function (r) { return '<div>' + esc(r) + '</div>'; }).join('');

@@ -176,12 +176,25 @@
   /* Non a tutta larghezza: su schermo grande l'occhio farebbe mezzo metro
      dal titolo all'importo. */
   .tab { width: 100%; max-width: 70rem; border-collapse: collapse; table-layout: fixed; }
-  .tab th:nth-child(1) { width: auto; }
-  .tab th:nth-child(2) { width: 5rem; }
-  .tab th:nth-child(3) { width: 8rem; }
-  .tab th:nth-child(4) { width: 9.5rem; }
-  .tab th:nth-child(5) { width: 9rem; }
-  .tab th:nth-child(6) { width: 3.5rem; }
+  .tab th:nth-child(1) { width: 2.4rem; }
+  .tab th:nth-child(2) { width: auto; }
+  .tab th:nth-child(3) { width: 5rem; }
+  .tab th:nth-child(4) { width: 8rem; }
+  .tab th:nth-child(5) { width: 9.5rem; }
+  .tab th:nth-child(6) { width: 9rem; }
+  .tab th:nth-child(7) { width: 3.5rem; }
+  .tab td[data-c=sel] { padding-right: 0; }
+  /* La casella e' 16px, ma il dito ne vuole 40: il <label> le sta intorno
+     con del margine di tocco che non sposta l'impaginato. */
+  .scegli {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 11px; margin: -11px; cursor: pointer;
+  }
+  .tab input[type=checkbox] {
+    width: 16px; height: 16px; padding: 0; margin: 0;
+    accent-color: var(--s-oro); cursor: pointer;
+  }
+  .tab tbody tr.is-scelto { background: color-mix(in srgb, var(--s-oro) 10%, transparent); }
   .tab thead th {
     padding: 0 var(--sp-3) var(--sp-2); text-align: left;
     font-size: var(--fs-1); font-weight: 500; letter-spacing: .14em;
@@ -418,22 +431,58 @@
     .cl-rin { display: none; }
   }
   @media (max-width: 52rem) {
+    /* La tabella diventa un elenco: la spunta a sinistra, titolo e riga di
+       metadati al centro, stato e menu sotto. Le colonne numeriche lasciano
+       il posto a `.meta-m`, che le riassume in una riga sola. */
     .tab thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
-    .tab tbody tr { display: grid; grid-template-columns: minmax(0, 1fr) auto auto;
-                    align-items: center; gap: var(--sp-2) var(--sp-3); padding: var(--sp-3) 0; }
+    .tab tbody tr {
+      display: grid; grid-template-columns: 1.6rem minmax(0, 1fr) auto;
+      align-items: start; gap: var(--sp-2) var(--sp-3); padding: var(--sp-3) 0;
+    }
     .tab td { padding: 0; }
-    .tab td[data-c=tit] { grid-column: 1 / -1; }
+    .tab td[data-c=sel] { grid-row: 1 / span 2; padding-top: 2px; }
+    .tab td[data-c=tit] { grid-column: 2 / 4; }
     .tab td[data-c=n], .tab td[data-c=dt], .tab td[data-c=imp] { display: none; }
-    .tab td[data-c=st] { grid-column: 1; }
-    .tab td[data-c=mn] { grid-column: 3; }
+    .tab td[data-c=st] { grid-column: 2; }
+    .tab td[data-c=mn] { grid-column: 3; justify-self: end; }
     .meta-m { display: block; font-size: var(--fs-2); color: var(--s-tenue);
               margin-top: 3px; font-variant-numeric: tabular-nums; }
+    /* Bersagli da dito: il titolo, lo stato e le pastiglie dei clienti
+       vanno portati vicino ai 44px. */
+    .apri { padding: 7px 0; }
+    .stato select { padding: 9px 20px 9px 4px; }
+    .cl { padding: 9px var(--sp-3); }
+    .fl { padding: 9px var(--sp-3); }
     .testata { flex-wrap: wrap; }
+    .corpo__t { flex-wrap: wrap; }
+    #link-gruppo { flex: 1 1 100%; }
     .intest { display: none; }
     .riga { grid-template-columns: 24px 1fr 30px; row-gap: var(--sp-1); }
     .riga > :nth-child(3) { grid-column: 2 / 4; }
     .barra__id b { max-width: 10rem; }
     .barra__t { display: none; }
+  }
+
+  /* ---------- telefono ----------
+     Sotto i 30rem la barra dell'editor non ci sta in una riga: si spezza,
+     e i pulsanti diventano larghi abbastanza da centrarci il dito. */
+  @media (max-width: 30rem) {
+    .testata { padding: var(--sp-2) var(--sp-3); gap: var(--sp-2); }
+    .testata .b { flex: 1 1 auto; text-align: center; }
+    .marchio { flex: 1 1 100%; }
+    .barra { flex-wrap: wrap; padding: var(--sp-2) var(--sp-3); gap: var(--sp-2); }
+    .barra__id { flex: 1 1 100%; order: -1; }
+    .barra__id b { max-width: none; }
+    .barra .b { flex: 1 1 auto; text-align: center; padding-inline: var(--sp-2); }
+    .indietro { padding-inline: var(--sp-2); }
+    .b, .fl { min-height: 38px; }
+    .modulo { padding-bottom: var(--sp-7); }
+    .corpo { padding-inline: var(--sp-3); }
+    .fianco { padding-inline: var(--sp-3); }
+    .x, .piu { width: 34px; height: 34px; }
+    .conto__r--tot { font-size: var(--fs-5); }
+    .ante__bar { padding: var(--sp-2) var(--sp-3); }
+    .ante__t { font-size: var(--fs-1); }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -596,7 +645,7 @@
 
 <div id="menu" popover></div>
 
-<script src="/js/quote.js?v=4622062c"></script>
+<script src="/js/quote.js?v=05e53a1d"></script>
 <script>
 (function () {
   'use strict';
@@ -739,6 +788,7 @@
   var filtroStato = null;      // null = tutti
   var cerca = '';
   var rinominando = null;      // id del preventivo in rinomina
+  var scelti = {};             // id spuntati per il link di gruppo
 
   function cartellaDi(x) { return (x.cliente || '').trim() || SENZA; }
 
@@ -810,10 +860,7 @@
       ? voci.length + (voci.length === 1 ? ' preventivo' : ' preventivi')
       : '';
 
-    // Un link solo con piu' preventivi ha senso da due in su.
-    var bg = $('#link-gruppo');
-    bg.hidden = voci.length < 2;
-    bg.textContent = 'Link con questi ' + voci.length;
+    aggiornaGruppo();
 
     if (!voci.length) {
       $('#elenco').innerHTML = '<div class="vuoto">' + (
@@ -832,14 +879,20 @@
     var mostraCliente = filtroCliente === null;
     $('#elenco').innerHTML =
       '<table class="tab"><caption class="solo-lettori">Preventivi in archivio</caption>' +
-      '<thead><tr><th scope="col">Preventivo</th><th scope="col" class="num">N.</th>' +
+      '<thead><tr><th scope="col" class="sel"><span class="solo-lettori">Scegli</span></th>' +
+      '<th scope="col">Preventivo</th><th scope="col" class="num">N.</th>' +
       '<th scope="col" class="num">Aggiornato</th><th scope="col" class="num">Importo</th>' +
       '<th scope="col">Stato</th><th scope="col"><span class="solo-lettori">Azioni</span></th>' +
       '</tr></thead><tbody>' +
       voci.map(function (x) {
         var st = x.stato || 'bozza';
         var titolo = x.titolo || 'Senza titolo';
-        return '<tr data-id="' + esc(x.id) + '"' + (x.id === d.id ? ' class="is-qui"' : '') + '>' +
+        return '<tr data-id="' + esc(x.id) + '"' +
+          (x.id === d.id ? ' class="is-qui"' : '') + '>' +
+          '<td data-c="sel"><label class="scegli">' +
+            '<input type="checkbox" data-scegli="' + esc(x.id) + '"' +
+            (scelti[x.id] ? ' checked' : '') +
+            ' aria-label="Scegli ' + esc(titolo) + ' per il link di gruppo"></label></td>' +
           '<td data-c="tit">' +
             (rinominando === x.id
               ? '<input class="rinomina" value="' + esc(titolo) + '" aria-label="Nuovo titolo">'
@@ -970,8 +1023,27 @@
      stanno sul sito: viaggiano nel link come sempre, e i preventivi si
      comprimono INSIEME perche' condividono condizioni, consegne e diritti
      d'uso (tre uniti costano meta' di tre separati). */
+  // Il pulsante compare solo quando ne sono spuntati almeno due, e dice
+  // quanti sono: cosi' e' chiaro cosa finisce nel link.
+  function idScelti() {
+    return Object.keys(scelti).filter(function (k) { return scelti[k]; });
+  }
+  function aggiornaGruppo() {
+    var n = idScelti().filter(function (id) { return arcTrova(id); }).length;
+    var b = $('#link-gruppo');
+    b.hidden = n < 2;
+    b.textContent = 'Crea la pagina con questi ' + n;
+  }
+  $('#elenco').addEventListener('change', function (e) {
+    var c = e.target.closest('[data-scegli]');
+    if (!c) return;
+    scelti[c.dataset.scegli] = c.checked;
+    c.closest('tr').classList.toggle('is-scelto', c.checked);
+    aggiornaGruppo();
+  });
+
   $('#link-gruppo').addEventListener('click', async function () {
-    var voci = seleziona();
+    var voci = idScelti().map(arcTrova).filter(Boolean);
     if (voci.length < 2) return;
 
     var q = voci.map(function (x) { return PREVENTIVO.compatta(x.dati); });
@@ -998,7 +1070,7 @@
     var u = location.origin + '/quotes/#' + await PREVENTIVO.impacchetta(pacco);
     try {
       await navigator.clipboard.writeText(u);
-      avvisa('Link copiato: ' + q.length + ' preventivi in una pagina sola (' + u.length + ' caratteri).');
+      avvisa('Link copiato: una pagina con ' + q.length + ' preventivi (' + u.length + ' caratteri).');
     } catch (e) {
       avvisa('Non riesco a copiarlo da solo. Apri la pagina e copiala dalla barra.');
       window.open(u, '_blank', 'noopener');
