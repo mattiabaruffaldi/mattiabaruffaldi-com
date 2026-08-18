@@ -51,6 +51,9 @@ img/photo/<set>/   90 foto a 1800px + `thumb/` a 800px
 img/bts/           6 foto dietro le quinte (pagina Info)
 originali/         file sorgente pesanti, ESCLUSI da git (.gitignore)
 index.html film/ photo/ lifetalks/ info/   generati
+studio/index.html  compilatore preventivi (SCRITTO A MANO, non generato)
+quote/index.html   lettore preventivi   (SCRITTO A MANO, non generato)
+css/quote.css js/quote.js               motore preventivi
 about/ contatti/ portfolio-video/ photo/*/ ponti dai vecchi indirizzi Squarespace
 ```
 
@@ -139,6 +142,31 @@ localhost e GitHub Pages si comportano identici.
   produzione con cui lavora da sempre; va nominata, non solo il brand.
 - **Home:** niente sezione "Clients" (rimossa su sua richiesta) e niente
   striscia foto che scorre di lato: tre scatti fermi piu' il link.
+
+## Preventivi — `/studio/` e `/quote/`
+Strumento suo per fare preventivi, nato ad agosto 2026 dal preventivo VVENA.
+**Queste due pagine sono scritte a mano, non le genera `build.py`.**
+
+- `/studio/` — dove compila: catalogo di voci gia' pronte, lui spunta e mette
+  i numeri, anteprima del documento a fianco.
+- `/quote/` — quello che vede il cliente, e da cui si stampa il PDF.
+- **I dati del preventivo NON stanno sul sito**: viaggiano nel link dopo il
+  cancelletto (`/quote/#z...`). Quella parte il browser non la manda mai al
+  server, quindi non finisce nei log ne' nel repository. E' sicuro quanto
+  mandare un PDF allegato: chi ha il link vede, nessun altro.
+- Il link e' compresso con `CompressionStream` (prefisso `z`; `p` se il
+  browser non ce l'ha). Senza compressione superava i 4.000 caratteri e
+  certi programmi di posta spezzano i link lunghi.
+- **NON scrivere le sue tariffe in `js/quote.js`:** il repository e' pubblico,
+  sarebbe come pubblicare il listino. Nel catalogo i prezzi stanno a zero; li
+  digita lui e restano nel `localStorage` del suo browser. "Nuovo preventivo"
+  eredita le tariffe dal precedente.
+- Le due pagine sono `noindex` e non sono linkate da nessuna parte, ne' stanno
+  nella sitemap. **Non metterle in `robots.txt`**: elencarle la' significa
+  rivelarne l'indirizzo a chiunque legga quel file.
+- La formattazione dei numeri e' scritta a mano, non con `Intl`: in alcuni
+  browser la localizzazione italiana e' incompleta e sparisce il punto delle
+  migliaia (5500 invece di 5.500).
 
 ## Trappole già incontrate (non ripeterle)
 - **MAI mettere `display` su `.player` / `.viewer` senza `[open]`.** Il browser

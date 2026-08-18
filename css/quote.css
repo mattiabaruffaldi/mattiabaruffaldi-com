@@ -1,0 +1,288 @@
+/* ==========================================================================
+   Preventivi — foglio del documento
+   Chiaro, non scuro come il resto del sito: questo si stampa.
+   Ricalca l'impaginato del PDF che gli piace.
+   ========================================================================== */
+
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-weight: 400 700;
+  font-stretch: 62% 125%;
+  font-display: swap;
+  src: url('../fonts/archivo-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-weight: 400 700;
+  font-stretch: 62% 125%;
+  font-display: swap;
+  src: url('../fonts/archivo-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+    U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+:root {
+  --q-paper: #fff;
+  --q-ink: #111114;
+  --q-ink-2: #55555c;      /* 7.3:1 su bianco */
+  --q-ink-3: #6e6e77;      /* 5.2:1 su bianco, per le etichette */
+  --q-rule: #111114;
+  --q-hair: #d8d8dc;
+  --q-band: #f2f2f0;
+  --q-font: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+
+  --q-page: 210mm;
+  --q-pad: 18mm;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+.q-body {
+  margin: 0;
+  background: #3a3a3e;
+  color: var(--q-ink);
+  font-family: var(--q-font);
+  font-size: 10.5pt;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Foglio ---------- */
+.q-sheet {
+  width: var(--q-page);
+  min-height: 297mm;
+  margin: 8mm auto;
+  padding: var(--q-pad);
+  background: var(--q-paper);
+  box-shadow: 0 4px 28px rgb(0 0 0 / 0.35);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.q-sheet + .q-sheet { margin-top: 10mm; }
+
+.q-num {
+  position: absolute; right: var(--q-pad); bottom: 10mm;
+  font-size: 7.5pt; letter-spacing: 0.1em; color: #a5a5ad;
+}
+
+/* ---------- Tipografia ---------- */
+.q-name {
+  font-variation-settings: 'wdth' 88, 'wght' 500;
+  font-size: 17pt; letter-spacing: 0.34em; text-transform: uppercase;
+  margin: 0;
+}
+.q-role {
+  font-variation-settings: 'wdth' 88, 'wght' 500;
+  font-size: 7pt; letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--q-ink-3); margin: 3mm 0 0;
+}
+.q-contact {
+  text-align: right; font-size: 7.6pt; line-height: 1.75; color: var(--q-ink-2);
+}
+.q-contact div { white-space: nowrap; }
+
+.q-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10mm; }
+.q-runhead {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding-bottom: 3mm; border-bottom: 1.5px solid var(--q-rule);
+  font-variation-settings: 'wdth' 88, 'wght' 500;
+  font-size: 8.5pt; letter-spacing: 0.26em; text-transform: uppercase;
+}
+
+.q-meta {
+  font-variation-settings: 'wdth' 88, 'wght' 500;
+  font-size: 7.5pt; letter-spacing: 0.26em; text-transform: uppercase;
+  color: var(--q-ink-3);
+}
+.q-title {
+  font-variation-settings: 'wdth' 92, 'wght' 600;
+  font-size: 28pt; line-height: 1.05; letter-spacing: -0.005em;
+  text-transform: uppercase; margin: 4mm 0 0;
+}
+.q-sub {
+  font-variation-settings: 'wdth' 88, 'wght' 500;
+  font-size: 8pt; letter-spacing: 0.24em; text-transform: uppercase;
+  color: var(--q-ink-3); margin: 4mm 0 0;
+}
+
+.q-h2 {
+  font-variation-settings: 'wdth' 92, 'wght' 500;
+  font-size: 13pt; letter-spacing: 0.02em; text-transform: uppercase;
+  margin: 0 0 2.5mm;
+}
+.q-section { margin-top: 9mm; }
+.q-section > .q-h2 { padding-bottom: 2mm; border-bottom: 1.5px solid var(--q-rule); }
+.q-text { margin: 5mm 0 0; max-width: 62ch; color: var(--q-ink); }
+
+/* ---------- Riepilogo budget ---------- */
+.q-sum { margin-top: 5mm; }
+.q-sum__row {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 8mm;
+  padding: 4mm 0; border-bottom: 1px solid var(--q-hair);
+}
+.q-sum__t {
+  font-variation-settings: 'wdth' 88, 'wght' 600;
+  font-size: 9pt; letter-spacing: 0.16em; text-transform: uppercase;
+}
+.q-sum__n { font-size: 7.8pt; color: var(--q-ink-3); margin-top: 1.5mm; letter-spacing: 0.01em; }
+.q-sum__v {
+  font-variation-settings: 'wdth' 92, 'wght' 400;
+  font-size: 15pt; white-space: nowrap; font-variant-numeric: tabular-nums;
+}
+
+.q-tot { margin-top: 7mm; }
+.q-tot__row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 2.5mm 0;
+}
+.q-tot__l {
+  font-variation-settings: 'wdth' 88, 'wght' 500;
+  font-size: 7.5pt; letter-spacing: 0.24em; text-transform: uppercase;
+  color: var(--q-ink-3);
+}
+.q-tot__v { font-variation-settings: 'wght' 600; font-variant-numeric: tabular-nums; }
+.q-grand {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 4mm; padding: 6mm 7mm;
+  background: var(--q-ink); color: #fff;
+}
+.q-grand span {
+  font-variation-settings: 'wdth' 88, 'wght' 500;
+  font-size: 8pt; letter-spacing: 0.28em; text-transform: uppercase;
+}
+.q-grand strong {
+  font-variation-settings: 'wdth' 92, 'wght' 400;
+  font-size: 24pt; font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Dettaglio ---------- */
+.q-table { width: 100%; border-collapse: collapse; margin-top: 5mm; }
+.q-table thead th {
+  font-variation-settings: 'wdth' 88, 'wght' 500;
+  font-size: 7pt; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--q-ink-3); text-align: right; font-weight: 400;
+  padding: 0 0 2.5mm; border-bottom: 1px solid var(--q-hair);
+}
+.q-table thead th:first-child { text-align: left; }
+.q-table td { padding: 3mm 0; border-bottom: 1px solid var(--q-hair); vertical-align: baseline; text-align: right; }
+.q-table td:first-child { text-align: left; padding-right: 6mm; }
+.q-table .q-grp td {
+  padding: 4mm 0 2.5mm; border-bottom: 0; background: var(--q-band);
+  padding-inline: 3mm;
+}
+.q-grp__n {
+  font-variation-settings: 'wdth' 88, 'wght' 500;
+  font-size: 9pt; letter-spacing: 0.06em; color: #b4b4ba; margin-right: 3mm;
+}
+.q-grp__t {
+  font-variation-settings: 'wdth' 92, 'wght' 500;
+  font-size: 10.5pt; letter-spacing: 0.06em; text-transform: uppercase;
+}
+.q-it__n { color: var(--q-ink-3); font-size: 8.4pt; margin-left: 2mm; }
+.q-sub-row td {
+  font-variation-settings: 'wdth' 88, 'wght' 500;
+  font-size: 7.5pt; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--q-ink-3); border-bottom: 0; padding-top: 2mm;
+}
+.q-sub-row td:last-child {
+  font-size: 12pt; letter-spacing: 0; color: var(--q-ink);
+  font-variation-settings: 'wdth' 92, 'wght' 400;
+}
+.q-num-cell { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.q-flag {
+  font-variation-settings: 'wdth' 88, 'wght' 500;
+  font-size: 7pt; letter-spacing: 0.18em; text-transform: uppercase; color: var(--q-ink-3);
+}
+
+/* ---------- Consegne, incluso/escluso, condizioni ---------- */
+.q-list { margin: 5mm 0 0; padding: 0; list-style: none; }
+.q-list li {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 6mm;
+  padding: 3mm 0; border-bottom: 1px solid var(--q-hair);
+}
+.q-list b { font-variation-settings: 'wght' 500; }
+.q-list .q-qty { font-variation-settings: 'wdth' 92, 'wght' 400; font-size: 12pt; font-variant-numeric: tabular-nums; }
+
+.q-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 9mm; margin-top: 8mm; }
+.q-h3 {
+  font-variation-settings: 'wdth' 88, 'wght' 500;
+  font-size: 8pt; letter-spacing: 0.24em; text-transform: uppercase;
+  padding-bottom: 2mm; border-bottom: 1px solid var(--q-hair); margin: 0 0 3mm;
+}
+.q-bul { margin: 0; padding: 0; list-style: none; }
+.q-bul li { display: flex; gap: 3mm; padding: 1.6mm 0; font-size: 9.6pt; }
+.q-bul li::before { content: '—'; color: var(--q-ink-3); flex-shrink: 0; }
+.q-note { margin-top: 4mm; font-size: 8.6pt; color: var(--q-ink-3); }
+
+.q-terms { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm 9mm; margin-top: 5mm; }
+.q-term__l {
+  font-variation-settings: 'wdth' 88, 'wght' 500;
+  font-size: 7.5pt; letter-spacing: 0.24em; text-transform: uppercase;
+  color: var(--q-ink-3); margin: 0 0 1.5mm;
+}
+.q-term p { margin: 0; }
+
+.q-sign { display: grid; grid-template-columns: 1fr 1fr; gap: 9mm; margin-top: auto; padding-top: 12mm; }
+.q-sign__l {
+  font-variation-settings: 'wdth' 88, 'wght' 500;
+  font-size: 7.5pt; letter-spacing: 0.22em; text-transform: uppercase; color: var(--q-ink-3);
+}
+.q-sign__line { margin-top: 12mm; border-bottom: 1px solid var(--q-ink); }
+.q-sign__c {
+  font-variation-settings: 'wdth' 88, 'wght' 500;
+  font-size: 7pt; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--q-ink-3); margin-top: 2mm;
+}
+
+/* ---------- Barra degli strumenti (non si stampa) ---------- */
+.q-bar {
+  position: sticky; top: 0; z-index: 10;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+  padding: 12px clamp(12px, 3vw, 28px);
+  background: #17171a; color: #f2f2f4;
+  font-size: 13px;
+}
+.q-bar__sp { flex: 1 1 auto; }
+.q-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 9px 16px; border: 1px solid #55555c; border-radius: 2px;
+  background: none; color: inherit; font: inherit; cursor: pointer;
+  font-variation-settings: 'wdth' 88, 'wght' 600;
+  font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+  transition: background .18s, color .18s, border-color .18s;
+}
+.q-btn:hover { background: #f2b45c; border-color: #f2b45c; color: #17171a; }
+.q-btn--go { background: #f2b45c; border-color: #f2b45c; color: #17171a; }
+.q-btn--go:hover { filter: brightness(1.08); }
+
+/* ---------- Stampa ---------- */
+@page { size: A4; margin: 0; }
+
+@media print {
+  .q-body { background: #fff; }
+  .no-print { display: none !important; }
+  .q-sheet {
+    width: auto; min-height: 0; margin: 0; box-shadow: none;
+    padding: var(--q-pad);
+    break-after: page;
+  }
+  .q-sheet:last-of-type { break-after: auto; }
+  .q-grand { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .q-table .q-grp td { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  tr, .q-sum__row, .q-list li { break-inside: avoid; }
+}
+
+/* ---------- Schermi stretti: il foglio si adatta ---------- */
+@media (max-width: 230mm) {
+  .q-sheet { width: 100%; min-height: 0; margin: 0 0 6px; padding: 7mm; }
+  .q-title { font-size: 22pt; }
+  .q-cols, .q-terms, .q-sign { grid-template-columns: 1fr; }
+  .q-num { display: none; }
+}

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quotation — Mattia Baruffaldi</title>
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" href="/favicon-32.png" sizes="32x32">
+<link rel="stylesheet" href="/css/quote.css">
+</head>
+<body class="q-body">
+
+<div class="q-bar no-print">
+  <strong style="font-weight:500;letter-spacing:.18em;font-size:11px;text-transform:uppercase">Quotation</strong>
+  <span class="q-bar__sp"></span>
+  <button class="q-btn q-btn--go" type="button" id="stampa">Save as PDF</button>
+</div>
+
+<main id="foglio"></main>
+
+<script src="/js/quote.js"></script>
+<script>
+(function () {
+  var dove = document.getElementById('foglio');
+
+  function errore(testo) {
+    dove.innerHTML = '<section class="q-sheet" style="min-height:auto">' +
+      '<h1 class="q-name">Mattia Baruffaldi</h1>' +
+      '<p class="q-text" style="margin-top:12mm">' + testo + '</p>' +
+      '<p class="q-note">info.mattiabaruffaldi@gmail.com · +39 346 475 5599</p>' +
+      '</section>';
+    document.querySelector('.q-bar').style.display = 'none';
+  }
+
+  async function mostra() {
+    var frammento = location.hash.slice(1);
+    if (!frammento) {
+      errore('This link does not contain a quotation. Please ask for a new one.');
+      return;
+    }
+    try {
+      var dati = await PREVENTIVO.decodifica(frammento);
+      dove.innerHTML = PREVENTIVO.disegna(dati);
+      document.title = (dati.t ? dati.t + ' — ' : '') + 'Quotation · Mattia Baruffaldi';
+    } catch (e) {
+      errore('This link looks incomplete. It may have been cut when it was copied. ' +
+             'Please ask for it again.');
+    }
+  }
+
+  mostra();
+  window.addEventListener('hashchange', mostra);
+  document.getElementById('stampa').addEventListener('click', function () { window.print(); });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Studio preventivi</title>
+<meta name="robots" content="noindex, nofollow, noarchive">
+<link rel="icon" href="/favicon-32.png" sizes="32x32">
+<link rel="stylesheet" href="/css/quote.css">
+<style>
+  body { background: #1b1b1f; color: #ececef; font-family: 'Archivo', system-ui, sans-serif; }
+  .app { display: grid; gap: 0; }
+  @media (min-width: 76rem) { .app { grid-template-columns: 30rem 1fr; align-items: start; } }
+
+  .pan { padding: 20px clamp(14px, 2vw, 24px) 80px; }
+  @media (min-width: 76rem) {
+    .pan { position: sticky; top: 0; max-height: 100vh; overflow-y: auto;
+           border-right: 1px solid #33333a; }
+  }
+  .ante { background: #3a3a3e; padding: 14px 0 60px; }
+
+  h1 { font-size: 15px; letter-spacing: .2em; text-transform: uppercase;
+       font-weight: 500; margin: 0 0 4px; }
+  .sott { font-size: 12px; color: #9a9aa4; margin: 0 0 22px; line-height: 1.5; }
+
+  fieldset { border: 0; border-top: 1px solid #33333a; margin: 0 0 4px; padding: 18px 0 6px; }
+  legend { font-size: 10px; letter-spacing: .2em; text-transform: uppercase;
+           color: #f2b45c; padding-right: 10px; }
+  label { display: block; font-size: 10px; letter-spacing: .14em; text-transform: uppercase;
+          color: #9a9aa4; margin: 12px 0 5px; }
+  input, textarea, select {
+    width: 100%; padding: 9px 10px; border: 1px solid #3f3f47; border-radius: 2px;
+    background: #232329; color: #ececef; font: inherit; font-size: 13px;
+  }
+  input:focus, textarea:focus, select:focus { outline: 2px solid #f2b45c; outline-offset: 1px; border-color: transparent; }
+  textarea { min-height: 76px; resize: vertical; line-height: 1.5; }
+  .due { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .tre { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+
+  .voce { display: grid; grid-template-columns: 22px 1fr; gap: 8px;
+          padding: 9px 0; border-bottom: 1px solid #2a2a31; align-items: start; }
+  .voce input[type=checkbox] { width: 16px; height: 16px; margin-top: 3px; accent-color: #f2b45c; }
+  .voce__d { font-size: 12.5px; line-height: 1.35; }
+  .voce__n { font-size: 11px; color: #85858f; }
+  .voce__c { display: grid; grid-template-columns: 3.4rem 3.4rem 1fr 5.2rem; gap: 6px; margin-top: 7px; }
+  .voce__c input { padding: 6px 7px; font-size: 12px; text-align: right; }
+  .voce__c input[type=text] { text-align: left; }
+  .voce.off .voce__c, .voce.off .voce__n { display: none; }
+  .voce.off .voce__d { color: #6d6d77; }
+  .mini { font-size: 9px; letter-spacing: .12em; text-transform: uppercase; color: #6d6d77;
+          display: grid; grid-template-columns: 3.4rem 3.4rem 1fr 5.2rem; gap: 6px; margin: 10px 0 2px; }
+  .mini span { text-align: right; }
+  .mini span:nth-child(3) { text-align: left; }
+
+  .tot { display: flex; justify-content: space-between; align-items: baseline;
+         padding: 14px 0; border-top: 1px solid #33333a; margin-top: 10px; font-size: 13px; }
+  .tot b { font-size: 20px; font-weight: 500; font-variant-numeric: tabular-nums; }
+
+  .azioni { position: sticky; bottom: 0; display: grid; gap: 8px;
+            padding: 14px 0 0; background: linear-gradient(to top, #1b1b1f 72%, transparent); }
+  .link { width: 100%; font-size: 11px; word-break: break-all; color: #9a9aa4;
+          background: #232329; border: 1px solid #3f3f47; padding: 9px 10px; border-radius: 2px;
+          max-height: 84px; overflow-y: auto; }
+  .ok { color: #f2b45c; font-size: 12px; min-height: 16px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="pan">
+    <h1>Studio preventivi</h1>
+    <p class="sott">Spunta le voci che servono, metti i numeri. Il preventivo si
+      aggiorna a destra. I dati restano nel tuo browser e dentro il link: non
+      vengono salvati sul sito. Le tariffe che scrivi se le ricorda questo
+      browser, e restano anche quando fai un preventivo nuovo.</p>
+
+    <fieldset>
+      <legend>Progetto</legend>
+      <div class="due">
+        <div><label for="f-n">N. preventivo</label><input id="f-n" data-k="n"></div>
+        <div><label for="f-dt">Data</label><input id="f-dt" data-k="dt"></div>
+      </div>
+      <label for="f-cl">Cliente</label><input id="f-cl" data-k="cl" placeholder="VVENA">
+      <label for="f-t">Titolo</label><input id="f-t" data-k="t" placeholder="VVENA Campaign 2026">
+      <label for="f-s">Sottotitolo</label>
+      <input id="f-s" data-k="s" placeholder="Asset shooting · 2 days · 2 talent">
+      <label for="f-sc">Scope</label><textarea id="f-sc" data-k="sc"></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>Voci</legend>
+      <div id="gruppi"></div>
+      <div class="tot"><span>Fee</span><b id="t-fee">0,00 €</b></div>
+      <div class="due">
+        <div><label for="f-rv">Rivalsa %</label><input id="f-rv" data-k="rv" type="number" step="0.5"></div>
+        <div><label for="f-rvl">Dicitura</label><input id="f-rvl" data-k="rvl"></div>
+      </div>
+      <div class="tot"><span>Totale</span><b id="t-tot">0,00 €</b></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Condizioni</legend>
+      <label for="f-vl">Validità</label><input id="f-vl" data-k="vl">
+      <label for="f-iv">Fatturazione</label><input id="f-iv" data-k="iv">
+      <label for="f-pg">Pagamento</label><input id="f-pg" data-k="pg">
+      <label for="f-wd">Recesso</label><input id="f-wd" data-k="wd">
+      <label for="f-nt">Nota fiscale (IVA)</label><textarea id="f-nt" data-k="nt"></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>Testi</legend>
+      <label for="f-inc">Incluso — una riga per voce</label><textarea id="f-inc" data-k="inc"></textarea>
+      <label for="f-exc">Escluso — una riga per voce</label><textarea id="f-exc" data-k="exc"></textarea>
+    </fieldset>
+
+    <div class="azioni">
+      <button class="q-btn q-btn--go" type="button" id="b-link">Copia il link per il cliente</button>
+      <div class="link" id="out">—</div>
+      <p class="ok" id="msg"></p>
+      <div class="due">
+        <button class="q-btn" type="button" id="b-pdf">Apri e stampa in PDF</button>
+        <button class="q-btn" type="button" id="b-new">Nuovo preventivo</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="ante"><div id="ante"></div></div>
+</div>
+
+<script src="/js/quote.js"></script>
+<script>
+(function () {
+  var CHIAVE = 'mb-preventivo';
+  var d;
+
+  try { d = JSON.parse(localStorage.getItem(CHIAVE)) || PREVENTIVO.vuoto(); }
+  catch (e) { d = PREVENTIVO.vuoto(); }
+  if (!d.g) d = PREVENTIVO.vuoto();
+
+  /* ---- campi semplici ---- */
+  var campi = [].slice.call(document.querySelectorAll('[data-k]'));
+  function daModello() {
+    campi.forEach(function (el) {
+      var v = d[el.dataset.k];
+      el.value = Array.isArray(v) ? v.join('\n') : (v == null ? '' : v);
+    });
+  }
+  campi.forEach(function (el) {
+    el.addEventListener('input', function () {
+      var k = el.dataset.k, v = el.value;
+      if (k === 'inc' || k === 'exc') v = v.split('\n').filter(function (x) { return x.trim(); });
+      else if (k === 'rv') v = Number(v) || 0;
+      d[k] = v;
+      aggiorna();
+    });
+  });
+
+  /* ---- voci ---- */
+  function disegnaVoci() {
+    var html = d.g.map(function (g, gi) {
+      var righe = g.i.map(function (v, vi) {
+        var attiva = v.on !== false && (v.p > 0 || v.f);
+        return '<div class="voce' + (attiva ? '' : ' off') + '" data-g="' + gi + '" data-v="' + vi + '">' +
+          '<input type="checkbox"' + (attiva ? ' checked' : '') + ' aria-label="Includi ' + v.d + '">' +
+          '<div><div class="voce__d">' + v.d +
+          (v.n ? '<div class="voce__n">' + v.n + '</div>' : '') + '</div>' +
+          '<div class="voce__c">' +
+          '<input type="number" value="' + (v.dd || '') + '" data-f="dd" placeholder="gg">' +
+          '<input type="number" value="' + (v.u || 1) + '" data-f="u" placeholder="q.tà">' +
+          '<input type="text" value="' + (v.f || '') + '" data-f="f" placeholder="oppure: Included">' +
+          '<input type="number" value="' + (v.p || '') + '" data-f="p" placeholder="€">' +
+          '</div></div></div>';
+      }).join('');
+      return '<fieldset><legend>' + g.t + '</legend>' +
+        '<div class="mini"><span>Giorni</span><span>Q.tà</span><span>Dicitura</span><span>Prezzo</span></div>' +
+        righe + '</fieldset>';
+    }).join('');
+    document.getElementById('gruppi').innerHTML = html;
+  }
+
+  document.getElementById('gruppi').addEventListener('input', function (e) {
+    var box = e.target.closest('.voce'); if (!box) return;
+    var v = d.g[box.dataset.g].i[box.dataset.v];
+    if (e.target.type === 'checkbox') {
+      v.on = e.target.checked;
+      if (!e.target.checked) { v.p = 0; v.f = ''; }
+      box.classList.toggle('off', !e.target.checked);
+      disegnaVoci();
+    } else {
+      var f = e.target.dataset.f;
+      v[f] = (f === 'f') ? e.target.value : (Number(e.target.value) || 0);
+      if (f === 'p' && v.p > 0) v.on = true;
+    }
+    aggiorna();
+  });
+
+  /* ---- aggiornamento ---- */
+  function aggiorna() {
+    var c = PREVENTIVO.conti(d);
+    document.getElementById('t-fee').textContent = PREVENTIVO.euro(c.fee, 1);
+    document.getElementById('t-tot').textContent = PREVENTIVO.euro(c.tot, 1);
+    document.getElementById('ante').innerHTML = PREVENTIVO.disegna(d);
+    try { localStorage.setItem(CHIAVE, JSON.stringify(d)); } catch (e) {}
+  }
+
+  async function indirizzo() {
+    return location.origin + '/quote/#' + await PREVENTIVO.codifica(d);
+  }
+
+  document.getElementById('b-link').addEventListener('click', async function () {
+    var u = await indirizzo();
+    document.getElementById('out').textContent = u;
+    var msg = document.getElementById('msg');
+    try {
+      await navigator.clipboard.writeText(u);
+      msg.textContent = 'Copiato (' + u.length + ' caratteri). Incollalo nella mail.';
+    } catch (e) {
+      msg.textContent = 'Selezionalo qui sopra e copialo a mano.';
+    }
+  });
+
+  document.getElementById('b-pdf').addEventListener('click', async function () {
+    window.open(await indirizzo(), '_blank', 'noopener');
+  });
+
+  document.getElementById('b-new').addEventListener('click', function () {
+    if (!confirm('Nuovo preventivo? Le tariffe restano, il resto si azzera.')) return;
+    d = PREVENTIVO.vuoto(d);
+    daModello(); disegnaVoci(); aggiorna();
+  });
+
+  daModello(); disegnaVoci(); aggiorna();
+})();
+</script>
+</body>
+</html>
