@@ -147,8 +147,15 @@ localhost e GitHub Pages si comportano identici.
 Strumento suo per fare preventivi, nato ad agosto 2026 dal preventivo VVENA.
 **Queste due pagine sono scritte a mano, non le genera `build.py`.**
 
-- `/studio/` — dove compila: catalogo di voci gia' pronte, lui spunta e mette
-  i numeri, anteprima del documento a fianco.
+- `/studio/` — dove compila. I blocchi stanno **a fisarmonica, uno aperto
+  alla volta** (sua richiesta): si riempie e si preme "Avanti". Anteprima del
+  documento a fianco, che si compone mentre scrive.
+- **Una sola troupe di default**, chiamata "Production crew": la seconda si
+  ottiene col pulsante "+ duplica blocco". Non rimettere Crew A / Crew B nel
+  catalogo. Vale anche per le trasferte.
+- I titoli dei blocchi si riscrivono, e "+ voce" aggiunge righe non previste.
+- Intestazione a scelta fra lui e Unreal Srl (`PREVENTIVO.intestazioni`).
+  La maggiorazione ha etichetta libera: rivalsa INPS oppure agency fee.
 - `/quote/` — quello che vede il cliente, e da cui si stampa il PDF.
 - **I dati del preventivo NON stanno sul sito**: viaggiano nel link dopo il
   cancelletto (`/quote/#z...`). Quella parte il browser non la manda mai al

@@ -52,20 +52,41 @@
   .mini span { text-align: right; }
   .mini span:nth-child(3) { text-align: left; }
 
+  .blocco { border-top: 1px solid #33333a; }
+  .blocco__t {
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    width: 100%; padding: 15px 0; background: none; border: 0; color: inherit;
+    font: inherit; cursor: pointer; text-align: left;
+  }
+  .blocco__t span:first-child {
+    font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: #cfcfd6;
+  }
+  .blocco.is-on .blocco__t span:first-child { color: #f2b45c; }
+  .blocco__v { font-size: 12px; color: #85858f; font-variant-numeric: tabular-nums; }
+  .blocco__t::after {
+    content: ''; width: 7px; height: 7px; flex-shrink: 0;
+    border-right: 1.5px solid #85858f; border-bottom: 1.5px solid #85858f;
+    transform: rotate(45deg) translate(-2px, -2px); transition: transform .18s;
+  }
+  .blocco.is-on .blocco__t::after { transform: rotate(-135deg) translate(-3px, -3px); }
+  .blocco__c { display: none; padding-bottom: 16px; }
+  .blocco.is-on .blocco__c { display: block; }
+  .blocco__az { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .blocco__az button { flex: 1 1 auto; }
+
   .tit { margin: 0 0 4px; font-size: 13px; font-weight: 500; letter-spacing: .04em; }
-  .agg { margin-top: 10px; padding: 7px 12px; border: 1px dashed #4a4a53; border-radius: 2px;
+  .agg { padding: 7px 12px; border: 1px dashed #4a4a53; border-radius: 2px;
          background: none; color: #9a9aa4; font: inherit; font-size: 11px; cursor: pointer;
-         letter-spacing: .1em; text-transform: uppercase; width: 100%; }
+         letter-spacing: .1em; text-transform: uppercase; }
+  .agg--go { border-style: solid; border-color: #f2b45c; color: #f2b45c; }
   .agg:hover { border-color: #f2b45c; color: #f2b45c; }
 
   .tot { display: flex; justify-content: space-between; align-items: baseline;
          padding: 14px 0; border-top: 1px solid #33333a; margin-top: 10px; font-size: 13px; }
   .tot b { font-size: 20px; font-weight: 500; font-variant-numeric: tabular-nums; }
 
-  .azioni { position: sticky; bottom: 0; display: grid; gap: 8px;
-            padding: 14px 0; margin-top: 20px;
-            background: #1b1b1f; border-top: 1px solid #3f3f47;
-            box-shadow: 0 -14px 18px -6px #1b1b1f; }
+  .azioni { display: grid; gap: 8px; padding: 20px 0 0; margin-top: 24px;
+            border-top: 1px solid #3f3f47; }
   .link { width: 100%; font-size: 11px; word-break: break-all; color: #9a9aa4;
           background: #232329; border: 1px solid #3f3f47; padding: 9px 10px; border-radius: 2px;
           max-height: 84px; overflow-y: auto; }
@@ -168,7 +189,9 @@
     });
   });
 
-  /* ---- voci ---- */
+  /* ---- voci: un blocco alla volta ---- */
+  var aperto = 0;
+
   function disegnaVoci() {
     var html = d.g.map(function (g, gi) {
       var righe = g.i.map(function (v, vi) {
@@ -184,29 +207,66 @@
           '<input type="number" value="' + (v.p || '') + '" data-f="p" placeholder="€">' +
           '</div></div></div>';
       }).join('');
-      return '<fieldset><legend>Blocco</legend>' +
+      var tot = PREVENTIVO.totaleGruppo(g);
+      var ultimo = gi === d.g.length - 1;
+      return '<div class="blocco' + (gi === aperto ? ' is-on' : '') + '">' +
+        '<button class="blocco__t" type="button" data-apri="' + gi + '"' +
+        ' aria-expanded="' + (gi === aperto) + '">' +
+        '<span>' + g.t + '</span>' +
+        '<span class="blocco__v">' + (tot ? PREVENTIVO.euro(tot) : '') + '</span>' +
+        '</button><div class="blocco__c">' +
         '<input class="tit" value="' + g.t.replace(/"/g, '&quot;') +
         '" data-gt="' + gi + '" aria-label="Titolo del blocco">' +
         '<div class="mini"><span>Giorni</span><span>Q.tà</span><span>Dicitura</span><span>Prezzo</span></div>' +
         righe +
-        '<button class="agg" type="button" data-add="' + gi + '">+ aggiungi voce</button>' +
-        '</fieldset>';
+        '<div class="blocco__az">' +
+        '<button class="agg" type="button" data-add="' + gi + '">+ voce</button>' +
+        '<button class="agg" type="button" data-dup="' + gi + '">+ duplica blocco</button>' +
+        (ultimo ? '' : '<button class="agg agg--go" type="button" data-next="' + gi + '">Avanti →</button>') +
+        '</div></div></div>';
     }).join('');
     document.getElementById('gruppi').innerHTML = html;
   }
 
   document.getElementById('gruppi').addEventListener('click', function (e) {
-    var gi = e.target.dataset.add;
-    if (gi === undefined) return;
-    var nome = prompt('Nome della voce da aggiungere');
-    if (!nome) return;
-    d.g[gi].i.push({ d: nome, n: '', dd: 0, u: 1, p: 0, on: true });
-    disegnaVoci(); aggiorna();
+    var b = e.target.closest('[data-apri],[data-add],[data-dup],[data-next]');
+    if (!b) return;
+    var s = b.dataset;
+
+    if (s.apri !== undefined) {
+      aperto = (aperto === Number(s.apri)) ? -1 : Number(s.apri);
+      disegnaVoci();
+      return;
+    }
+    if (s.next !== undefined) {
+      aperto = Number(s.next) + 1;
+      disegnaVoci();
+      document.querySelectorAll('.blocco')[aperto]
+        .scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      return;
+    }
+    if (s.add !== undefined) {
+      var nome = prompt('Nome della voce da aggiungere');
+      if (!nome) return;
+      d.g[s.add].i.push({ d: nome, n: '', dd: 0, u: 1, p: 0, on: true });
+      disegnaVoci(); aggiorna();
+      return;
+    }
+    if (s.dup !== undefined) {
+      var i = Number(s.dup);
+      var copia = JSON.parse(JSON.stringify(d.g[i]));
+      copia.t = copia.t + ' B';
+      d.g.splice(i + 1, 0, copia);
+      aperto = i + 1;
+      disegnaVoci(); aggiorna();
+    }
   });
 
   document.getElementById('gruppi').addEventListener('input', function (e) {
     if (e.target.dataset.gt !== undefined) {
       d.g[e.target.dataset.gt].t = e.target.value;
+      var eti = e.target.closest('.blocco').querySelector('.blocco__t span');
+      if (eti) eti.textContent = e.target.value;
       aggiorna(); return;
     }
     var box = e.target.closest('.voce'); if (!box) return;
@@ -215,7 +275,6 @@
       v.on = e.target.checked;
       if (!e.target.checked) { v.p = 0; v.f = ''; }
       box.classList.toggle('off', !e.target.checked);
-      disegnaVoci();
     } else {
       var f = e.target.dataset.f;
       v[f] = (f === 'f') ? e.target.value : (Number(e.target.value) || 0);
@@ -227,6 +286,11 @@
   /* ---- aggiornamento ---- */
   function aggiorna() {
     var c = PREVENTIVO.conti(d);
+    document.querySelectorAll('.blocco').forEach(function (b, i) {
+      var v = b.querySelector('.blocco__v');
+      var t = PREVENTIVO.totaleGruppo(d.g[i] || { i: [] });
+      if (v) v.textContent = t ? PREVENTIVO.euro(t) : '';
+    });
     document.getElementById('t-fee').textContent = PREVENTIVO.euro(c.fee, 1);
     document.getElementById('t-tot').textContent = PREVENTIVO.euro(c.tot, 1);
     document.getElementById('ante').innerHTML = PREVENTIVO.disegna(d);

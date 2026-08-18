@@ -60,7 +60,7 @@
       { d: 'Producer', n: '', dd: 0, u: 1, p: 0 },
       { d: 'Production assistant', n: '', dd: 0, u: 1, p: 0 }
     ]},
-    { t: 'Production crew A', i: [
+    { t: 'Production crew', i: [
       { d: 'Director', n: 'Mattia Baruffaldi', dd: 1, u: 1, p: 0 },
       { d: 'DOP', n: '', dd: 1, u: 1, p: 0 },
       { d: 'Photographer', n: 'Mattia Baruffaldi', dd: 1, u: 1, p: 0 },
@@ -75,11 +75,6 @@
       { d: 'Make-up & hair', n: '', dd: 1, u: 1, p: 0, f: 'By client' },
       { d: 'Stylist', n: '', dd: 1, u: 1, p: 0, f: 'By client' }
     ]},
-    { t: 'Production crew B', i: [
-      { d: 'Camera operator', n: '', dd: 1, u: 1, p: 0 },
-      { d: 'Sound recorder', n: '', dd: 1, u: 1, p: 0 },
-      { d: 'Assistant', n: '', dd: 1, u: 1, p: 0 }
-    ]},
     { t: 'Equipment', i: [
       { d: 'Canon EOS R5 + RF lens', n: '', dd: 1, u: 1, p: 0, f: 'Included' },
       { d: 'Leica Q', n: '', dd: 1, u: 1, p: 0, f: 'Included' },
@@ -90,18 +85,12 @@
       { d: 'Drone', n: 'DJI Inspire III', dd: 1, u: 1, p: 0 },
       { d: 'Hard drives', n: 'master + backup', dd: 0, u: 2, p: 0 }
     ]},
-    { t: 'Travel crew A', i: [
+    { t: 'Travel', i: [
       { d: 'Trip', n: '', dd: 1, u: 1, p: 0, f: 'TBD' },
       { d: 'Drone trip', n: '', dd: 1, u: 1, p: 0, f: 'TBD' },
       { d: 'Mileage', n: '', dd: 0, u: 1, p: 0, f: 'TBD' }
     ]},
-    { t: 'Travel & accommodation crew A', i: [
-      { d: 'Travel', n: '', dd: 1, u: 1, p: 0, f: 'TBD' },
-      { d: 'Hotel', n: '', dd: 1, u: 1, p: 0, f: 'TBD' },
-      { d: 'Food dinner', n: '', dd: 1, u: 1, p: 0, f: 'TBD' },
-      { d: 'Food lunch', n: '', dd: 1, u: 1, p: 0, f: 'TBD' }
-    ]},
-    { t: 'Travel & accommodation crew B', i: [
+    { t: 'Travel & accommodation', i: [
       { d: 'Travel', n: '', dd: 1, u: 1, p: 0, f: 'TBD' },
       { d: 'Hotel', n: '', dd: 1, u: 1, p: 0, f: 'TBD' },
       { d: 'Food dinner', n: '', dd: 1, u: 1, p: 0, f: 'TBD' },
