@@ -153,7 +153,15 @@ Strumento suo per fare preventivi, nato ad agosto 2026 dal preventivo VVENA.
 - **Una sola troupe di default**, chiamata "Production crew": la seconda si
   ottiene col pulsante "+ duplica blocco". Non rimettere Crew A / Crew B nel
   catalogo. Vale anche per le trasferte.
-- I titoli dei blocchi si riscrivono, e "+ voce" aggiunge righe non previste.
+- I titoli dei blocchi si riscrivono; "+ voce" aggiunge righe non previste,
+  "+ duplica blocco" e "Elimina blocco" gestiscono i blocchi.
+- **La spunta di una voce comanda su tutto** (`v.on`). Prima l'attivazione si
+  deduceva dal prezzo: una voce spuntata ma ancora senza cifra si rispuntava
+  da sola al primo ridisegno, e sembrava che le spunte non funzionassero.
+  Togliendo la spunta prezzo e dicitura NON si azzerano: se la rimette, li
+  ritrova.
+- **Ogni pulsante nuovo dentro i blocchi va aggiunto al `closest()`** del
+  gestore dei click, altrimenti non scatta e basta (successo con `data-del`).
 - Intestazione a scelta fra lui e Unreal Srl (`PREVENTIVO.intestazioni`).
   La maggiorazione ha etichetta libera: rivalsa INPS oppure agency fee.
 - `/quote/` — quello che vede il cliente, e da cui si stampa il PDF.

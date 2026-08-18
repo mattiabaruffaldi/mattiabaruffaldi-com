@@ -79,6 +79,7 @@
          background: none; color: #9a9aa4; font: inherit; font-size: 11px; cursor: pointer;
          letter-spacing: .1em; text-transform: uppercase; }
   .agg--go { border-style: solid; border-color: #f2b45c; color: #f2b45c; }
+  .agg--no:hover { border-color: #e0603f; color: #e0603f; }
   .agg:hover { border-color: #f2b45c; color: #f2b45c; }
 
   .tot { display: flex; justify-content: space-between; align-items: baseline;
@@ -195,7 +196,10 @@
   function disegnaVoci() {
     var html = d.g.map(function (g, gi) {
       var righe = g.i.map(function (v, vi) {
-        var attiva = v.on !== false && (v.p > 0 || v.f);
+        // Se la spunta e' gia' stata toccata comanda quella. Prima si guardava
+        // il prezzo, e una voce spuntata ma ancora senza cifra si rispuntava
+        // da sola al primo ridisegno.
+        var attiva = (v.on === undefined) ? (v.p > 0 || !!v.f) : !!v.on;
         return '<div class="voce' + (attiva ? '' : ' off') + '" data-g="' + gi + '" data-v="' + vi + '">' +
           '<input type="checkbox"' + (attiva ? ' checked' : '') + ' aria-label="Includi ' + v.d + '">' +
           '<div><div class="voce__d">' + v.d +
@@ -222,6 +226,7 @@
         '<div class="blocco__az">' +
         '<button class="agg" type="button" data-add="' + gi + '">+ voce</button>' +
         '<button class="agg" type="button" data-dup="' + gi + '">+ duplica blocco</button>' +
+        '<button class="agg agg--no" type="button" data-del="' + gi + '">Elimina blocco</button>' +
         (ultimo ? '' : '<button class="agg agg--go" type="button" data-next="' + gi + '">Avanti →</button>') +
         '</div></div></div>';
     }).join('');
@@ -229,7 +234,7 @@
   }
 
   document.getElementById('gruppi').addEventListener('click', function (e) {
-    var b = e.target.closest('[data-apri],[data-add],[data-dup],[data-next]');
+    var b = e.target.closest('[data-apri],[data-add],[data-dup],[data-del],[data-next]');
     if (!b) return;
     var s = b.dataset;
 
@@ -249,6 +254,14 @@
       var nome = prompt('Nome della voce da aggiungere');
       if (!nome) return;
       d.g[s.add].i.push({ d: nome, n: '', dd: 0, u: 1, p: 0, on: true });
+      disegnaVoci(); aggiorna();
+      return;
+    }
+    if (s.del !== undefined) {
+      var j = Number(s.del);
+      if (!confirm('Eliminare il blocco "' + d.g[j].t + '"?')) return;
+      d.g.splice(j, 1);
+      if (aperto >= d.g.length) aperto = d.g.length - 1;
       disegnaVoci(); aggiorna();
       return;
     }
@@ -273,7 +286,6 @@
     var v = d.g[box.dataset.g].i[box.dataset.v];
     if (e.target.type === 'checkbox') {
       v.on = e.target.checked;
-      if (!e.target.checked) { v.p = 0; v.f = ''; }
       box.classList.toggle('off', !e.target.checked);
     } else {
       var f = e.target.dataset.f;
@@ -288,8 +300,10 @@
     var c = PREVENTIVO.conti(d);
     document.querySelectorAll('.blocco').forEach(function (b, i) {
       var v = b.querySelector('.blocco__v');
-      var t = PREVENTIVO.totaleGruppo(d.g[i] || { i: [] });
-      if (v) v.textContent = t ? PREVENTIVO.euro(t) : '';
+      if (v && d.g[i]) {
+        var t = PREVENTIVO.totaleGruppo(d.g[i]);
+        v.textContent = t ? PREVENTIVO.euro(t) : '';
+      }
     });
     document.getElementById('t-fee').textContent = PREVENTIVO.euro(c.fee, 1);
     document.getElementById('t-tot').textContent = PREVENTIVO.euro(c.tot, 1);

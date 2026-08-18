@@ -178,7 +178,7 @@
      Conti
      ------------------------------------------------------------------ */
   function totaleVoce(v) {
-    if (!v.p) return 0;
+    if (v.on === false || !v.p) return 0;
     return v.p * (v.u || 1) * (v.dd && v.dd > 0 ? v.dd : 1);
   }
   function totaleGruppo(g) {
@@ -221,7 +221,7 @@
     });
     c.g = (d.g || []).map(function (g) {
       return { t: g.t, i: (g.i || []).filter(function (v) {
-        return PREVENTIVO.totaleVoce(v) > 0 || v.f;
+        return v.on !== false && (PREVENTIVO.totaleVoce(v) > 0 || v.f);
       }).map(function (v) {
         var o = { d: v.d };
         if (v.n) o.n = v.n;
@@ -331,7 +331,9 @@
 
     /* ---- foglio 2: dettaglio ---- */
     var corpo = c.attivi.map(function (g, i) {
-      var voci = (g.i || []).filter(function (v) { return totaleVoce(v) > 0 || v.f; });
+      var voci = (g.i || []).filter(function (v) {
+        return v.on !== false && (totaleVoce(v) > 0 || v.f);
+      });
       return '<tr class="q-grp"><td colspan="5"><span class="q-grp__n">' +
         ('0' + (i + 1)).slice(-2) + '</span><span class="q-grp__t">' + esc(g.t) +
         '</span></td></tr>' + voci.map(riga).join('') +
