@@ -116,6 +116,19 @@
     ]}
   ];
 
+  // Numero del preventivo: anno, mese e tre caratteri a caso, tipo "2608-K7Q".
+  // NON e' un contatore di proposito (sua richiesta, ago 2026): un "n. 3"
+  // dice al cliente quanti preventivi ha fatto e a che punto della fila sta.
+  // L'alfabeto salta 0/O/1/I/5/S perche' al telefono si leggono uguale.
+  PREVENTIVO.numero = function (quando) {
+    var x = quando || new Date();
+    var lettere = 'ABCDEFGHJKLMNPQRTUVWXYZ2346789';
+    var coda = '';
+    for (var i = 0; i < 3; i++) coda += lettere[Math.floor(Math.random() * lettere.length)];
+    return String(x.getFullYear()).slice(2) +
+           ('0' + (x.getMonth() + 1)).slice(-2) + '-' + coda;
+  };
+
   // Un preventivo nuovo parte sempre col catalogo pulito: nessuna tariffa
   // ereditata dal precedente. Le mette lui ogni volta.
   PREVENTIVO.vuoto = function () {
@@ -124,7 +137,7 @@
     var mesi =['January', 'February', 'March', 'April', 'May', 'June', 'July',
                 'August', 'September', 'October', 'November', 'December'];
     return {
-      n: '1',
+      n: PREVENTIVO.numero(oggi),
       dt: mesi[oggi.getMonth()] + ' ' + oggi.getFullYear(),
       t: '',
       s: '',

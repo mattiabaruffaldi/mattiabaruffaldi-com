@@ -96,7 +96,9 @@
   .marchio span { font-size: var(--fs-1); letter-spacing: .16em; text-transform: uppercase; color: var(--s-tenue); }
   .sp { flex: 1; }
 
-  .cerca { position: relative; flex: 0 1 20rem; }
+  /* La ricerca sta nella colonna di sinistra, sopra i clienti: e' un filtro
+     dell'elenco, quindi vive con gli altri filtri, non nella barra. */
+  .cerca { position: relative; margin-bottom: var(--sp-4); }
   .cerca input {
     width: 100%; padding: var(--sp-2) var(--sp-3) var(--sp-2) 30px;
     border: 1px solid var(--s-bordo); border-radius: var(--r);
@@ -302,27 +304,29 @@
   .barra__t b { font-size: var(--fs-6); font-weight: 600; font-variant-numeric: tabular-nums; }
 
   .scena { display: grid; grid-template-columns: 1fr; }
-  @media (min-width: 68rem) { .scena.con-ante { grid-template-columns: 1fr 26rem; } }
   .modulo { padding: var(--sp-5) clamp(var(--sp-3), 2vw, var(--sp-5)) 90px;
             max-width: 82rem; margin-inline: auto; width: 100%; }
-  .ante { display: none; background: #3a3a3e; border-left: 1px solid var(--s-bordo);
-          padding: var(--sp-3) 0 var(--sp-6); overflow-y: auto; }
-  .scena.con-ante .ante { display: block; }
-  .scena.con-ante .modulo { margin-inline: 0; }
-  @media (min-width: 68rem) {
-    .ante { position: sticky; top: 53px; max-height: calc(100vh - 53px); }
-    /* Il foglio e' A4 (210mm ≈ 794px) dentro una colonna di 26rem: va
-       ridotto della misura giusta, non "a occhio", o esce dal bordo destro.
-       Origine in alto a sinistra e margine negativo in mm: le percentuali
-       si calcolano sulla larghezza del contenitore, non sull'altezza. */
-    .ante { --scala: .49; padding-inline: var(--sp-3); }
-    .ante .q-sheet {
-      transform: scale(var(--scala));
-      transform-origin: top left;
-      margin: 0 0 calc((var(--scala) - 1) * 297mm);
-    }
-    .ante .q-sheet + .q-sheet { margin-top: 0; }
+
+  /* ---------- anteprima a schermo intero ----------
+     Dentro c'e' un iframe su /quote/, cioe' *la pagina vera* che riceve il
+     cliente: non una riproduzione in scala ridotta, che rimpicciolendo il
+     testo lo faceva sembrare piu' chiaro di com'e'.
+     NIENTE `display` su `.ante` nuda: e' un <dialog>, e un display scritto
+     qui batterebbe la regola del browser lasciandolo sempre aperto. */
+  .ante {
+    width: 100vw; max-width: 100vw; height: 100vh; max-height: 100vh;
+    margin: 0; padding: 0; border: 0; background: var(--s-fondo);
   }
+  .ante[open] { display: flex; flex-direction: column; }
+  .ante::backdrop { background: #0a0a0c; }
+  .ante__bar {
+    display: flex; align-items: center; gap: var(--sp-3); flex-shrink: 0;
+    padding: var(--sp-2) var(--sp-4);
+    background: var(--s-piano); border-bottom: 1px solid var(--s-bordo);
+  }
+  .ante__t { font-size: var(--fs-2); color: var(--s-tenue); }
+  .ante__t b { color: var(--s-testo); font-weight: 500; }
+  .ante__f { flex: 1; width: 100%; border: 0; background: #fff; }
 
   .sez { margin-bottom: var(--sp-6); }
   .sez__t { font-size: var(--fs-1); letter-spacing: .2em; text-transform: uppercase;
@@ -407,6 +411,7 @@
       padding: var(--sp-3) clamp(var(--sp-3), 2vw, var(--sp-5));
     }
     .fianco__t { display: none; }
+    .cerca { margin-bottom: var(--sp-3); }
     .clienti { display: flex; flex-wrap: nowrap; overflow-x: auto; gap: var(--sp-2); margin: 0; padding-bottom: 2px; }
     .clienti li { flex: 0 0 auto; }
     .cl { border: 1px solid var(--s-bordo); border-radius: 999px; padding: 5px var(--sp-3); font-size: var(--fs-2); }
@@ -424,7 +429,6 @@
     .meta-m { display: block; font-size: var(--fs-2); color: var(--s-tenue);
               margin-top: 3px; font-variant-numeric: tabular-nums; }
     .testata { flex-wrap: wrap; }
-    .cerca { flex: 1 1 100%; order: 3; }
     .intest { display: none; }
     .riga { grid-template-columns: 24px 1fr 30px; row-gap: var(--sp-1); }
     .riga > :nth-child(3) { grid-column: 2 / 4; }
@@ -449,12 +453,6 @@
   <header class="testata">
     <div class="marchio"><b>Studio</b><span>Preventivi</span></div>
     <span class="sp"></span>
-    <div class="cerca">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-        <circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/>
-      </svg>
-      <input id="q" type="search" placeholder="Cerca cliente o titolo" aria-label="Cerca fra i preventivi">
-    </div>
     <button class="b b--quieto" type="button" id="esporta">Esporta</button>
     <button class="b b--quieto" type="button" id="importa">Importa</button>
     <button class="b b--pieno" type="button" id="nuovo">+ Nuovo preventivo</button>
@@ -463,6 +461,12 @@
 
   <div class="impianto">
     <nav class="fianco" aria-label="Clienti">
+      <div class="cerca">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/>
+        </svg>
+        <input id="q" type="search" placeholder="Cerca" aria-label="Cerca fra i preventivi">
+      </div>
       <p class="fianco__t">Clienti</p>
       <ul class="clienti" id="clienti"></ul>
     </nav>
@@ -569,10 +573,17 @@
         <div class="link" id="out" hidden></div>
       </section>
     </div>
-
-    <div class="ante"><div id="ante"></div></div>
   </div>
 </div>
+
+<dialog class="ante" id="ante" aria-label="Anteprima del preventivo">
+  <div class="ante__bar">
+    <span class="ante__t"><b>Anteprima</b> — esattamente quello che vede il cliente</span>
+    <span class="sp"></span>
+    <button class="b" type="button" id="ante-x">Chiudi</button>
+  </div>
+  <iframe class="ante__f" id="ante-f" title="Il preventivo come lo vede il cliente"></iframe>
+</dialog>
 
 </div><!-- /#app -->
 
@@ -1333,17 +1344,26 @@
       PREVENTIVO.euro(c.tot, 1) + '</b></div>';
 
     $('#t-tot').textContent = PREVENTIVO.euro(c.tot, 1);
-    if ($('#scena').classList.contains('con-ante')) $('#ante').innerHTML = PREVENTIVO.disegna(d);
     try { localStorage.setItem(CHIAVE, JSON.stringify(d)); } catch (e) {}
     archiviaBozza();
   }
 
-  $('#b-ante').addEventListener('click', function () {
-    var on = $('#scena').classList.toggle('con-ante');
-    $('#b-ante').classList.toggle('b--on', on);
-    $('#b-ante').setAttribute('aria-pressed', on ? 'true' : 'false');
-    if (on) $('#ante').innerHTML = PREVENTIVO.disegna(d);
+  // L'anteprima carica /quote/ col preventivo dentro: e' la stessa pagina,
+  // con lo stesso foglio di stile e a grandezza vera. Da li' si stampa il PDF
+  // col pulsante della pagina stessa.
+  $('#b-ante').addEventListener('click', async function () {
+    $('#ante-f').src = await indirizzo();
+    $('#ante').showModal();
   });
+  function chiudiAnte() {
+    if ($('#ante').open) $('#ante').close();
+    $('#ante-f').removeAttribute('src');     // ferma la pagina dentro l'iframe
+  }
+  $('#ante-x').addEventListener('click', chiudiAnte);
+  // L'evento `close` del <dialog> non scatta ovunque: guardo l'attributo.
+  new MutationObserver(function () {
+    if (!$('#ante').open && $('#ante-f').getAttribute('src')) $('#ante-f').removeAttribute('src');
+  }).observe($('#ante'), { attributes: true, attributeFilter: ['open'] });
 
   async function indirizzo() {
     return location.origin + '/quote/#' + await PREVENTIVO.codifica(d);

@@ -217,8 +217,16 @@
   padding-bottom: 2mm; border-bottom: 1px solid var(--q-hair); margin: 0 0 3mm;
 }
 .q-bul { margin: 0; padding: 0; list-style: none; }
-.q-bul li { display: flex; gap: 3mm; padding: 1.6mm 0; font-size: 9.6pt; }
-.q-bul li::before { content: '—'; color: var(--q-ink-3); flex-shrink: 0; }
+.q-bul li { display: flex; gap: 3mm; padding: 1.6mm 0; font-size: 9.6pt; line-height: 1.4; }
+/* Pallino, non lineetta: la lineetta era larga quanto una parola e tirava
+   l'occhio piu' del testo. Misure in em, cosi' resta proporzionato se il
+   corpo cambia; il margine lo centra sulla prima riga anche quando la voce
+   va a capo. */
+.q-bul li::before {
+  content: ''; flex-shrink: 0;
+  width: .3em; height: .3em; margin-top: .55em;
+  border-radius: 50%; background: var(--q-ink-3);
+}
 .q-note { margin-top: 4mm; font-size: 8.6pt; color: var(--q-ink-3); }
 
 .q-terms { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm 9mm; margin-top: 5mm; }
