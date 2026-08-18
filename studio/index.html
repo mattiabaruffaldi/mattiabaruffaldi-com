@@ -34,6 +34,8 @@
   }
   input:focus, textarea:focus, select:focus { outline: 2px solid #f2b45c; outline-offset: 1px; border-color: transparent; }
   textarea { min-height: 76px; resize: vertical; line-height: 1.5; }
+  .aiuto { font-size: 11px; color: #85858f; margin: 6px 0 0; line-height: 1.45; }
+  .voce__c input.pers { border-color: #f2b45c; color: #f2b45c; }
   .due { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .tre { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
 
@@ -115,6 +117,10 @@
         <div><label for="f-n">N. preventivo</label><input id="f-n" data-k="n"></div>
         <div><label for="f-dt">Data</label><input id="f-dt" data-k="dt"></div>
       </div>
+      <label for="f-gg">Giornate di produzione</label>
+      <input id="f-gg" data-k="gg" type="number" min="1" step="1">
+      <p class="aiuto">Valgono per tutte le voci a giornata. Se una ne fa di
+        diverse (il drone, gli eventi) scrivi il numero solo su quella riga.</p>
       <label for="f-cl">Cliente</label><input id="f-cl" data-k="cl" placeholder="VVENA">
       <label for="f-t">Titolo</label><input id="f-t" data-k="t" placeholder="VVENA Campaign 2026">
       <label for="f-s">Sottotitolo</label>
@@ -126,8 +132,16 @@
       <legend>Voci</legend>
       <div id="gruppi"></div>
       <div class="tot"><span>Fee</span><b id="t-fee">0,00 €</b></div>
+      <label for="f-pre">Cosa si aggiunge al totale</label>
+      <select id="f-pre">
+        <option value="riv4">Rivalsa INPS 4% — regime forfettario</option>
+        <option value="iva22">IVA 22%</option>
+        <option value="agency10">Agency fee 10%</option>
+        <option value="zero">Niente</option>
+        <option value="alt">Altro — lo scrivo io</option>
+      </select>
       <div class="due">
-        <div><label for="f-rv">Maggiorazione %</label><input id="f-rv" data-k="rv" type="number" step="0.5"></div>
+        <div><label for="f-rv">Percentuale</label><input id="f-rv" data-k="rv" type="number" step="0.5"></div>
         <div><label for="f-rvl">Come si chiama</label><input id="f-rvl" data-k="rvl" placeholder="Agency fee 10%"></div>
       </div>
       <div class="tot"><span>Totale</span><b id="t-tot">0,00 €</b></div>
@@ -179,12 +193,14 @@
       var v = d[el.dataset.k];
       el.value = Array.isArray(v) ? v.join('\n') : (v == null ? '' : v);
     });
+    var t = document.getElementById('f-pre');
+    if (t && typeof sceltaAttuale === 'function') t.value = sceltaAttuale();
   }
   campi.forEach(function (el) {
     el.addEventListener('input', function () {
       var k = el.dataset.k, v = el.value;
       if (k === 'inc' || k === 'exc') v = v.split('\n').filter(function (x) { return x.trim(); });
-      else if (k === 'rv') v = Number(v) || 0;
+      else if (k === 'rv' || k === 'gg') v = Number(v) || 0;
       d[k] = v;
       aggiorna();
     });
@@ -205,13 +221,15 @@
           '<div><div class="voce__d">' + v.d +
           (v.n ? '<div class="voce__n">' + v.n + '</div>' : '') + '</div>' +
           '<div class="voce__c">' +
-          '<input type="number" value="' + (v.dd || '') + '" data-f="dd" placeholder="gg">' +
+          '<input type="number" class="' + (v.ddx ? 'pers' : '') + '" value="' +
+          (v.dd ? PREVENTIVO.giorni(v, d) : '') + '" data-f="dd" placeholder="gg"' +
+          (v.dd ? '' : ' disabled title="Questa voce non va a giornata"') + '>' +
           '<input type="number" value="' + (v.u || 1) + '" data-f="u" placeholder="q.tà">' +
           '<input type="text" value="' + (v.f || '') + '" data-f="f" placeholder="oppure: Included">' +
           '<input type="number" value="' + (v.p || '') + '" data-f="p" placeholder="€">' +
           '</div></div></div>';
       }).join('');
-      var tot = PREVENTIVO.totaleGruppo(g);
+      var tot = PREVENTIVO.totaleGruppo(g, d);
       var ultimo = gi === d.g.length - 1;
       return '<div class="blocco' + (gi === aperto ? ' is-on' : '') + '">' +
         '<button class="blocco__t" type="button" data-apri="' + gi + '"' +
@@ -289,7 +307,14 @@
       box.classList.toggle('off', !e.target.checked);
     } else {
       var f = e.target.dataset.f;
-      v[f] = (f === 'f') ? e.target.value : (Number(e.target.value) || 0);
+      if (f === 'dd') {
+        // campo vuoto = torna a seguire le giornate di produzione
+        v.ddx = e.target.value !== '';
+        v.dd = Number(e.target.value) || (v.ddx ? 0 : 1);
+        e.target.classList.toggle('pers', !!v.ddx);
+      } else {
+        v[f] = (f === 'f') ? e.target.value : (Number(e.target.value) || 0);
+      }
       if (f === 'p' && v.p > 0) v.on = true;
     }
     aggiorna();
@@ -298,10 +323,17 @@
   /* ---- aggiornamento ---- */
   function aggiorna() {
     var c = PREVENTIVO.conti(d);
+    document.querySelectorAll('.voce').forEach(function (box) {
+      var v = d.g[box.dataset.g] && d.g[box.dataset.g].i[box.dataset.v];
+      var campo = box.querySelector('[data-f=dd]');
+      if (v && campo && v.dd && !v.ddx && document.activeElement !== campo) {
+        campo.value = PREVENTIVO.giorni(v, d);
+      }
+    });
     document.querySelectorAll('.blocco').forEach(function (b, i) {
       var v = b.querySelector('.blocco__v');
       if (v && d.g[i]) {
-        var t = PREVENTIVO.totaleGruppo(d.g[i]);
+        var t = PREVENTIVO.totaleGruppo(d.g[i], d);
         v.textContent = t ? PREVENTIVO.euro(t) : '';
       }
     });
@@ -337,7 +369,41 @@
     daModello(); disegnaVoci(); aggiorna();
   });
 
+  /* ---- maggiorazione: scelte pronte ----
+     L'IVA e la rivalsa non convivono con la stessa nota in fondo: scegliendo
+     l'IVA la dicitura del forfettario si toglie da sola, altrimenti il
+     preventivo direbbe insieme "IVA 22%" e "operazione senza IVA". */
+  var NOTA_FORFAIT = 'Operazione senza applicazione dell\u2019IVA ai sensi ' +
+    'dell\u2019art. 1, commi 54-89, L. 190/2014.';
+  var SCELTE = {
+    riv4:     { rv: 4,  rvl: 'Rivalsa INPS 4%', nt: NOTA_FORFAIT },
+    iva22:    { rv: 22, rvl: 'VAT 22%',         nt: '' },
+    agency10: { rv: 10, rvl: 'Agency fee 10%' },
+    zero:     { rv: 0,  rvl: '' }
+  };
+  var pre = document.getElementById('f-pre');
+
+  function sceltaAttuale() {
+    for (var k in SCELTE) {
+      if (SCELTE[k].rv === Number(d.rv) && SCELTE[k].rvl === (d.rvl || '')) return k;
+    }
+    return 'alt';
+  }
+
+  pre.addEventListener('change', function () {
+    var v = SCELTE[pre.value];
+    if (!v) return;                       // "Altro": lascia fare a lui
+    d.rv = v.rv; d.rvl = v.rvl;
+    if (v.nt !== undefined) d.nt = v.nt;
+    daModello(); aggiorna();
+  });
+  [document.getElementById('f-rv'), document.getElementById('f-rvl')]
+    .forEach(function (el) {
+      el.addEventListener('input', function () { pre.value = sceltaAttuale(); });
+    });
+
   daModello(); disegnaVoci(); aggiorna();
+  pre.value = sceltaAttuale();
 })();
 </script>
 </body>

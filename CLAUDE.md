@@ -163,7 +163,15 @@ Strumento suo per fare preventivi, nato ad agosto 2026 dal preventivo VVENA.
 - **Ogni pulsante nuovo dentro i blocchi va aggiunto al `closest()`** del
   gestore dei click, altrimenti non scatta e basta (successo con `data-del`).
 - Intestazione a scelta fra lui e Unreal Srl (`PREVENTIVO.intestazioni`).
-  La maggiorazione ha etichetta libera: rivalsa INPS oppure agency fee.
+- **Giornate di produzione una volta sola**, in cima. Le voci con `dd` diverso
+  da 0 le seguono; `ddx` segna quelle con giornate proprie (il drone che ne fa
+  4 mentre la troupe ne fa 11). Svuotando il campo giorni si torna a seguire
+  il valore globale. Nel link le giornate viaggiano gia' risolte, cosi'
+  `/quote/` non deve sapere nulla di questo meccanismo.
+- **Maggiorazione a scelte pronte:** rivalsa INPS 4%, IVA 22%, agency fee 10%,
+  niente, oppure a mano. **Scegliendo l'IVA la nota del forfettario si toglie
+  da sola**, altrimenti il preventivo direbbe insieme "VAT 22%" e "operazione
+  senza applicazione dell'IVA".
 - `/quote/` — quello che vede il cliente, e da cui si stampa il PDF.
 - **I dati del preventivo NON stanno sul sito**: viaggiano nel link dopo il
   cancelletto (`/quote/#z...`). Quella parte il browser non la manda mai al

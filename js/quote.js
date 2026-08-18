@@ -164,6 +164,7 @@
       ],
       urn: 'TV advertising, billboards, OOH and sponsored social media are not included and will be quoted separately.',
       h: 'mb',
+      gg: 1,
       rv: 4,
       rvl: 'Rivalsa INPS 4%',
       vl: '10 days from presentation.',
@@ -177,19 +178,30 @@
   /* ------------------------------------------------------------------
      Conti
      ------------------------------------------------------------------ */
-  function totaleVoce(v) {
+  // Le voci a giornata seguono le giornate di produzione scritte una volta
+  // sola in cima. `dd: 0` nel catalogo vuol dire "non va a giornata" (dischi,
+  // montaggio...). `ddx` segna una voce con giornate proprie: il drone che ne
+  // fa 4 mentre la troupe ne fa 11.
+  function giorni(v, d) {
+    if (!v.dd) return 0;
+    if (v.ddx) return v.dd;
+    return (d && Number(d.gg)) || 1;
+  }
+  function totaleVoce(v, d) {
     if (v.on === false || !v.p) return 0;
-    return v.p * (v.u || 1) * (v.dd && v.dd > 0 ? v.dd : 1);
+    var g = giorni(v, d);
+    return v.p * (v.u || 1) * (g > 0 ? g : 1);
   }
-  function totaleGruppo(g) {
-    return (g.i || []).reduce(function (s, v) { return s + totaleVoce(v); }, 0);
+  function totaleGruppo(g, d) {
+    return (g.i || []).reduce(function (s, v) { return s + totaleVoce(v, d); }, 0);
   }
+  PREVENTIVO.giorni = giorni;
   PREVENTIVO.totaleVoce = totaleVoce;
   PREVENTIVO.totaleGruppo = totaleGruppo;
 
   PREVENTIVO.conti = function (d) {
-    var attivi = (d.g || []).filter(function (g) { return totaleGruppo(g) > 0; });
-    var fee = attivi.reduce(function (s, g) { return s + totaleGruppo(g); }, 0);
+    var attivi = (d.g || []).filter(function (g) { return totaleGruppo(g, d) > 0; });
+    var fee = attivi.reduce(function (s, g) { return s + totaleGruppo(g, d); }, 0);
     var riv = Math.round(fee * (Number(d.rv) || 0)) / 100;
     return { attivi: attivi, fee: fee, riv: riv, tot: fee + riv };
   };
@@ -221,11 +233,12 @@
     });
     c.g = (d.g || []).map(function (g) {
       return { t: g.t, i: (g.i || []).filter(function (v) {
-        return v.on !== false && (PREVENTIVO.totaleVoce(v) > 0 || v.f);
+        return v.on !== false && (PREVENTIVO.totaleVoce(v, d) > 0 || v.f);
       }).map(function (v) {
         var o = { d: v.d };
         if (v.n) o.n = v.n;
-        if (v.dd) o.dd = v.dd;
+        var gg = PREVENTIVO.giorni(v, d);
+        if (gg) { o.dd = gg; o.ddx = 1; }
         if (v.u && v.u !== 1) o.u = v.u;
         if (v.p) o.p = v.p;
         if (v.f) o.f = v.f;
@@ -281,9 +294,10 @@
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;');
   }
-  function riga(v) {
-    var q = v.dd && v.dd > 0 ? v.dd : '—';
-    var val = v.p ? PREVENTIVO.euro(totaleVoce(v)) :
+  function riga(v, d) {
+    var gg = giorni(v, d);
+    var q = gg > 0 ? gg : '—';
+    var val = v.p ? PREVENTIVO.euro(totaleVoce(v, d)) :
       '<span class="q-flag">' + esc(v.f || '—') + '</span>';
     return '<tr><td>' + esc(v.d) +
       (v.n ? '<span class="q-it__n">' + esc(v.n) + '</span>' : '') +
@@ -300,11 +314,11 @@
 
     /* ---- foglio 1: copertina e riepilogo ---- */
     var riepilogo = c.attivi.map(function (g) {
-      var note = (g.i || []).filter(function (v) { return totaleVoce(v) > 0; })
+      var note = (g.i || []).filter(function (v) { return totaleVoce(v, d) > 0; })
         .map(function (v) { return v.d; }).join(', ');
       return '<div class="q-sum__row"><div><div class="q-sum__t">' + esc(g.t) + '</div>' +
         (note ? '<div class="q-sum__n">' + esc(note) + '</div>' : '') +
-        '</div><div class="q-sum__v">' + PREVENTIVO.euro(totaleGruppo(g)) + '</div></div>';
+        '</div><div class="q-sum__v">' + PREVENTIVO.euro(totaleGruppo(g, d)) + '</div></div>';
     }).join('');
 
     var uno = '<section class="q-sheet"><div class="q-head">' +
@@ -332,13 +346,13 @@
     /* ---- foglio 2: dettaglio ---- */
     var corpo = c.attivi.map(function (g, i) {
       var voci = (g.i || []).filter(function (v) {
-        return v.on !== false && (totaleVoce(v) > 0 || v.f);
+        return v.on !== false && (totaleVoce(v, d) > 0 || v.f);
       });
       return '<tr class="q-grp"><td colspan="5"><span class="q-grp__n">' +
         ('0' + (i + 1)).slice(-2) + '</span><span class="q-grp__t">' + esc(g.t) +
-        '</span></td></tr>' + voci.map(riga).join('') +
+        '</span></td></tr>' + voci.map(function (v) { return riga(v, d); }).join('') +
         '<tr class="q-sub-row"><td colspan="4">Subtotal</td><td class="q-num-cell">' +
-        PREVENTIVO.euro(totaleGruppo(g)) + '</td></tr>';
+        PREVENTIVO.euro(totaleGruppo(g, d)) + '</td></tr>';
     }).join('');
 
     var due = '<section class="q-sheet">' +
