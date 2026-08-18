@@ -173,6 +173,17 @@
 .q-table thead th:first-child { text-align: left; }
 .q-table td { padding: 3mm 0; border-bottom: 1px solid var(--q-hair); vertical-align: baseline; text-align: right; }
 .q-table td:first-child { text-align: left; padding-right: 6mm; }
+/* Le colonne non avevano spazio fra loro: incolonnate a destra e con le
+   intestazioni spaziate, "DAYS" e "UNITS" finivano attaccate e si leggeva
+   "DAYSUNITS". Serve aria fra una colonna e l'altra, non solo dentro. */
+.q-table thead th + th,
+.q-table tbody td + td { padding-left: 6mm; }
+/* Larghezze ferme sulle colonne numeriche: senza, la tabella le stringe
+   fino a farle toccare appena una descrizione si allunga. */
+.q-table thead th:nth-child(2) { width: 16mm; }
+.q-table thead th:nth-child(3) { width: 16mm; }
+.q-table thead th:nth-child(4) { width: 26mm; }
+.q-table thead th:nth-child(5) { width: 28mm; }
 .q-table .q-grp td {
   padding: 4mm 0 2.5mm; border-bottom: 0; background: var(--q-band);
   padding-inline: 3mm;
@@ -297,6 +308,14 @@
   .q-title { font-size: 22pt; }
   .q-cols, .q-terms, .q-sign { grid-template-columns: 1fr; }
   .q-num { display: none; }
+  /* Le larghezze fisse delle colonne servono su A4; su un telefono
+     sommate sfondano il foglio, quindi si torna all'automatico e si
+     stringe l'aria fra le colonne. */
+  .q-table thead th:nth-child(n+2) { width: auto; }
+  .q-table thead th + th,
+  .q-table tbody td + td { padding-left: 3mm; }
+  .q-table td:first-child { padding-right: 3mm; }
+  .q-table thead th { letter-spacing: 0.1em; }
 }
 
 /* Da telefono l'intestazione va in colonna e i contatti possono andare a

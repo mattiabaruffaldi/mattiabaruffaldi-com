@@ -6,7 +6,7 @@
 <title>Studio preventivi</title>
 <meta name="robots" content="noindex, nofollow, noarchive">
 <link rel="icon" href="/favicon-32.png" sizes="32x32">
-<link rel="stylesheet" href="/css/quote.css?v=b22fbf72">
+<link rel="stylesheet" href="/css/quote.css?v=dd9efd06">
 <style>
   /* ==================================================================
      Studio preventivi — due viste in una pagina:
@@ -176,13 +176,21 @@
   /* Non a tutta larghezza: su schermo grande l'occhio farebbe mezzo metro
      dal titolo all'importo. */
   .tab { width: 100%; max-width: 70rem; border-collapse: collapse; table-layout: fixed; }
-  .tab th:nth-child(1) { width: 2.4rem; }
-  .tab th:nth-child(2) { width: auto; }
-  .tab th:nth-child(3) { width: 5rem; }
-  .tab th:nth-child(4) { width: 8rem; }
-  .tab th:nth-child(5) { width: 9.5rem; }
-  .tab th:nth-child(6) { width: 9rem; }
-  .tab th:nth-child(7) { width: 3.5rem; }
+  /* A riposo la colonna delle spunte non c'e', quindi le larghezze sono
+     scritte due volte: senza e con. */
+  .tab th:nth-child(1) { width: auto; }
+  .tab th:nth-child(2) { width: 5rem; }
+  .tab th:nth-child(3) { width: 8rem; }
+  .tab th:nth-child(4) { width: 9.5rem; }
+  .tab th:nth-child(5) { width: 9rem; }
+  .tab th:nth-child(6) { width: 3.5rem; }
+  .tab.con-scelta th:nth-child(1) { width: 2.4rem; }
+  .tab.con-scelta th:nth-child(2) { width: auto; }
+  .tab.con-scelta th:nth-child(3) { width: 5rem; }
+  .tab.con-scelta th:nth-child(4) { width: 8rem; }
+  .tab.con-scelta th:nth-child(5) { width: 9.5rem; }
+  .tab.con-scelta th:nth-child(6) { width: 9rem; }
+  .tab.con-scelta th:nth-child(7) { width: 3.5rem; }
   .tab td[data-c=sel] { padding-right: 0; }
   /* La casella e' 16px, ma il dito ne vuole 40: il <label> le sta intorno
      con del margine di tocco che non sposta l'impaginato. */
@@ -525,7 +533,9 @@
         <h1 id="titolo-vista">Tutti i preventivi</h1>
         <span id="conteggio"></span>
         <span class="sp"></span>
-        <button class="b" type="button" id="link-gruppo" hidden></button>
+        <button class="b" type="button" id="b-raggruppa" hidden>Raggruppa preventivi</button>
+        <button class="b" type="button" id="b-annulla-scelta" hidden>Annulla</button>
+        <button class="b b--pieno" type="button" id="link-gruppo" hidden></button>
       </div>
       <div class="filtri" id="filtri"></div>
       <div id="elenco"></div>
@@ -789,6 +799,7 @@
   var cerca = '';
   var rinominando = null;      // id del preventivo in rinomina
   var scelti = {};             // id spuntati per il link di gruppo
+  var modoScelta = false;      // le spunte compaiono solo quando servono
 
   function cartellaDi(x) { return (x.cliente || '').trim() || SENZA; }
 
@@ -878,8 +889,10 @@
 
     var mostraCliente = filtroCliente === null;
     $('#elenco').innerHTML =
-      '<table class="tab"><caption class="solo-lettori">Preventivi in archivio</caption>' +
-      '<thead><tr><th scope="col" class="sel"><span class="solo-lettori">Scegli</span></th>' +
+      '<table class="tab' + (modoScelta ? ' con-scelta' : '') + '">' +
+      '<caption class="solo-lettori">Preventivi in archivio</caption>' +
+      '<thead><tr>' +
+      (modoScelta ? '<th scope="col"><span class="solo-lettori">Scegli</span></th>' : '') +
       '<th scope="col">Preventivo</th><th scope="col" class="num">N.</th>' +
       '<th scope="col" class="num">Aggiornato</th><th scope="col" class="num">Importo</th>' +
       '<th scope="col">Stato</th><th scope="col"><span class="solo-lettori">Azioni</span></th>' +
@@ -887,12 +900,17 @@
       voci.map(function (x) {
         var st = x.stato || 'bozza';
         var titolo = x.titolo || 'Senza titolo';
+        var classi = [];
+        if (x.id === d.id) classi.push('is-qui');
+        if (modoScelta && scelti[x.id]) classi.push('is-scelto');
         return '<tr data-id="' + esc(x.id) + '"' +
-          (x.id === d.id ? ' class="is-qui"' : '') + '>' +
-          '<td data-c="sel"><label class="scegli">' +
-            '<input type="checkbox" data-scegli="' + esc(x.id) + '"' +
-            (scelti[x.id] ? ' checked' : '') +
-            ' aria-label="Scegli ' + esc(titolo) + ' per il link di gruppo"></label></td>' +
+          (classi.length ? ' class="' + classi.join(' ') + '"' : '') + '>' +
+          (modoScelta
+            ? '<td data-c="sel"><label class="scegli">' +
+              '<input type="checkbox" data-scegli="' + esc(x.id) + '"' +
+              (scelti[x.id] ? ' checked' : '') +
+              ' aria-label="Scegli ' + esc(titolo) + ' per il link di gruppo"></label></td>'
+            : '') +
           '<td data-c="tit">' +
             (rinominando === x.id
               ? '<input class="rinomina" value="' + esc(titolo) + '" aria-label="Nuovo titolo">'
@@ -1023,17 +1041,37 @@
      stanno sul sito: viaggiano nel link come sempre, e i preventivi si
      comprimono INSIEME perche' condividono condizioni, consegne e diritti
      d'uso (tre uniti costano meta' di tre separati). */
-  // Il pulsante compare solo quando ne sono spuntati almeno due, e dice
-  // quanti sono: cosi' e' chiaro cosa finisce nel link.
+  // A riposo si vede un pulsante solo. Premuto, compaiono le spunte e il
+  // pulsante diventa "Genera link", spento finche' non ne scegli due: le
+  // caselle di spunta sempre in vista sarebbero rumore su una schermata
+  // che serve soprattutto a leggere.
   function idScelti() {
-    return Object.keys(scelti).filter(function (k) { return scelti[k]; });
+    return Object.keys(scelti).filter(function (k) { return scelti[k] && arcTrova(k); });
   }
   function aggiornaGruppo() {
-    var n = idScelti().filter(function (id) { return arcTrova(id); }).length;
+    var quanti = seleziona().length;
+    var n = idScelti().length;
+    $('#b-raggruppa').hidden = modoScelta || quanti < 2;
+    $('#b-annulla-scelta').hidden = !modoScelta;
     var b = $('#link-gruppo');
-    b.hidden = n < 2;
-    b.textContent = 'Crea la pagina con questi ' + n;
+    b.hidden = !modoScelta;
+    b.disabled = n < 2;
+    b.textContent = n < 2 ? 'Scegline almeno due' : 'Genera link con ' + n + ' preventivi';
   }
+  function esciDaScelta() {
+    modoScelta = false;
+    scelti = {};
+    disegnaElenco();
+  }
+  $('#b-raggruppa').addEventListener('click', function () {
+    modoScelta = true;
+    scelti = {};
+    disegnaElenco();
+    var primo = $('#elenco').querySelector('[data-scegli]');
+    if (primo) primo.focus();
+  });
+  $('#b-annulla-scelta').addEventListener('click', esciDaScelta);
+
   $('#elenco').addEventListener('change', function (e) {
     var c = e.target.closest('[data-scegli]');
     if (!c) return;
@@ -1075,6 +1113,7 @@
       avvisa('Non riesco a copiarlo da solo. Apri la pagina e copiala dalla barra.');
       window.open(u, '_blank', 'noopener');
     }
+    esciDaScelta();
   });
 
   /* ---------- menu per riga ---------- */
