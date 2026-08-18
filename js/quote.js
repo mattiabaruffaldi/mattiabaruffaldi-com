@@ -11,15 +11,32 @@
   /* ------------------------------------------------------------------
      Intestazione: i suoi dati
      ------------------------------------------------------------------ */
-  PREVENTIVO.intestazione = {
-    nome: 'Mattia Baruffaldi',
-    ruolo: 'Director / DOP',
-    righe: [
-      'Via Vallarsa 11, 20139 Milano',
-      'info.mattiabaruffaldi@gmail.com',
-      '+39 346 475 5599',
-      'IBAN IT67G0306952290100000005478'
-    ]
+  PREVENTIVO.intestazioni = {
+    mb: {
+      nome: 'Mattia Baruffaldi',
+      ruolo: 'Director / DOP',
+      righe: [
+        'Via Vallarsa 11, 20139 Milano',
+        'info.mattiabaruffaldi@gmail.com',
+        '+39 346 475 5599',
+        'IBAN IT67G0306952290100000005478'
+      ],
+      piede: ''
+    },
+    unreal: {
+      nome: 'Unreal Media House',
+      ruolo: 'Unreal Srl',
+      righe: [
+        'Via Amedeo Avogadro 24, Torino',
+        'P.IVA e C.F. 13384890011',
+        'ciao@weareunreal.it',
+        '+39 393 916 9952'
+      ],
+      piede: 'Unreal Srl · ciao@weareunreal.it · +39 393 916 9952 · weareunreal.it'
+    }
+  };
+  PREVENTIVO.testa = function (d) {
+    return PREVENTIVO.intestazioni[(d && d.h) || 'mb'] || PREVENTIVO.intestazioni.mb;
   };
 
   /* ------------------------------------------------------------------
@@ -33,37 +50,80 @@
      pulsante "Ricomincia" li conserva.
      ------------------------------------------------------------------ */
   PREVENTIVO.catalogo = [
-    { t: 'Project management', i: [
-      { d: 'Pre-production & logistics', n: 'Shotlist, call sheet, permits', dd: 0, u: 1, p: 0 },
-      { d: 'Location scouting', n: '', dd: 0, u: 1, p: 0, f: 'TBD' }
+    { t: 'Script & development', i: [
+      { d: 'Copy, script and development', n: '', dd: 0, u: 1, p: 0 },
+      { d: 'Creative concept', n: '', dd: 0, u: 1, p: 0 },
+      { d: 'Storyboard', n: '', dd: 0, u: 1, p: 0 }
     ]},
-    { t: 'Production crew', i: [
+    { t: 'Producers', i: [
+      { d: 'Project manager', n: '', dd: 0, u: 1, p: 0 },
+      { d: 'Producer', n: '', dd: 0, u: 1, p: 0 },
+      { d: 'Production assistant', n: '', dd: 0, u: 1, p: 0 }
+    ]},
+    { t: 'Production crew A', i: [
+      { d: 'Director', n: 'Mattia Baruffaldi', dd: 1, u: 1, p: 0 },
+      { d: 'DOP', n: '', dd: 1, u: 1, p: 0 },
       { d: 'Photographer', n: 'Mattia Baruffaldi', dd: 1, u: 1, p: 0 },
       { d: 'Camera operator', n: '', dd: 1, u: 1, p: 0 },
-      { d: 'Director of photography', n: '', dd: 0, u: 1, p: 0, f: '' },
-      { d: 'Assistant', n: '', dd: 0, u: 1, p: 0, f: '' },
-      { d: 'Drone operator', n: 'EASA certified', dd: 0, u: 1, p: 0, f: '' },
+      { d: 'Sound recorder', n: '', dd: 1, u: 1, p: 0 },
+      { d: '1st assistant camera', n: '', dd: 1, u: 1, p: 0 },
+      { d: '2nd assistant camera', n: '', dd: 1, u: 1, p: 0 },
+      { d: 'Drone operator', n: 'EASA certified', dd: 1, u: 1, p: 0 },
+      { d: 'Gaffer', n: '', dd: 1, u: 1, p: 0 },
+      { d: 'Grip', n: '', dd: 1, u: 1, p: 0 },
       { d: 'Talent', n: '', dd: 1, u: 1, p: 0 },
       { d: 'Make-up & hair', n: '', dd: 1, u: 1, p: 0, f: 'By client' },
       { d: 'Stylist', n: '', dd: 1, u: 1, p: 0, f: 'By client' }
     ]},
+    { t: 'Production crew B', i: [
+      { d: 'Camera operator', n: '', dd: 1, u: 1, p: 0 },
+      { d: 'Sound recorder', n: '', dd: 1, u: 1, p: 0 },
+      { d: 'Assistant', n: '', dd: 1, u: 1, p: 0 }
+    ]},
     { t: 'Equipment', i: [
-      { d: 'Camera & lens package', n: 'Canon EOS R5 + RF, Leica Q, cinema camera + cinema lenses', dd: 1, u: 1, p: 0, f: 'Included' },
-      { d: 'Lighting & grip kit', n: '', dd: 1, u: 1, p: 0, f: 'Included' },
-      { d: 'Drone', n: 'DJI', dd: 0, u: 1, p: 0, f: '' },
-      { d: 'Hard drives', n: '1 master + 1 backup', dd: 0, u: 2, p: 0 }
+      { d: 'Canon EOS R5 + RF lens', n: '', dd: 1, u: 1, p: 0, f: 'Included' },
+      { d: 'Leica Q', n: '', dd: 1, u: 1, p: 0, f: 'Included' },
+      { d: 'Cinema camera + cinema lens', n: '', dd: 1, u: 1, p: 0 },
+      { d: 'Lighting kit', n: '', dd: 1, u: 1, p: 0 },
+      { d: 'Focus, transmitter, monitor', n: 'Focus nucleus, DJI transmitter, monitor', dd: 1, u: 1, p: 0 },
+      { d: 'Grip package', n: '', dd: 1, u: 1, p: 0 },
+      { d: 'Drone', n: 'DJI Inspire III', dd: 1, u: 1, p: 0 },
+      { d: 'Hard drives', n: 'master + backup', dd: 0, u: 2, p: 0 }
+    ]},
+    { t: 'Travel crew A', i: [
+      { d: 'Trip', n: '', dd: 1, u: 1, p: 0, f: 'TBD' },
+      { d: 'Drone trip', n: '', dd: 1, u: 1, p: 0, f: 'TBD' },
+      { d: 'Mileage', n: '', dd: 0, u: 1, p: 0, f: 'TBD' }
+    ]},
+    { t: 'Travel & accommodation crew A', i: [
+      { d: 'Travel', n: '', dd: 1, u: 1, p: 0, f: 'TBD' },
+      { d: 'Hotel', n: '', dd: 1, u: 1, p: 0, f: 'TBD' },
+      { d: 'Food dinner', n: '', dd: 1, u: 1, p: 0, f: 'TBD' },
+      { d: 'Food lunch', n: '', dd: 1, u: 1, p: 0, f: 'TBD' }
+    ]},
+    { t: 'Travel & accommodation crew B', i: [
+      { d: 'Travel', n: '', dd: 1, u: 1, p: 0, f: 'TBD' },
+      { d: 'Hotel', n: '', dd: 1, u: 1, p: 0, f: 'TBD' },
+      { d: 'Food dinner', n: '', dd: 1, u: 1, p: 0, f: 'TBD' },
+      { d: 'Food lunch', n: '', dd: 1, u: 1, p: 0, f: 'TBD' }
     ]},
     { t: 'Post production', i: [
-      { d: 'Photo editing', n: 'Selected images', dd: 0, u: 1, p: 0, f: 'Included' },
+      { d: 'Documentary', n: '16:9 · 60’ · 4K', dd: 0, u: 1, p: 0 },
       { d: 'Main film', n: '16:9 · 1’30” · 4K', dd: 0, u: 1, p: 0 },
-      { d: 'Social contents', n: '9:16 · 15/30” · 1080p', dd: 0, u: 3, p: 0 },
-      { d: 'Color correction', n: '', dd: 0, u: 1, p: 0, f: 'Included' },
-      { d: 'Sound design & mix', n: '', dd: 0, u: 1, p: 0, f: '' },
-      { d: 'Music licence', n: '', dd: 0, u: 1, p: 0, f: '' }
+      { d: 'Teaser', n: '16:9 · 1’ · 4K', dd: 0, u: 1, p: 0 },
+      { d: 'Social contents', n: '9:16 · 10-30” · 1080p', dd: 0, u: 3, p: 0 },
+      { d: 'Photo editing', n: 'selected images', dd: 0, u: 1, p: 0, f: 'Included' },
+      { d: 'Colorist', n: '', dd: 0, u: 1, p: 0 },
+      { d: 'Sound designer', n: '', dd: 0, u: 1, p: 0 },
+      { d: 'Music licence', n: '', dd: 0, u: 1, p: 0 },
+      { d: 'Motion graphics', n: '', dd: 0, u: 1, p: 0 },
+      { d: 'Subtitles', n: '', dd: 0, u: 1, p: 0 }
     ]},
-    { t: 'Travel & accommodation', i: [
-      { d: 'Travel', n: '', dd: 0, u: 1, p: 0, f: 'TBD' },
-      { d: 'Accommodation', n: '', dd: 0, u: 1, p: 0, f: 'TBD' }
+    { t: 'Miscellaneous', i: [
+      { d: 'Location & permits', n: '', dd: 0, u: 1, p: 0, f: 'TBD' },
+      { d: 'Production insurance', n: '', dd: 0, u: 1, p: 0, f: 'TBD' },
+      { d: 'On-site expenses', n: 'rental of furnishing materials', dd: 0, u: 1, p: 0, f: 'TBD' },
+      { d: 'Set materials', n: '', dd: 0, u: 1, p: 0, f: 'TBD' }
     ]}
   ];
 
@@ -114,6 +174,7 @@
         { b: 'Print', t: 'magazines and printed editorial or promotional media' }
       ],
       urn: 'TV advertising, billboards, OOH and sponsored social media are not included and will be quoted separately.',
+      h: 'mb',
       rv: 4,
       rvl: 'Rivalsa INPS 4%',
       vl: '10 days from presentation.',
@@ -245,7 +306,7 @@
 
   PREVENTIVO.disegna = function (d) {
     var c = PREVENTIVO.conti(d);
-    var h = PREVENTIVO.intestazione;
+    var h = PREVENTIVO.testa(d);
     var contatti = h.righe.map(function (r) { return '<div>' + esc(r) + '</div>'; }).join('');
 
     /* ---- foglio 1: copertina e riepilogo ---- */
@@ -345,7 +406,10 @@
       '<div class="q-sign__line"></div><p class="q-sign__c">Date and signature</p></div>' +
       '<div><p class="q-sign__l">' + esc(h.nome) + '</p>' +
       '<div class="q-sign__line"></div><p class="q-sign__c">Signature</p></div>' +
-      '</div><div class="q-num">3 / 3</div></section>';
+      '</div>' +
+      (h.piede ? '<p class="q-note" style="text-align:center;margin-top:6mm">' +
+        esc(h.piede) + '</p>' : '') +
+      '<div class="q-num">3 / 3</div></section>';
 
     return uno + due + tre;
   };

@@ -12,7 +12,7 @@
   .app { display: grid; gap: 0; }
   @media (min-width: 76rem) { .app { grid-template-columns: 30rem 1fr; align-items: start; } }
 
-  .pan { padding: 20px clamp(14px, 2vw, 24px) 80px; }
+  .pan { padding: 20px clamp(14px, 2vw, 24px) 20px; }
   @media (min-width: 76rem) {
     .pan { position: sticky; top: 0; max-height: 100vh; overflow-y: auto;
            border-right: 1px solid #33333a; }
@@ -52,12 +52,20 @@
   .mini span { text-align: right; }
   .mini span:nth-child(3) { text-align: left; }
 
+  .tit { margin: 0 0 4px; font-size: 13px; font-weight: 500; letter-spacing: .04em; }
+  .agg { margin-top: 10px; padding: 7px 12px; border: 1px dashed #4a4a53; border-radius: 2px;
+         background: none; color: #9a9aa4; font: inherit; font-size: 11px; cursor: pointer;
+         letter-spacing: .1em; text-transform: uppercase; width: 100%; }
+  .agg:hover { border-color: #f2b45c; color: #f2b45c; }
+
   .tot { display: flex; justify-content: space-between; align-items: baseline;
          padding: 14px 0; border-top: 1px solid #33333a; margin-top: 10px; font-size: 13px; }
   .tot b { font-size: 20px; font-weight: 500; font-variant-numeric: tabular-nums; }
 
   .azioni { position: sticky; bottom: 0; display: grid; gap: 8px;
-            padding: 14px 0 0; background: linear-gradient(to top, #1b1b1f 72%, transparent); }
+            padding: 14px 0; margin-top: 20px;
+            background: #1b1b1f; border-top: 1px solid #3f3f47;
+            box-shadow: 0 -14px 18px -6px #1b1b1f; }
   .link { width: 100%; font-size: 11px; word-break: break-all; color: #9a9aa4;
           background: #232329; border: 1px solid #3f3f47; padding: 9px 10px; border-radius: 2px;
           max-height: 84px; overflow-y: auto; }
@@ -76,6 +84,11 @@
 
     <fieldset>
       <legend>Progetto</legend>
+      <label for="f-h">Intestato a</label>
+      <select id="f-h" data-k="h">
+        <option value="mb">Mattia Baruffaldi</option>
+        <option value="unreal">Unreal Srl</option>
+      </select>
       <div class="due">
         <div><label for="f-n">N. preventivo</label><input id="f-n" data-k="n"></div>
         <div><label for="f-dt">Data</label><input id="f-dt" data-k="dt"></div>
@@ -92,8 +105,8 @@
       <div id="gruppi"></div>
       <div class="tot"><span>Fee</span><b id="t-fee">0,00 €</b></div>
       <div class="due">
-        <div><label for="f-rv">Rivalsa %</label><input id="f-rv" data-k="rv" type="number" step="0.5"></div>
-        <div><label for="f-rvl">Dicitura</label><input id="f-rvl" data-k="rvl"></div>
+        <div><label for="f-rv">Maggiorazione %</label><input id="f-rv" data-k="rv" type="number" step="0.5"></div>
+        <div><label for="f-rvl">Come si chiama</label><input id="f-rvl" data-k="rvl" placeholder="Agency fee 10%"></div>
       </div>
       <div class="tot"><span>Totale</span><b id="t-tot">0,00 €</b></div>
     </fieldset>
@@ -171,14 +184,31 @@
           '<input type="number" value="' + (v.p || '') + '" data-f="p" placeholder="€">' +
           '</div></div></div>';
       }).join('');
-      return '<fieldset><legend>' + g.t + '</legend>' +
+      return '<fieldset><legend>Blocco</legend>' +
+        '<input class="tit" value="' + g.t.replace(/"/g, '&quot;') +
+        '" data-gt="' + gi + '" aria-label="Titolo del blocco">' +
         '<div class="mini"><span>Giorni</span><span>Q.tà</span><span>Dicitura</span><span>Prezzo</span></div>' +
-        righe + '</fieldset>';
+        righe +
+        '<button class="agg" type="button" data-add="' + gi + '">+ aggiungi voce</button>' +
+        '</fieldset>';
     }).join('');
     document.getElementById('gruppi').innerHTML = html;
   }
 
+  document.getElementById('gruppi').addEventListener('click', function (e) {
+    var gi = e.target.dataset.add;
+    if (gi === undefined) return;
+    var nome = prompt('Nome della voce da aggiungere');
+    if (!nome) return;
+    d.g[gi].i.push({ d: nome, n: '', dd: 0, u: 1, p: 0, on: true });
+    disegnaVoci(); aggiorna();
+  });
+
   document.getElementById('gruppi').addEventListener('input', function (e) {
+    if (e.target.dataset.gt !== undefined) {
+      d.g[e.target.dataset.gt].t = e.target.value;
+      aggiorna(); return;
+    }
     var box = e.target.closest('.voce'); if (!box) return;
     var v = d.g[box.dataset.g].i[box.dataset.v];
     if (e.target.type === 'checkbox') {
