@@ -315,14 +315,19 @@
   }
   function riga(v, d) {
     var gg = giorni(v, d);
-    var q = gg > 0 ? gg : '—';
+    // Segnaposto per "questa casella non ha un valore": un trattino corto e
+    // tenue (.q-nil), non una lineetta lunga che pesa piu' dei numeri.
+    var niente = '<span class="q-nil">–</span>';
+    var q = gg > 0 ? gg : niente;
     var val = v.p ? PREVENTIVO.euro(totaleVoce(v, d)) :
-      '<span class="q-flag">' + esc(v.f || '—') + '</span>';
+      '<span class="q-flag">' + esc(v.f || '') + '</span>';
     return '<tr><td>' + esc(v.d) +
       (v.n ? '<span class="q-it__n">' + esc(v.n) + '</span>' : '') +
       '</td><td class="q-num-cell">' + q +
       '</td><td class="q-num-cell">' + esc(v.u || 1) +
-      '</td><td class="q-num-cell">' + (v.p ? PREVENTIVO.euro(v.p) : '—') +
+      // Dove la voce dice "Included" o "By client" il prezzo unitario resta
+      // vuoto: il trattino finiva attaccato alla parola e sembrava un elenco.
+      '</td><td class="q-num-cell">' + (v.p ? PREVENTIVO.euro(v.p) : '') +
       '</td><td class="q-num-cell">' + val + '</td></tr>';
   }
 

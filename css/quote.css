@@ -196,6 +196,10 @@
   font-variation-settings: 'wdth' 92, 'wght' 400;
 }
 .q-num-cell { font-variant-numeric: tabular-nums; white-space: nowrap; }
+/* "Qui non c'e' un valore". Deve sparire fra i numeri, non competerci:
+   corto, tenue, e leggermente alzato perche' un trattino sta sotto il
+   centro ottico della riga. */
+.q-nil { color: var(--q-ink-3); font-size: .78em; vertical-align: .07em; }
 .q-flag {
   font-variation-settings: 'wdth' 88, 'wght' 500;
   font-size: 7pt; letter-spacing: 0.18em; text-transform: uppercase; color: var(--q-ink-3);
