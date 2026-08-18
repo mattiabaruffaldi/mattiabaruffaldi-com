@@ -298,3 +298,12 @@
   .q-cols, .q-terms, .q-sign { grid-template-columns: 1fr; }
   .q-num { display: none; }
 }
+
+/* Da telefono l'intestazione va in colonna e i contatti possono andare a
+   capo: l'IBAN e' una riga sola di 30 caratteri e con `nowrap` sfondava la
+   pagina di lato (il preventivo si apre spesso dal telefono). */
+@media (max-width: 30rem) {
+  .q-head { flex-direction: column; gap: 5mm; }
+  .q-contact { text-align: left; }
+  .q-contact div { white-space: normal; overflow-wrap: anywhere; }
+}

@@ -6,7 +6,7 @@
 <title>Studio preventivi</title>
 <meta name="robots" content="noindex, nofollow, noarchive">
 <link rel="icon" href="/favicon-32.png" sizes="32x32">
-<link rel="stylesheet" href="/css/quote.css?v=b0b809b8">
+<link rel="stylesheet" href="/css/quote.css?v=b22fbf72">
 <style>
   /* ==================================================================
      Studio preventivi — due viste in una pagina:
@@ -153,7 +153,7 @@
   .corpo { padding: var(--sp-5) clamp(var(--sp-3), 2vw, var(--sp-5)) var(--sp-7); min-width: 0; }
   .corpo__t {
     display: flex; align-items: baseline; gap: var(--sp-3);
-    margin: 0 0 var(--sp-4);
+    margin: 0 0 var(--sp-4); max-width: 70rem;
   }
   .corpo__t h1 { font-size: var(--fs-7); font-weight: 600; letter-spacing: -.015em; margin: 0; }
   .corpo__t span { font-size: var(--fs-3); color: var(--s-tenue); font-variant-numeric: tabular-nums; }
@@ -475,6 +475,8 @@
       <div class="corpo__t">
         <h1 id="titolo-vista">Tutti i preventivi</h1>
         <span id="conteggio"></span>
+        <span class="sp"></span>
+        <button class="b" type="button" id="link-gruppo" hidden></button>
       </div>
       <div class="filtri" id="filtri"></div>
       <div id="elenco"></div>
@@ -594,7 +596,7 @@
 
 <div id="menu" popover></div>
 
-<script src="/js/quote.js?v=9ec26645"></script>
+<script src="/js/quote.js?v=4622062c"></script>
 <script>
 (function () {
   'use strict';
@@ -808,6 +810,11 @@
       ? voci.length + (voci.length === 1 ? ' preventivo' : ' preventivi')
       : '';
 
+    // Un link solo con piu' preventivi ha senso da due in su.
+    var bg = $('#link-gruppo');
+    bg.hidden = voci.length < 2;
+    bg.textContent = 'Link con questi ' + voci.length;
+
     if (!voci.length) {
       $('#elenco').innerHTML = '<div class="vuoto">' + (
         !tutti.length
@@ -957,6 +964,46 @@
     disegnaHome();
     avvisa('Cliente rinominato in «' + nuovo + '».');
   }
+
+  /* ---------- un link solo con piu' preventivi ----------
+     Manda al cliente una pagina con una casella per preventivo. I dati non
+     stanno sul sito: viaggiano nel link come sempre, e i preventivi si
+     comprimono INSIEME perche' condividono condizioni, consegne e diritti
+     d'uso (tre uniti costano meta' di tre separati). */
+  $('#link-gruppo').addEventListener('click', async function () {
+    var voci = seleziona();
+    if (voci.length < 2) return;
+
+    var q = voci.map(function (x) { return PREVENTIVO.compatta(x.dati); });
+    // Ordine da documento: prima i numerati in ordine, poi gli altri.
+    q.sort(function (a, b) {
+      var na = parseFloat(a.n), nb = parseFloat(b.n);
+      var aN = !isNaN(na), bN = !isNaN(nb);
+      if (aN && bN) return na - nb;
+      if (aN) return -1;
+      if (bN) return 1;
+      return String(a.n || '').localeCompare(String(b.n || ''), 'it');
+    });
+
+    var titoli = q.map(function (x) { return x.t || ''; });
+    var stessoTitolo = titoli.every(function (t) { return t === titoli[0]; });
+    var pacco = {
+      cl: (filtroCliente && filtroCliente !== SENZA) ? filtroCliente : (voci[0].cliente || ''),
+      t: (stessoTitolo && titoli[0]) ? titoli[0] : 'Quotations',
+      dt: q[0].dt || '',
+      in: 'Open each quotation for the full breakdown.',
+      q: q
+    };
+
+    var u = location.origin + '/quotes/#' + await PREVENTIVO.impacchetta(pacco);
+    try {
+      await navigator.clipboard.writeText(u);
+      avvisa('Link copiato: ' + q.length + ' preventivi in una pagina sola (' + u.length + ' caratteri).');
+    } catch (e) {
+      avvisa('Non riesco a copiarlo da solo. Apri la pagina e copiala dalla barra.');
+      window.open(u, '_blank', 'noopener');
+    }
+  });
 
   /* ---------- menu per riga ---------- */
   var menuPer = null;

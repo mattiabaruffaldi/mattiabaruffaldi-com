@@ -12,7 +12,11 @@ Sostituisce il vecchio sito Squarespace su **www.mattiabaruffaldi.com**.
 
 - **Cartella:** `~/Desktop/WWW/mattiabaruffaldi-com`
 - **Anteprima locale:** `python3 -m http.server 8010` → http://localhost:8010
-- **Repo:** https://github.com/hellonorthsidecc-ai/mattiabaruffaldi-com — **privato**, branch `main`
+- **Repo:** https://github.com/mattiabaruffaldi/mattiabaruffaldi-com — **PUBBLICO**, branch `main`.
+  Spostato sul suo account personale (ago 2026): quel punto in sospeso e' chiuso.
+  **Pubblico vuol dire che qualunque cosa committata e' leggibile da chiunque,
+  per sempre, anche se poi la togli.** Niente tariffe, niente preventivi, niente
+  link di preventivo dentro i file del repository.
 - **Pubblicazione:** GitHub Pages (vedi "Da fare" se non ancora attivo)
 
 ## Flusso di lavoro (IMPORTANTE)
@@ -52,7 +56,8 @@ img/bts/           6 foto dietro le quinte (pagina Info)
 originali/         file sorgente pesanti, ESCLUSI da git (.gitignore)
 index.html film/ photo/ lifetalks/ info/   generati
 studio/index.html  compilatore preventivi (SCRITTO A MANO, non generato)
-quote/index.html   lettore preventivi   (SCRITTO A MANO, non generato)
+quote/index.html   lettore di UN preventivo   (SCRITTO A MANO)
+quotes/index.html  indice di PIU' preventivi  (SCRITTO A MANO)
 css/quote.css js/quote.js               motore preventivi
 about/ contatti/ portfolio-video/ photo/*/ ponti dai vecchi indirizzi Squarespace
 ```
@@ -195,9 +200,24 @@ Strumento suo per fare preventivi, nato ad agosto 2026 dal preventivo VVENA.
   production · Travel & accommodation · Miscellaneous. Un solo blocco trasferte
   (prima erano due, "Travel" e "Travel & accommodation"). I nomi nel catalogo
   sono in inglese corretto perche' finiscono nel PDF che legge il cliente.
-- Le due pagine sono `noindex` e non sono linkate da nessuna parte, ne' stanno
+- Le pagine sono `noindex` e non sono linkate da nessuna parte, ne' stanno
   nella sitemap. **Non metterle in `robots.txt`**: elencarle la' significa
   rivelarne l'indirizzo a chiunque legga quel file.
+
+### `/quotes/` — piu' preventivi in un link solo (ago 2026)
+Pagina con una casella per preventivo (numero, titolo, sottotitolo, scope,
+totale, "Open quotation"); ogni casella apre `/quote/` col suo preventivo.
+Si genera dallo studio: filtra per cliente e premi **"Link con questi N"**.
+
+- **Perche' non una pagina committata con dentro i link:** il repository e'
+  pubblico, quindi ci finirebbero le sue tariffe per sempre. Qui nel repo c'e'
+  solo il guscio; i dati stanno nel link dopo il cancelletto, come per `/quote/`.
+- **I preventivi si comprimono INSIEME**, non uno per uno: condividono
+  condizioni, consegne e diritti d'uso, quindi tre uniti fanno ~2.000 caratteri
+  contro i ~4.700 di tre link separati. Serve `PREVENTIVO.impacchetta` /
+  `spacchetta`, che a differenza di `codifica` non passano da `compatta`.
+- L'ordine delle caselle e' per numero: prima i numerici in ordine, poi gli
+  altri in ordine alfabetico (per VVENA viene 1, 2, Origin).
 - La formattazione dei numeri e' scritta a mano, non con `Intl`: in alcuni
   browser la localizzazione italiana e' incompleta e sparisce il punto delle
   migliaia (5500 invece di 5.500).

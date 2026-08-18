@@ -784,7 +784,7 @@ def timbra_a_mano():
     si riscrivono, si aggiorna solo il `?v=` dei due indirizzi.
     """
     print("\nFirmo le pagine scritte a mano:")
-    for percorso in ("studio/index.html", "quote/index.html"):
+    for percorso in ("studio/index.html", "quote/index.html", "quotes/index.html"):
         intero = os.path.join(ROOT, percorso)
         try:
             with open(intero, encoding="utf-8") as f:

@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quotations — Mattia Baruffaldi</title>
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" href="/favicon-32.png" sizes="32x32">
+<link rel="stylesheet" href="/css/quote.css?v=b22fbf72">
+<style>
+  /* Indice di piu' preventivi per lo stesso lavoro. Come /quote/, i dati
+     stanno nel link dopo il cancelletto: qui dentro non c'e' niente, e nel
+     repository (che e' pubblico) non finisce nessuna tariffa. */
+  .x-intro { margin: 0 0 10mm; max-width: 62ch; color: var(--q-ink-2); }
+  .x-lista { display: grid; gap: 6mm; }
+
+  .x-voce {
+    display: grid; grid-template-columns: 1fr auto; gap: 3mm 8mm;
+    align-items: start;
+    padding: 7mm 0 0; border-top: 1.5px solid var(--q-rule);
+    text-decoration: none; color: inherit;
+    transition: opacity .15s ease;
+  }
+  .x-voce:hover .x-apri { background: var(--q-ink); color: var(--q-paper); }
+  .x-voce:focus-visible { outline: 2px solid var(--q-ink); outline-offset: 4px; }
+
+  .x-eti {
+    font-size: 7.6pt; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--q-ink-3); font-variation-settings: 'wdth' 88, 'wght' 500;
+    margin: 0 0 1.5mm;
+  }
+  .x-nome {
+    margin: 0; font-size: 17pt; line-height: 1.1;
+    font-variation-settings: 'wdth' 112, 'wght' 700;
+    letter-spacing: -.005em;
+  }
+  .x-sotto {
+    margin: 1.5mm 0 0; font-size: 8.2pt; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--q-ink-3);
+    font-variation-settings: 'wdth' 92, 'wght' 400;
+  }
+  .x-testo { margin: 3mm 0 0; font-size: 9.6pt; color: var(--q-ink-2); max-width: 58ch; }
+
+  .x-destra { text-align: right; display: grid; gap: 3mm; justify-items: end; }
+  .x-cifra {
+    font-size: 15pt; font-variant-numeric: tabular-nums; white-space: nowrap;
+    font-variation-settings: 'wdth' 92, 'wght' 500;
+  }
+  .x-cifra small {
+    display: block; font-size: 7.4pt; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--q-ink-3); margin-bottom: .5mm; font-variation-settings: 'wdth' 88, 'wght' 500;
+  }
+  .x-apri {
+    display: inline-block; padding: 2.6mm 6mm; border: 1.2px solid var(--q-ink);
+    font-size: 8pt; letter-spacing: .16em; text-transform: uppercase;
+    white-space: nowrap; font-variation-settings: 'wdth' 88, 'wght' 500;
+    transition: background .15s ease, color .15s ease;
+  }
+
+  @media (max-width: 620px) {
+    .x-voce { grid-template-columns: 1fr; }
+    .x-destra { justify-items: start; text-align: left; }
+  }
+  @media print { .x-apri { display: none; } }
+</style>
+</head>
+<body class="q-body">
+
+<main id="foglio"></main>
+
+<script src="/js/quote.js?v=4622062c"></script>
+<script>
+(function () {
+  var dove = document.getElementById('foglio');
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function errore(testo) {
+    dove.innerHTML = '<section class="q-sheet" style="min-height:auto">' +
+      '<h1 class="q-name">Mattia Baruffaldi</h1>' +
+      '<p class="q-text" style="margin-top:12mm">' + testo + '</p>' +
+      '<p class="q-note">info.mattiabaruffaldi@gmail.com · +39 346 475 5599</p>' +
+      '</section>';
+  }
+
+  async function mostra() {
+    var frammento = location.hash.slice(1);
+    if (!frammento) {
+      errore('This link does not contain any quotation. Please ask for a new one.');
+      return;
+    }
+
+    var pacco;
+    try {
+      pacco = await PREVENTIVO.spacchetta(frammento);
+    } catch (e) {
+      errore('This link looks incomplete. It may have been cut when it was copied. ' +
+             'Please ask for it again.');
+      return;
+    }
+    if (!pacco || !Array.isArray(pacco.q) || !pacco.q.length) {
+      errore('This link does not contain any quotation. Please ask for a new one.');
+      return;
+    }
+
+    var h = PREVENTIVO.testa(pacco.q[0]);
+    var contatti = h.righe.map(function (r) { return '<div>' + esc(r) + '</div>'; }).join('');
+
+    // Ogni casella porta il suo preventivo dentro il proprio link: la pagina
+    // che lo legge e' la stessa di sempre, /quote/.
+    var voci = await Promise.all(pacco.q.map(async function (q) {
+      var c = PREVENTIVO.conti(q);
+      var indirizzo = '/quote/#' + await PREVENTIVO.impacchetta(q);
+      return '<a class="x-voce" href="' + esc(indirizzo) + '">' +
+        '<div>' +
+          '<p class="x-eti">Quotation ' + esc(q.n || '') + '</p>' +
+          '<h2 class="x-nome">' + esc(q.t || 'Untitled') + '</h2>' +
+          (q.s ? '<p class="x-sotto">' + esc(q.s) + '</p>' : '') +
+          (q.sc ? '<p class="x-testo">' + esc(q.sc) + '</p>' : '') +
+        '</div>' +
+        '<div class="x-destra">' +
+          '<div class="x-cifra"><small>Total</small>' + PREVENTIVO.euro(c.tot, 1) + '</div>' +
+          '<span class="x-apri">Open quotation</span>' +
+        '</div>' +
+      '</a>';
+    }));
+
+    dove.innerHTML = '<section class="q-sheet">' +
+      '<div class="q-head">' +
+        '<div><h1 class="q-name">' + esc(h.nome) + '</h1>' +
+        '<p class="q-role">' + esc(h.ruolo) + '</p></div>' +
+        '<div class="q-contact">' + contatti + '</div>' +
+      '</div>' +
+      '<div class="q-section">' +
+        '<p class="q-meta">' + esc(pacco.cl || '') +
+          (pacco.dt ? ' · ' + esc(pacco.dt) : '') + '</p>' +
+        '<h2 class="q-title">' + esc(pacco.t || 'Quotations') + '</h2>' +
+        (pacco.in ? '<p class="x-intro">' + esc(pacco.in) + '</p>' : '') +
+      '</div>' +
+      '<div class="x-lista">' + voci.join('') + '</div>' +
+      (h.piede ? '<p class="q-note" style="text-align:center;margin-top:10mm">' +
+        esc(h.piede) + '</p>' : '') +
+      '</section>';
+
+    document.title = (pacco.cl ? pacco.cl + ' — ' : '') + 'Quotations · Mattia Baruffaldi';
+  }
+
+  mostra();
+  window.addEventListener('hashchange', mostra);
+})();
+</script>
+</body>
+</html>

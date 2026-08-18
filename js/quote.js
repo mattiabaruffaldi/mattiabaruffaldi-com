@@ -288,8 +288,13 @@
   // Il primo carattere dice come e' fatto il resto: "z" compresso, "p" no.
   // La compressione taglia il link di circa due terzi; se il browser non ce
   // l'ha si ripiega sul semplice, e la lettura riconosce entrambi.
-  PREVENTIVO.codifica = async function (d) {
-    var byte = new TextEncoder().encode(JSON.stringify(PREVENTIVO.compatta(d)));
+  //
+  // `impacchetta` non sa niente di preventivi: ci si mette dentro qualunque
+  // oggetto. Serve anche alla pagina che raccoglie piu' preventivi insieme,
+  // dove conviene comprimerli in blocco: condividono condizioni, consegne e
+  // diritti d'uso, e uniti occupano meta' di tre link separati.
+  PREVENTIVO.impacchetta = async function (oggetto) {
+    var byte = new TextEncoder().encode(JSON.stringify(oggetto));
     if (typeof CompressionStream === 'function') {
       try { return 'z' + base64url(await passa(byte, new CompressionStream('gzip'))); }
       catch (e) { /* si ripiega */ }
@@ -297,13 +302,18 @@
     return 'p' + base64url(byte);
   };
 
-  PREVENTIVO.decodifica = async function (s) {
+  PREVENTIVO.spacchetta = async function (s) {
     var tipo = s[0], resto = s.slice(1);
     var byte = daBase64url(resto);
     if (tipo === 'z') byte = await passa(byte, new DecompressionStream('gzip'));
     else if (tipo !== 'p') byte = daBase64url(s);   // formato vecchio, senza sigla
     return JSON.parse(new TextDecoder().decode(byte));
   };
+
+  PREVENTIVO.codifica = function (d) {
+    return PREVENTIVO.impacchetta(PREVENTIVO.compatta(d));
+  };
+  PREVENTIVO.decodifica = PREVENTIVO.spacchetta;
 
   /* ------------------------------------------------------------------
      Disegno del documento
