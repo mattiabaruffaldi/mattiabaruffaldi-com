@@ -684,6 +684,7 @@
   <div class="ante__bar">
     <span class="ante__t"><b>Anteprima</b> — esattamente quello che vede il cliente</span>
     <span class="sp"></span>
+    <button class="b b--pieno" type="button" id="ante-pdf">Salva come PDF</button>
     <button class="b" type="button" id="ante-x">Chiudi</button>
   </div>
   <iframe class="ante__f" id="ante-f" title="Il preventivo come lo vede il cliente"></iframe>
@@ -1633,6 +1634,12 @@
     if ($('#ante').open) $('#ante').close();
     $('#ante-f').removeAttribute('src');     // ferma la pagina dentro l'iframe
   }
+  // Il PDF lo fa lui da qui. Sulla pagina del cliente il pulsante non c'e'
+  // piu': stampa la finestra dentro l'iframe, cioe' il documento e basta.
+  $('#ante-pdf').addEventListener('click', function () {
+    var f = $('#ante-f');
+    if (f.contentWindow) f.contentWindow.print();
+  });
   $('#ante-x').addEventListener('click', chiudiAnte);
   // L'evento `close` del <dialog> non scatta ovunque: guardo l'attributo.
   new MutationObserver(function () {

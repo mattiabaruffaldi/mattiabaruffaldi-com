@@ -11,12 +11,11 @@
 </head>
 <body class="q-body">
 
-<div class="q-bar no-print">
-  <strong style="font-weight:500;letter-spacing:.18em;font-size:11px;text-transform:uppercase">Quotation</strong>
-  <span class="q-bar__sp"></span>
-  <button class="q-btn q-btn--go" type="button" id="stampa">Save as PDF</button>
-</div>
-
+<!-- Niente barra col pulsante "Save as PDF": il cliente vede il preventivo,
+     non un invito a portarselo via. Chi vuole stampa comunque da solo (una
+     pagina web non si puo' impedire di stamparla), ma non glielo proponiamo
+     noi. Il pulsante per il PDF sta nell'anteprima dello studio, dove c'e'
+     solo lui. -->
 <main id="foglio"></main>
 
 <script src="/js/quote.js?v=6b706fd1"></script>
@@ -30,7 +29,6 @@
       '<p class="q-text" style="margin-top:12mm">' + testo + '</p>' +
       '<p class="q-note">info@mattiabaruffaldi.com · +39 346 475 5599</p>' +
       '</section>';
-    document.querySelector('.q-bar').style.display = 'none';
   }
 
   async function mostra() {
@@ -51,7 +49,6 @@
 
   mostra();
   window.addEventListener('hashchange', mostra);
-  document.getElementById('stampa').addEventListener('click', function () { window.print(); });
 })();
 </script>
 </body>
