@@ -195,34 +195,49 @@ Strumento suo per fare preventivi, nato ad agosto 2026 dal preventivo VVENA.
   browser la localizzazione italiana e' incompleta e sparisce il punto delle
   migliaia (5500 invece di 5.500).
 
-### Archivio dei preventivi — DA FARE (chiesto ago 2026)
-Vuole ritrovare tutti i preventivi fatti, riaprirli, duplicarli, modificarli, e
-organizzarli **in cartelle per cliente**.
+### Archivio dei preventivi — FATTO (ago 2026)
+Ritrova i preventivi fatti, li riapre, li duplica, li modifica, e li organizza
+**in cartelle per cliente**. Tutto dentro `/studio/`, pulsante **Archivio**
+nella barra in alto (col numero di preventivi salvati accanto).
 
-**Vincolo che decide tutto:** il repository e' pubblico, quindi i preventivi non
-si possono committare. L'archivio deve stare **nel browser**
-(`localStorage`, o `IndexedDB` se cresce). Ogni preventivo pesa ~2 KB, ce ne
-stanno migliaia.
+**Vincolo che ha deciso tutto:** il repository e' pubblico, quindi i preventivi
+non si possono committare. L'archivio sta **nel browser**, chiave
+`mb-archivio`: un elenco di `{id, cliente, titolo, n, agg, tot, dati}`
+(`agg` = data ultimo salvataggio). `mb-preventivo` resta la bozza aperta.
 
-Impianto proposto:
-- una chiave `mb-archivio` con un elenco di
-  `{id, cliente, titolo, n, agg, dati}` (`agg` = data ultimo salvataggio);
-- `mb-preventivo` resta la bozza aperta, come adesso;
-- in `/studio/` una vista **Archivio** che raggruppa per `cliente` (le
-  "cartelle" sono il campo cliente, non una struttura a parte: piu' semplice e
-  non si rompe mai), con per ogni riga: apri · duplica · rinomina · elimina;
-- salvataggio automatico della bozza corrente in archivio quando ha un titolo.
+- **Le "cartelle" sono il campo Cliente**, raggruppato al momento del disegno:
+  non c'e' nessuna struttura separata da tenere allineata, e cambiare cliente a
+  un preventivo lo sposta di cartella da solo. Le cartelle sono in ordine
+  alfabetico, "Senza cliente" sempre in fondo; dentro, il piu' recente in cima.
+- **Si archivia da solo quando la bozza ha un titolo** (senza titolo non c'e'
+  niente da ritrovare). Salvataggio ritardato di 700 ms per non scrivere a ogni
+  tasto, piu' un `beforeunload` per chi chiude la scheda a meta' parola.
+- Per riga: **apri · duplica · rinomina · elimina**. La matita accanto al nome
+  della cartella **rinomina il cliente su tutti** i suoi preventivi insieme.
+  "Duplica" apre subito la copia, pronta da modificare.
+- **Esporta / Importa** un file `.json`: e' il **vero backup**, e va detto
+  chiaro. L'importazione unisce per `id` e tiene la versione con `agg` piu'
+  recente, quindi reimportare lo stesso file due volte non crea doppioni.
+- **`id` non finisce nel link del cliente** (`PREVENTIVO.compatta` lo salta):
+  serve solo all'archivio, al cliente non dice nulla.
+- La finestra e' un `<dialog>`: **nessun `display` su `.arc`** (vedi la
+  trappola piu' sotto), l'impaginazione a colonna sta su `.arc__box`. E
+  `showModal()` va chiamato solo se non e' gia' aperto, altrimenti e' un errore.
 
-**Da dirgli in modo chiaro quando si fa:** se svuota i dati del browser, o
-cambia computer, l'archivio sparisce. Quindi servono **Esporta** e **Importa**
-(un file `.json` che si salva dove vuole) e va spiegato che quello e' il vero
-backup. Non promettergli una sincronia che un sito statico non puo' dare.
-
-Se un domani vuole l'archivio davvero condiviso fra i suoi dispositivi, allora
-serve un servizio esterno (Cloudflare Pages + KV, o simili): e' un cambio di
+**Da ripetergli:** se svuota i dati del browser o cambia computer, l'archivio
+sparisce. Il backup e' **Esporta**. Non promettergli una sincronia che un sito
+statico non puo' dare: se un domani vuole l'archivio condiviso fra dispositivi
+serve un servizio esterno (Cloudflare Pages + KV, o simili), che e' un cambio di
 categoria, non un'aggiunta.
 
 ## Trappole già incontrate (non ripeterle)
+- **Non provare l'archivio sul suo browser vero senza mettere via i suoi dati.**
+  Il salvataggio automatico scatta anche su `beforeunload`, quindi rimettere a
+  posto `localStorage` e poi ricaricare **non serve a niente**: alla chiusura la
+  pagina riscrive tutto dai dati che ha in memoria. Per ripulire davvero si
+  passa **dai campi dell'interfaccia** (svuotare il Titolo basta a fermare
+  l'archiviazione), non da `localStorage`. Successo ad agosto 2026: la bozza che
+  aveva aperta e' stata sovrascritta con dati di prova.
 - **MAI mettere `display` su `.player` / `.viewer` senza `[open]`.** Il browser
   nasconde un `<dialog>` chiuso con `dialog:not([open]) { display: none }`, ma
   quella regola sta nel foglio del *browser* e qualunque `display` scritto nel

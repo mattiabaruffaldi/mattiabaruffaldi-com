@@ -152,6 +152,59 @@
   .conto__r b { font-variant-numeric: tabular-nums; }
   .conto__r--tot { padding-top: 8px; border-top: 1px solid var(--s-bordo); font-size: 17px; }
 
+  /* ---------- archivio ----------
+     NIENTE `display` su `.arc`: un <dialog> chiuso lo nasconde il browser con
+     una regola sua, e qualunque display scritto qui la batterebbe lasciando il
+     pannello sempre aperto. L'impaginazione a colonna sta su `.arc__box`. */
+  .arc {
+    width: min(66rem, 94vw); max-width: none; max-height: 88vh;
+    margin: auto; padding: 0; overflow: hidden;
+    border: 1px solid var(--s-bordo); border-radius: 5px;
+    background: var(--s-piano); color: var(--s-testo);
+  }
+  .arc::backdrop { background: rgba(8, 8, 10, .74); }
+  .arc__box { display: flex; flex-direction: column; max-height: 88vh; }
+  .arc__bar {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    padding: 12px 14px; border-bottom: 1px solid var(--s-bordo);
+    background: var(--s-piano2);
+  }
+  .arc__h { font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: var(--s-oro); }
+  .arc__q { width: 15rem; padding: 7px 9px; font-size: 12.5px; background: var(--s-fondo); }
+  .arc__c { overflow-y: auto; padding: 6px 0 10px; }
+  .arc__g { margin: 10px 0 0; }
+  .arc__gt {
+    display: flex; align-items: center; gap: 9px;
+    padding: 9px 14px 7px; border-bottom: 1px solid var(--s-bordo);
+    font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--s-oro);
+    position: sticky; top: 0; background: var(--s-piano); z-index: 1;
+  }
+  .arc__gn { color: var(--s-tenue); letter-spacing: normal; text-transform: none; }
+  .arc__r {
+    display: grid; align-items: center; gap: 10px;
+    grid-template-columns: minmax(10rem, 1fr) 8rem auto;
+    padding: 9px 14px; border-bottom: 1px solid #26262e;
+  }
+  .arc__r:hover { background: var(--s-piano2); }
+  .arc__r.is-qui { box-shadow: inset 2px 0 0 var(--s-oro); }
+  .arc__n { font-size: 13.5px; }
+  .arc__m { display: block; font-size: 10.5px; color: var(--s-tenue); margin-top: 2px; }
+  .arc__v { text-align: right; font-variant-numeric: tabular-nums; font-size: 13px; }
+  .arc__a { display: flex; gap: 5px; align-items: center; }
+  .arc__vuoto { padding: 26px 16px; text-align: center; color: var(--s-tenue); font-size: 12.5px; }
+  .arc__nota {
+    margin: 0; padding: 11px 14px; font-size: 11px; line-height: 1.55;
+    color: var(--s-tenue); border-top: 1px solid var(--s-bordo); background: var(--s-piano2);
+  }
+  .arc__nota b { color: var(--s-testo); font-weight: 500; }
+  .arc__nota code { font-size: 11px; }
+  #b-arc-n { color: var(--s-tenue); }
+  @media (max-width: 46rem) {
+    .arc__r { grid-template-columns: 1fr auto; }
+    .arc__a { grid-column: 1 / -1; }
+    .arc__q { width: 100%; }
+  }
+
   .esito { font-size: 11px; color: var(--s-oro); min-height: 15px; }
   .link { font-size: 10px; word-break: break-all; color: var(--s-tenue);
           background: var(--s-piano); border: 1px solid var(--s-bordo);
@@ -164,11 +217,32 @@
   <span class="barra__n">Studio preventivi</span>
   <span class="barra__sp"></span>
   <div class="barra__t"><small>Totale</small><b id="t-tot">0,00 €</b></div>
+  <button class="b" type="button" id="b-arc">Archivio <span id="b-arc-n"></span></button>
   <button class="b" type="button" id="b-ante">Anteprima</button>
   <button class="b" type="button" id="b-pdf">PDF</button>
   <button class="b b--pieno" type="button" id="b-link">Link cliente</button>
   <button class="b" type="button" id="b-new">Nuovo</button>
 </div>
+
+<dialog class="arc" id="arc" aria-label="Archivio preventivi">
+  <div class="arc__box">
+    <div class="arc__bar">
+      <b class="arc__h">Archivio</b>
+      <input class="arc__q" id="arc-q" type="search" placeholder="Cerca cliente o titolo" aria-label="Cerca">
+      <span class="barra__sp"></span>
+      <button class="b b--min" type="button" id="arc-exp">Esporta</button>
+      <button class="b b--min" type="button" id="arc-imp">Importa</button>
+      <button class="b" type="button" id="arc-x">Chiudi</button>
+    </div>
+    <div class="arc__c" id="arc-lista"></div>
+    <p class="arc__nota">
+      L’archivio sta <b>solo in questo browser, su questo computer</b>. Se svuoti i dati
+      di navigazione o cambi computer, sparisce. Il backup vero è <b>Esporta</b>: salva un
+      file <code>.json</code> dove vuoi (Drive, disco esterno), e <b>Importa</b> lo rimette a posto.
+    </p>
+    <input type="file" id="arc-file" accept=".json,application/json" hidden>
+  </div>
+</dialog>
 
 <div class="scena" id="scena">
   <div class="modulo">
@@ -262,6 +336,12 @@
 
   var $ = function (s) { return document.querySelector(s); };
   var esc = function (t) { return String(t == null ? '' : t).replace(/"/g, '&quot;'); };
+  // Per il testo dentro la pagina serve anche `<`: un cliente che si chiama
+  // "R<3" non deve poter rompere l'elenco dell'archivio.
+  var escT = function (t) {
+    return String(t == null ? '' : t)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  };
 
   /* ---------- campi semplici ---------- */
   var campi = [].slice.call(document.querySelectorAll('[data-k]'));
@@ -460,7 +540,252 @@
     $('#t-tot').textContent = PREVENTIVO.euro(c.tot, 1);
     if ($('#scena').classList.contains('con-ante')) $('#ante').innerHTML = PREVENTIVO.disegna(d);
     try { localStorage.setItem(CHIAVE, JSON.stringify(d)); } catch (e) {}
+    archiviaBozza();
   }
+
+  /* ------------------------------------------------------------------
+     Archivio
+
+     Il repository e' pubblico, quindi i preventivi non si possono
+     committare: l'archivio vive nel browser. Le "cartelle" per cliente
+     non sono una struttura a parte, sono il campo Cliente raggruppato al
+     momento del disegno. Cosi' non c'e' niente che si possa rompere, e
+     cambiare cliente a un preventivo lo sposta di cartella da solo.
+     ------------------------------------------------------------------ */
+  var ARCH = 'mb-archivio';
+  var salvaFra = null;
+
+  function arcLeggi() {
+    try { var a = JSON.parse(localStorage.getItem(ARCH)); return Array.isArray(a) ? a : []; }
+    catch (e) { return []; }
+  }
+  function arcScrivi(a) {
+    try { localStorage.setItem(ARCH, JSON.stringify(a)); return true; }
+    catch (e) {
+      $('#msg').textContent = 'Memoria del browser piena: esporta l’archivio e togli qualche preventivo.';
+      return false;
+    }
+  }
+  function arcTrova(id) {
+    var a = arcLeggi();
+    for (var i = 0; i < a.length; i++) if (a[i].id === id) return a[i];
+    return null;
+  }
+  function nuovoId() {
+    return 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  }
+  function quando(ms) {
+    var x = new Date(ms || 0), p = function (n) { return (n < 10 ? '0' : '') + n; };
+    return p(x.getDate()) + '/' + p(x.getMonth() + 1) + '/' + x.getFullYear() +
+           ' · ' + p(x.getHours()) + ':' + p(x.getMinutes());
+  }
+
+  // Un preventivo entra in archivio quando ha un titolo: prima non c'e'
+  // niente da ritrovare, e riempirlo di "Senza titolo" lo renderebbe inutile.
+  function archiviaBozza(subito) {
+    if (salvaFra) { clearTimeout(salvaFra); salvaFra = null; }
+    if (!d.t || !d.t.trim()) return;
+    var fai = function () {
+      salvaFra = null;
+      if (!d.id) d.id = nuovoId();
+      var a = arcLeggi(), i = -1;
+      for (var k = 0; k < a.length; k++) if (a[k].id === d.id) { i = k; break; }
+      var voce = {
+        id: d.id,
+        cliente: (d.cl || '').trim(),
+        titolo: d.t.trim(),
+        n: d.n,
+        agg: Date.now(),
+        tot: PREVENTIVO.conti(d).tot,
+        dati: JSON.parse(JSON.stringify(d))
+      };
+      if (i < 0) a.push(voce); else a[i] = voce;
+      arcScrivi(a);
+      try { localStorage.setItem(CHIAVE, JSON.stringify(d)); } catch (e) {}
+      contaArc();
+    };
+    if (subito) fai(); else salvaFra = setTimeout(fai, 700);
+  }
+  function contaArc() {
+    var n = arcLeggi().length;
+    $('#b-arc-n').textContent = n ? '(' + n + ')' : '';
+  }
+  // Salvare la bozza anche se chiude la scheda a meta' parola.
+  window.addEventListener('beforeunload', function () { archiviaBozza(true); });
+
+  function carica(dati, id) {
+    d = JSON.parse(JSON.stringify(dati));
+    if (!d || !d.g) d = PREVENTIVO.vuoto();
+    d.id = id;
+    if (!Array.isArray(d.mag)) d.mag = [];
+    aperto = 0;
+    daModello(); disegnaVoci(); disegnaMag(); aggiorna();
+  }
+
+  function arcDisegna() {
+    var q = ($('#arc-q').value || '').trim().toLowerCase();
+    var voci = arcLeggi().filter(function (x) {
+      return !q || ((x.cliente || '') + ' ' + (x.titolo || '')).toLowerCase().indexOf(q) >= 0;
+    });
+    if (!voci.length) {
+      $('#arc-lista').innerHTML = '<p class="arc__vuoto">' + (q
+        ? 'Nessun preventivo con «' + escT(q) + '».'
+        : 'Ancora nessun preventivo salvato.<br>Appena scrivi il <b>Titolo</b> di quello aperto, finisce qui da solo.')
+        + '</p>';
+      return;
+    }
+    var cartelle = {};
+    voci.forEach(function (x) {
+      var k = (x.cliente || '').trim() || 'Senza cliente';
+      (cartelle[k] = cartelle[k] || []).push(x);
+    });
+    $('#arc-lista').innerHTML = Object.keys(cartelle).sort(function (x, y) {
+      if (x === 'Senza cliente') return 1;
+      if (y === 'Senza cliente') return -1;
+      return x.localeCompare(y, 'it');
+    }).map(function (nome) {
+      var v = cartelle[nome].sort(function (x, y) { return (y.agg || 0) - (x.agg || 0); });
+      return '<div class="arc__g"><div class="arc__gt">' +
+        '<span>' + escT(nome) + '</span>' +
+        '<span class="arc__gn">' + v.length + '</span>' +
+        (nome === 'Senza cliente' ? '' :
+          '<button class="x" type="button" data-rc="' + esc(nome) +
+          '" title="Rinomina cliente" aria-label="Rinomina cliente">&#9998;</button>') +
+        '</div>' +
+        v.map(function (x) {
+          return '<div class="arc__r' + (x.id === d.id ? ' is-qui' : '') + '">' +
+            '<div class="arc__n">' + escT(x.titolo || 'Senza titolo') +
+            '<span class="arc__m">n. ' + escT(x.n || '—') + ' · ' + quando(x.agg) +
+            (x.id === d.id ? ' · aperto adesso' : '') + '</span></div>' +
+            '<div class="arc__v">' + PREVENTIVO.euro(x.tot || 0, 1) + '</div>' +
+            '<div class="arc__a">' +
+            '<button class="b b--min" type="button" data-ap="' + esc(x.id) + '">Apri</button>' +
+            '<button class="b b--min" type="button" data-du="' + esc(x.id) + '">Duplica</button>' +
+            '<button class="b b--min" type="button" data-ri="' + esc(x.id) + '">Rinomina</button>' +
+            '<button class="x" type="button" data-el="' + esc(x.id) +
+            '" aria-label="Elimina">&times;</button>' +
+            '</div></div>';
+        }).join('') + '</div>';
+    }).join('');
+  }
+
+  $('#b-arc').addEventListener('click', function () {
+    archiviaBozza(true);
+    arcDisegna();
+    if (!$('#arc').open) $('#arc').showModal();   // showModal() due volte e' un errore
+  });
+  $('#arc-x').addEventListener('click', function () { $('#arc').close(); });
+  $('#arc-q').addEventListener('input', arcDisegna);
+
+  $('#arc-lista').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-ap],[data-du],[data-ri],[data-el],[data-rc]');
+    if (!b) return;
+    var s = b.dataset;
+
+    if (s.ap) {
+      var x = arcTrova(s.ap); if (!x) return;
+      archiviaBozza(true);
+      carica(x.dati, x.id);
+      $('#arc').close();
+      $('#msg').textContent = 'Aperto: ' + (x.titolo || 'senza titolo') + '.';
+      return;
+    }
+    if (s.du) {
+      var o = arcTrova(s.du); if (!o) return;
+      archiviaBozza(true);
+      var copia = JSON.parse(JSON.stringify(o.dati));
+      copia.t = (o.titolo || 'Senza titolo') + ' (copia)';
+      var id = nuovoId();
+      carica(copia, id);
+      archiviaBozza(true);
+      $('#arc').close();
+      $('#msg').textContent = 'Copia aperta: cambia quello che serve, si salva da sola.';
+      return;
+    }
+    if (s.ri) {
+      var r = arcTrova(s.ri); if (!r) return;
+      var t = prompt('Titolo del preventivo', r.titolo || '');
+      if (t === null || !t.trim()) return;
+      var a = arcLeggi();
+      a.forEach(function (y) {
+        if (y.id !== r.id) return;
+        y.titolo = t.trim();
+        if (y.dati) y.dati.t = t.trim();
+        y.agg = Date.now();
+      });
+      arcScrivi(a);
+      if (r.id === d.id) { d.t = t.trim(); $('#f-t').value = t.trim(); aggiorna(); }
+      arcDisegna();
+      return;
+    }
+    if (s.rc) {
+      var vecchio = s.rc;
+      var nuovo = prompt('Nome del cliente — cambia la cartella per tutti i suoi preventivi', vecchio);
+      if (nuovo === null || !nuovo.trim() || nuovo.trim() === vecchio) return;
+      var lista = arcLeggi();
+      lista.forEach(function (y) {
+        if ((y.cliente || '').trim() !== vecchio) return;
+        y.cliente = nuovo.trim();
+        if (y.dati) y.dati.cl = nuovo.trim();
+        y.agg = Date.now();
+      });
+      arcScrivi(lista);
+      if ((d.cl || '').trim() === vecchio) { d.cl = nuovo.trim(); $('#f-cl').value = nuovo.trim(); aggiorna(); }
+      arcDisegna();
+      return;
+    }
+    if (s.el) {
+      var e1 = arcTrova(s.el); if (!e1) return;
+      var suo = e1.id === d.id;
+      if (!confirm('Eliminare «' + (e1.titolo || 'Senza titolo') + '»?' +
+        (suo ? '\n\nÈ quello aperto adesso: si chiude e ne parte uno nuovo.' : '') +
+        '\n\nNon si torna indietro.')) return;
+      var el = arcLeggi().filter(function (y) { return y.id !== e1.id; });
+      arcScrivi(el);
+      if (suo) { d = PREVENTIVO.vuoto(d); if (!Array.isArray(d.mag)) d.mag = [];
+                 aperto = 0; daModello(); disegnaVoci(); disegnaMag(); aggiorna(); }
+      contaArc(); arcDisegna();
+    }
+  });
+
+  /* ---------- esporta / importa: il backup vero ---------- */
+  $('#arc-exp').addEventListener('click', function () {
+    archiviaBozza(true);
+    var pacco = { tipo: 'mb-archivio', v: 1, esportato: new Date().toISOString(), voci: arcLeggi() };
+    var url = URL.createObjectURL(new Blob([JSON.stringify(pacco)], { type: 'application/json' }));
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'preventivi-' + new Date().toISOString().slice(0, 10) + '.json';
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+  });
+  $('#arc-imp').addEventListener('click', function () { $('#arc-file').click(); });
+  $('#arc-file').addEventListener('change', function () {
+    var f = this.files && this.files[0];
+    this.value = '';
+    if (!f) return;
+    var lettore = new FileReader();
+    lettore.onload = function () {
+      var voci = null;
+      try {
+        var j = JSON.parse(lettore.result);
+        voci = Array.isArray(j) ? j : (j && j.voci);
+      } catch (e) {}
+      if (!Array.isArray(voci)) { alert('Questo file non sembra un archivio di preventivi.'); return; }
+      var a = arcLeggi(), nuovi = 0, agg = 0;
+      voci.forEach(function (x) {
+        if (!x || !x.id || !x.dati) return;
+        var i = -1;
+        for (var k = 0; k < a.length; k++) if (a[k].id === x.id) { i = k; break; }
+        if (i < 0) { a.push(x); nuovi++; }
+        else if ((x.agg || 0) > (a[i].agg || 0)) { a[i] = x; agg++; }
+      });
+      arcScrivi(a); contaArc(); arcDisegna();
+      alert('Importati: ' + nuovi + ' nuovi, ' + agg + ' aggiornati.' +
+        (nuovi + agg === 0 ? '\nErano già tutti qui, aggiornati.' : ''));
+    };
+    lettore.readAsText(f);
+  });
 
   /* ---------- azioni ---------- */
   $('#b-ante').addEventListener('click', function () {
@@ -483,14 +808,18 @@
     window.open(await indirizzo(), '_blank', 'noopener');
   });
   $('#b-new').addEventListener('click', function () {
-    if (!confirm('Nuovo preventivo? Le tariffe restano, il resto si azzera.')) return;
+    archiviaBozza(true);
+    var salvo = d.t && d.t.trim();
+    if (!confirm('Nuovo preventivo? Le tariffe restano, il resto si azzera.\n\n' +
+      (salvo ? 'Quello aperto adesso è in Archivio: lo ritrovi quando vuoi.'
+             : 'Attenzione: quello aperto adesso non ha un titolo, quindi non è in Archivio e va perso.'))) return;
     d = PREVENTIVO.vuoto(d);
     if (!Array.isArray(d.mag)) d.mag = [];
     aperto = 0;
     daModello(); disegnaVoci(); disegnaMag(); aggiorna();
   });
 
-  daModello(); disegnaVoci(); disegnaMag(); aggiorna();
+  daModello(); disegnaVoci(); disegnaMag(); aggiorna(); contaArc();
 })();
 </script>
 </body>

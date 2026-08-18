@@ -235,11 +235,13 @@
      Il preventivo dentro il link
      ------------------------------------------------------------------ */
   // Nel link va solo quello che si vede: le voci del catalogo non usate
-  // resterebbero a gonfiare l'indirizzo per niente.
+  // resterebbero a gonfiare l'indirizzo per niente. `id` serve solo
+  // all'archivio nel suo browser, al cliente non dice nulla.
   PREVENTIVO.compatta = function (d) {
     var c = {};
     Object.keys(d).forEach(function (k) {
       var v = d[k];
+      if (k === 'id') return;
       if (v === '' || v == null) return;
       if (Array.isArray(v) && !v.length) return;
       c[k] = v;
