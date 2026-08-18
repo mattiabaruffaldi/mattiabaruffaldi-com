@@ -17,7 +17,7 @@
       ruolo: 'Director / DOP',
       righe: [
         'Via Vallarsa 11, 20139 Milano',
-        'info.mattiabaruffaldi@gmail.com',
+        'info@mattiabaruffaldi.com',
         '+39 346 475 5599',
         'IBAN IT67G0306952290100000005478'
       ],

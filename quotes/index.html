@@ -12,7 +12,15 @@
   /* Indice di piu' preventivi per lo stesso lavoro. Come /quote/, i dati
      stanno nel link dopo il cancelletto: qui dentro non c'e' niente, e nel
      repository (che e' pubblico) non finisce nessuna tariffa. */
-  .x-intro { margin: 0 0 10mm; max-width: 62ch; color: var(--q-ink-2); }
+  /* Il titolo della pagina prende lo stesso taglio dei titoli delle
+     caselle (Archivo largo e grosso, non maiuscoletto spaziato): li' sotto
+     funziona meglio, e cosi' la pagina ha una voce sola. */
+  .x-titolo {
+    margin: 3mm 0 0; font-size: 30pt; line-height: 1.05;
+    font-variation-settings: 'wdth' 112, 'wght' 700;
+    letter-spacing: -.01em;
+  }
+  .x-intro { margin: 4mm 0 10mm; max-width: 62ch; color: var(--q-ink-2); }
   .x-lista { display: grid; gap: 6mm; }
 
   .x-voce {
@@ -25,11 +33,6 @@
   .x-voce:hover .x-apri { background: var(--q-ink); color: var(--q-paper); }
   .x-voce:focus-visible { outline: 2px solid var(--q-ink); outline-offset: 4px; }
 
-  .x-eti {
-    font-size: 7.6pt; letter-spacing: .18em; text-transform: uppercase;
-    color: var(--q-ink-3); font-variation-settings: 'wdth' 88, 'wght' 500;
-    margin: 0 0 1.5mm;
-  }
   .x-nome {
     margin: 0; font-size: 17pt; line-height: 1.1;
     font-variation-settings: 'wdth' 112, 'wght' 700;
@@ -69,7 +72,7 @@
 
 <main id="foglio"></main>
 
-<script src="/js/quote.js?v=05e53a1d"></script>
+<script src="/js/quote.js?v=6b706fd1"></script>
 <script>
 (function () {
   var dove = document.getElementById('foglio');
@@ -84,7 +87,7 @@
     dove.innerHTML = '<section class="q-sheet" style="min-height:auto">' +
       '<h1 class="q-name">Mattia Baruffaldi</h1>' +
       '<p class="q-text" style="margin-top:12mm">' + testo + '</p>' +
-      '<p class="q-note">info.mattiabaruffaldi@gmail.com · +39 346 475 5599</p>' +
+      '<p class="q-note">info@mattiabaruffaldi.com · +39 346 475 5599</p>' +
       '</section>';
   }
 
@@ -118,10 +121,11 @@
       var indirizzo = '/quote/#' + await PREVENTIVO.impacchetta(q);
       // Scheda nuova: chi confronta tre preventivi vuole tornare all'indice
       // senza perderlo, e tenerne aperti due per confrontarli.
+      // Il titolo della casella e' il preventivo, non il progetto: il nome
+      // del lavoro sta gia' in cima e ripeterlo tre volte non dice niente.
       return '<a class="x-voce" href="' + esc(indirizzo) + '" target="_blank" rel="noopener">' +
         '<div>' +
-          '<p class="x-eti">Quotation ' + esc(q.n || '') + '</p>' +
-          '<h2 class="x-nome">' + esc(q.t || 'Untitled') + '</h2>' +
+          '<h2 class="x-nome">Quotation ' + esc(q.n || '') + '</h2>' +
           (q.s ? '<p class="x-sotto">' + esc(q.s) + '</p>' : '') +
           (q.sc ? '<p class="x-testo">' + esc(q.sc) + '</p>' : '') +
         '</div>' +
@@ -141,7 +145,7 @@
       '<div class="q-section">' +
         '<p class="q-meta">' + esc(pacco.cl || '') +
           (pacco.dt ? ' · ' + esc(pacco.dt) : '') + '</p>' +
-        '<h2 class="q-title">' + esc(pacco.t || 'Quotations') + '</h2>' +
+        '<h2 class="x-titolo">' + esc(pacco.t || 'Quotations') + '</h2>' +
         (pacco.in ? '<p class="x-intro">' + esc(pacco.in) + '</p>' : '') +
       '</div>' +
       '<div class="x-lista">' + voci.join('') + '</div>' +
