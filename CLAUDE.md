@@ -203,13 +203,29 @@ Strumento suo per fare preventivi, nato ad agosto 2026 dal preventivo VVENA.
   migliaia (5500 invece di 5.500).
 
 ### Archivio dei preventivi — FATTO (ago 2026)
-Ritrova i preventivi fatti, li riapre, li duplica, li modifica, e li organizza
-**in cartelle per cliente**. Tutto dentro `/studio/`, pulsante **Archivio**
-nella barra in alto (col numero di preventivi salvati accanto).
+`/studio/` e' un **gestionale a due viste** in un solo file: `#v-home`
+(l'archivio, dove si arriva) e `#v-edit` (il compilatore). Le viste si
+scambiano con `#app[data-vista]`, non con un modale.
 
-- **L'Archivio e' la "home" dello studio** (sua richiesta, ago 2026): aprendo
-  `/studio/` compare per primo, e da li' si sceglie se riprendere un preventivo
-  o farne uno nuovo col pulsante "+ Nuovo preventivo".
+- **L'archivio e' la home** (sua richiesta): aprendo `/studio/` si vede
+  l'elenco, e da li' si sceglie se riprendere un preventivo o farne uno nuovo.
+- **Indirizzi veri:** `/studio/` = archivio, `/studio/#p=<id>` = quel
+  preventivo aperto. Il tasto Indietro del browser funziona (`hashchange`, con
+  la sentinella `saltoInterno` per non rimbalzare sui salti fatti da noi).
+- **Era un `<dialog>` modale: non lo e' piu'.** Un modale non si linka, non
+  regge densita' e non e' una schermata di lavoro. Non tornare indietro.
+- **Colonna clienti + tabella**, non riquadri: un preventivo e' una riga di
+  dati (titolo, n., data, importo, stato) e la tabella li fa confrontare.
+  Sotto 62rem la colonna diventa una striscia di pastiglie scorrevole; sotto
+  52rem la tabella si impila e le colonne numeriche lasciano il posto a
+  `.meta-m` (una riga sola "n. · data · importo").
+- **Stati: Bozza / Inviato / Accettato / Perso** (`d.st`, e `stato` nella voce
+  d'archivio). Sono un `<select>` vero, non un aggeggio inventato; il colore
+  non e' mai l'unico segnale, la parola c'e' sempre. Filtri per stato in cima.
+- **Annullare invece di confermare**: eliminare un preventivo o un blocco non
+  chiede conferma, lo toglie e offre "Annulla" per 7 secondi.
+- **Rinomina in linea** (Invio conferma, Esc annulla), non `prompt()`.
+- Scorciatoie: `/` porta sulla ricerca, `Esc` la svuota.
 
 **Vincolo che ha deciso tutto:** il repository e' pubblico, quindi i preventivi
 non si possono committare. L'archivio sta **nel browser**, chiave
@@ -242,6 +258,12 @@ serve un servizio esterno (Cloudflare Pages + KV, o simili), che e' un cambio di
 categoria, non un'aggiunta.
 
 ## Trappole già incontrate (non ripeterle)
+- **Il tuo strumento Write puo' scrivere byte NUL** al posto di uno spazio
+  dentro una stringa (successo ad ago 2026 in `studio/index.html`: `' '`
+  diventato `"\0"`). I sintomi: `grep` smette di rispondere sul file perche' lo
+  considera binario, `Edit` non trova righe che invece esistono, e il confronto
+  in JS fallisce senza errore. Si trova con
+  `perl -ne 'print "$.\n" if /\0/' <file>` e si aggiusta con `perl -i`.
 - **Non provare l'archivio sul suo browser vero senza mettere via i suoi dati.**
   Il salvataggio automatico scatta anche su `beforeunload`, quindi rimettere a
   posto `localStorage` e poi ricaricare **non serve a niente**: alla chiusura la
