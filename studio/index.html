@@ -675,6 +675,10 @@
     if (!d.t || !d.t.trim()) { segnaSalvataggio(null); return; }
     var fai = function () {
       salvaFra = null;
+      // Ricontrollo qui: fra la chiamata e i 700 ms di attesa il preventivo
+      // puo' essere stato eliminato o svuotato, e archiviare adesso vorrebbe
+      // dire farlo tornare dal nulla.
+      if (!d.t || !d.t.trim()) return;
       if (!d.id) d.id = nuovoId();
       var a = arcLeggi(), i = -1;
       for (var k = 0; k < a.length; k++) if (a[k].id === d.id) { i = k; break; }
@@ -1008,12 +1012,27 @@
     }
     if (b.dataset.m === 'del') {
       var copiaVoce = JSON.parse(JSON.stringify(x));
+      var eraAperto = (id === d.id);
       arcScrivi(arcLeggi().filter(function (y) { return y.id !== id; }));
-      if (id === d.id) delete d.id;         // la bozza resta aperta, ma slegata
+
+      // Se elimino quello aperto nell'editor e lo lascio aperto, il
+      // salvataggio automatico lo rimette in archivio un attimo dopo (ha
+      // ancora il titolo) e sembra che l'eliminazione non funzioni. Quindi
+      // l'editor riparte da vuoto. Fermo anche il salvataggio gia' in coda,
+      // che scatterebbe con i dati vecchi.
+      if (eraAperto) {
+        if (salvaFra) { clearTimeout(salvaFra); salvaFra = null; }
+        d = PREVENTIVO.vuoto();
+        d.mag = Array.isArray(d.mag) ? d.mag : [];
+        d.st = 'bozza';
+        aperto = 0;
+        daModello(); disegnaVoci(); disegnaMag(); aggiorna();
+      }
+
       disegnaHome();
       avvisa('«' + (x.titolo || 'Senza titolo') + '» eliminato.', 'Annulla', function () {
         var a = arcLeggi(); a.push(copiaVoce); arcScrivi(a);
-        if (copiaVoce.dati && d.t === copiaVoce.dati.t) d.id = copiaVoce.id;
+        if (eraAperto) carica(copiaVoce.dati, copiaVoce.id);
         disegnaHome();
       });
     }
