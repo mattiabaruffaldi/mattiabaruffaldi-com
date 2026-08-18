@@ -328,6 +328,28 @@ statico non puo' dare: se un domani vuole l'archivio condiviso fra dispositivi
 serve un servizio esterno (Cloudflare Pages + KV, o simili), che e' un cambio di
 categoria, non un'aggiunta.
 
+## Skill installate su questa macchina
+Le skill che lui installa nell'app Claude **non si vedono da Claude Code**:
+stanno sul suo account, non sul disco. Claude Code le legge da
+`~/.claude/skills/`, e ci si mettono a mano (il comando `/plugin` qui non
+c'e'). Installate ad ago 2026, dopo aver letto cosa contenevano:
+
+- **impeccable** (v3.5.0) — design di interfacce. E' quella con cui e' stato
+  costruito il gestionale: conosce gia' le scelte di questo progetto.
+- **ui-ux-pro-max** — stesso mestiere di impeccable, ma con dati consultabili
+  (palette, abbinamenti di font, linee guida UX) e script Python locali.
+  Utile per **cercare un dato**, non per rifare le scelte gia' prese.
+- **stop-slop** — toglie i tic di scrittura AI dai testi. Da usare sui testi
+  inglesi del sito e sulle mail ai clienti.
+
+Sovrapposizione: impeccable e ui-ux-pro-max fanno la stessa cosa. Per questo
+progetto **comanda impeccable**, che ha in testa le decisioni gia' prese
+(grafite e ambra, griglie uniformi, niente desaturazione); ui-ux-pro-max si
+interroga quando serve un riferimento concreto.
+
+Non installata: `Agent-Skills-for-Context-Engineering`, 17 skill su come si
+costruiscono i sistemi ad agenti. Non c'entra col sito e riempirebbe l'elenco.
+
 ## Trappole già incontrate (non ripeterle)
 - **L'archivio dei preventivi e' legato all'indirizzo del sito.** `localhost:8010`
   e `mattiabaruffaldi.com` sono due origini diverse per il browser, quindi due
