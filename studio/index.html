@@ -340,22 +340,40 @@
      detta non saprebbe che nomi puo' dire. Colonne strette e nomi soli:
      serve a leggere, non a modificare. */
   .dettato {
-    position: sticky; top: 53px; z-index: calc(var(--z-barra) - 1);
-    max-height: 42vh; overflow-y: auto;
-    padding: var(--sp-3) clamp(var(--sp-3), 2vw, var(--sp-5)) var(--sp-4);
-    background: var(--s-piano); border-bottom: 1px solid var(--s-oro);
+    position: fixed; inset: 0; z-index: var(--z-avviso);
+    display: flex; flex-direction: column;
+    background: var(--s-fondo);
   }
   .dettato[hidden] { display: none; }
   .dettato__t {
-    display: flex; align-items: baseline; gap: var(--sp-2); flex-wrap: wrap;
-    font-size: var(--fs-2); color: var(--s-tenue); margin-bottom: var(--sp-3);
+    display: flex; align-items: center; gap: var(--sp-3); flex-wrap: wrap;
+    flex-shrink: 0; padding: var(--sp-4) clamp(var(--sp-4), 3vw, var(--sp-6));
+    border-bottom: 1px solid var(--s-bordo); font-size: var(--fs-2); color: var(--s-tenue);
   }
-  .dettato__t b { color: var(--s-oro); font-weight: 600; }
+  .dettato__t b { color: var(--s-testo); font-size: var(--fs-5); font-weight: 600; }
+  .dettato__come { max-width: 52ch; line-height: 1.5; }
+  .dettato__mic {
+    width: 10px; height: 10px; border-radius: 50%; background: var(--s-oro);
+    flex-shrink: 0; animation: batte 1.2s ease-in-out infinite;
+  }
+  @keyframes batte { 50% { opacity: .25; transform: scale(.7); } }
   .dettato__q { font-variant-numeric: tabular-nums; }
   .dettato__c {
-    display: grid; gap: var(--sp-3) var(--sp-4);
-    grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+    flex: 1; overflow-y: auto;
+    padding: var(--sp-5) clamp(var(--sp-4), 3vw, var(--sp-6));
+    display: grid; gap: var(--sp-5) var(--sp-5);
+    grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+    align-content: start;
   }
+  .dettato__p {
+    display: flex; align-items: center; gap: var(--sp-3); flex-shrink: 0;
+    padding: var(--sp-3) clamp(var(--sp-4), 3vw, var(--sp-6));
+    border-top: 1px solid var(--s-bordo); background: var(--s-piano);
+  }
+  .dettato__ult { font-size: var(--fs-2); color: var(--s-oro); }
+  .dettato__tot { font-size: var(--fs-3); color: var(--s-tenue); }
+  .dettato__tot b { color: var(--s-testo); font-size: var(--fs-6); font-variant-numeric: tabular-nums; }
+  .dettato__p .b { padding: var(--sp-3) var(--sp-5); }
   .dettato__g { break-inside: avoid; }
   .dettato__n {
     font-size: var(--fs-1); letter-spacing: .14em; text-transform: uppercase;
@@ -364,7 +382,7 @@
   }
   .dettato__v {
     display: flex; justify-content: space-between; gap: var(--sp-2);
-    font-size: var(--fs-2); line-height: 1.5; color: var(--s-testo);
+    font-size: var(--fs-3); line-height: 1.7; color: var(--s-testo);
   }
   .dettato__v.is-vuota { color: var(--s-tenue); }
   .dettato__v.is-piena b { color: var(--s-oro); font-variant-numeric: tabular-nums; }
@@ -681,11 +699,20 @@
   <!-- Mentre detta: tutte le voci sotto gli occhi, per sapere cosa dire. -->
   <div class="dettato" id="dettato" hidden>
     <div class="dettato__t">
-      <b>Voci disponibili</b> — dì il nome e la cifra: «director mille»
+      <span class="dettato__mic" aria-hidden="true"></span>
+      <b>Sto ascoltando</b>
+      <span class="dettato__come">«director mille» per il prezzo · «aggiungi fotografo Pinco Pallo
+        nella voce production crew» per una voce nuova</span>
       <span class="sp"></span>
       <span class="dettato__q" id="dettato-q"></span>
     </div>
     <div class="dettato__c" id="dettato-c"></div>
+    <div class="dettato__p">
+      <span class="dettato__ult" id="dettato-ult"></span>
+      <span class="sp"></span>
+      <span class="dettato__tot">Totale <b id="dettato-tot">0,00 €</b></span>
+      <button class="b b--pieno" type="button" id="dettato-fine">Fatto</button>
+    </div>
   </div>
 
   <div class="scena" id="scena">
@@ -1675,12 +1702,12 @@
         return '<div class="riga' + (attiva ? '' : ' spenta') + '" data-g="' + gi + '" data-v="' + vi + '">' +
           '<input type="checkbox"' + (attiva ? ' checked' : '') + ' aria-label="Includi">' +
           '<input value="' + esc(v.d) + '" data-f="d" aria-label="Voce">' +
-          '<input value="' + esc(v.n) + '" data-f="n" placeholder="nota" aria-label="Nota">' +
+          '<input value="' + esc(v.n) + '" data-f="n" placeholder="—" aria-label="Nota">' +
           '<input class="num' + (v.ddx ? ' pers' : '') + '" type="number" value="' +
             (v.dd ? PREVENTIVO.giorni(v, d) : '') + '" data-f="dd" aria-label="Giorni"' +
             (v.dd ? '' : ' disabled') + '>' +
           '<input class="num" type="number" value="' + (v.u || 1) + '" data-f="u" aria-label="Quantità">' +
-          '<input value="' + esc(v.f) + '" data-f="f" placeholder="Included…" aria-label="Dicitura">' +
+          '<input value="' + esc(v.f) + '" data-f="f" placeholder="—" aria-label="Dicitura">' +
           '<input class="num" type="number" value="' + (v.p || '') + '" data-f="p" placeholder="€" aria-label="Prezzo">' +
           '<span class="tot">' + (PREVENTIVO.totaleVoce(v, d) ? PREVENTIVO.euro(PREVENTIVO.totaleVoce(v, d)) : '') + '</span>' +
           '<button class="x" type="button" data-delv="' + gi + '.' + vi + '" aria-label="Elimina voce">&times;</button>' +
@@ -1701,6 +1728,9 @@
         '<span>Q.tà</span><span>Dicitura</span><span>Prezzo</span><span>Totale</span><span></span></div>' +
         righe +
         '<div class="azioni-b">' +
+        '<button class="b b--min" type="button" data-tutte="' + gi + '">' +
+          (g.i.length && g.i.every(function (v) { return v.on !== false; })
+            ? 'Togli tutte' : 'Spunta tutte') + '</button>' +
         '<button class="b b--min" type="button" data-add="' + gi + '">+ voce</button>' +
         '<button class="b b--min" type="button" data-dup="' + gi + '">Duplica blocco</button>' +
         '<button class="b b--min" type="button" data-del="' + gi + '">Elimina blocco</button>' +
@@ -1711,9 +1741,19 @@
   }
 
   $('#gruppi').addEventListener('click', function (e) {
-    var b = e.target.closest('[data-apri],[data-add],[data-dup],[data-del],[data-delv],[data-next]');
+    var b = e.target.closest('[data-apri],[data-add],[data-dup],[data-del],[data-delv],[data-next],[data-tutte]');
     if (!b) return;
     var s = b.dataset;
+
+    // Spunta o toglie tutte le voci del blocco. Sta dentro il blocco e non
+    // in cima: le voci si accendono per gruppo, non tutte insieme.
+    if (s.tutte !== undefined) {
+      var g0 = d.g[+s.tutte];
+      var tutteOn = g0.i.length && g0.i.every(function (v) { return v.on !== false; });
+      g0.i.forEach(function (v) { v.on = !tutteOn; });
+      disegnaVoci(); aggiorna();
+      return;
+    }
 
     if (s.apri !== undefined) { aperto = (aperto === +s.apri) ? -1 : +s.apri; disegnaVoci(); return; }
     if (s.next !== undefined) { aperto = +s.next + 1; disegnaVoci();
@@ -2056,9 +2096,58 @@
         }).join('') + '</div>';
     }).join('');
     $('#dettato-q').textContent = piene + ' su ' + quante + ' compilate';
+    $('#dettato-tot').textContent = PREVENTIVO.euro(PREVENTIVO.conti(d).tot, 1);
+    if (appena) {
+      var v = d.g[appena.gi].i[appena.vi];
+      $('#dettato-ult').textContent = '↳ ' + v.d + ' ' + PREVENTIVO.euro(v.p, 1);
+      var el = $('#dettato-c').querySelector('.is-nuova');
+      if (el) el.scrollIntoView({ block: 'nearest' });
+    }
+  }
+
+  // Il blocco piu' vicino a quello che ha detto.
+  function trovaBlocco(nome) {
+    var n = senzaAccenti(nome);
+    if (!n) return -1;
+    var scelto = -1, lung = 1e9;
+    d.g.forEach(function (g, gi) {
+      var t = senzaAccenti(g.t);
+      if (!t) return;
+      if (t === n || t.indexOf(n) > -1 || n.indexOf(t) > -1) {
+        if (t.length < lung) { scelto = gi; lung = t.length; }
+      }
+    });
+    return scelto;
+  }
+
+  // "aggiungi fotografo pinco pallo nella voce production crew 800"
+  // Crea la voce nel blocco detto; la cifra in fondo e' facoltativa.
+  function comandoAggiungi(testo) {
+    var t = senzaAccenti(testo);
+    var m = t.match(/^aggiungi\s+(.+?)\s+(?:in|nel|nella|al|alla|a)\s+(?:voce\s+|blocco\s+|sezione\s+)?(.+)$/);
+    if (!m) return false;
+
+    var nome = m[1], coda = m[2].split(' ');
+    var cifra = null;
+    var ultimo = numeroDaParola(coda[coda.length - 1]);
+    if (ultimo !== null && ultimo > 0 && coda.length > 1) { cifra = ultimo; coda.pop(); }
+
+    var gi = trovaBlocco(coda.join(' '));
+    if (gi < 0) { avvisa('Non ho trovato il blocco «' + coda.join(' ') + '».'); return true; }
+
+    // La maiuscola iniziale, come le altre voci del catalogo.
+    var titolo = nome.charAt(0).toUpperCase() + nome.slice(1);
+    d.g[gi].i.push({ d: titolo, n: '', dd: 0, u: 1, p: cifra || 0, on: true });
+    aperto = gi;
+    disegnaVoci(); aggiorna();
+    if (inAscolto) disegnaDettato({ gi: gi, vi: d.g[gi].i.length - 1 });
+    avvisa('Aggiunta «' + titolo + '» in ' + d.g[gi].t +
+      (cifra ? ' a ' + PREVENTIVO.euro(cifra, 1) : '') + '.');
+    return true;
   }
 
   function applicaVoce(testo) {
+    if (comandoAggiungi(testo)) return;
     var fatte = [], perse = [], ultima = null;
     coppie(testo).forEach(function (c) {
       var dove = trovaVoce(c.nome);
@@ -2086,6 +2175,11 @@
 
   if (Ascolto) {
     $('#b-voce').hidden = false;
+    $('#dettato-fine').addEventListener('click', fermaAscolto);
+    // Esc chiude il dettato come il pulsante.
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && inAscolto) { e.preventDefault(); fermaAscolto(); }
+    });
     $('#b-voce').addEventListener('click', function () {
       if (inAscolto) { fermaAscolto(); return; }
       ascoltatore = new Ascolto();
@@ -2109,10 +2203,10 @@
         inAscolto = true;
         $('#b-voce').classList.add('is-ascolto');
         $('#b-voce-t').textContent = 'Ascolto…';
+        $('#dettato-ult').textContent = '';
         disegnaDettato(null);
         $('#dettato').hidden = false;
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        avvisa('Dimmi le voci: «director mille, dop ottocento». Premi di nuovo per fermare.');
+        $('#dettato-fine').focus();
       } catch (e) { fermaAscolto(); }
     });
   }
