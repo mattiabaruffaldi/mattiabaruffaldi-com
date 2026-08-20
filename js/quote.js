@@ -56,6 +56,9 @@
   // tutte. Un preventivo nuovo parte vuoto e lui accende quello che serve.
   // Prima l'attivazione si deduceva dal prezzo o dalla dicitura, e mezze
   // voci comparivano da sole nel documento.
+  // E NOTE VUOTE (`n: ''` su tutte, sua richiesta ago 2026): le note
+  // predefinite ("Mattia Baruffaldi", "EASA certified", i formati video)
+  // erano da cancellare piu' spesso che da tenere. Le scrive lui.
   PREVENTIVO.catalogo = [
     { t: 'Script, storyboard & development', i: [
       { d: 'Copy, script and development', n: '', dd: 0, u: 1, p: 0, on: false },
@@ -68,14 +71,14 @@
       { d: 'Production assistant', n: '', dd: 0, u: 1, p: 0, on: false }
     ]},
     { t: 'Production crew', i: [
-      { d: 'Director', n: 'Mattia Baruffaldi', dd: 1, u: 1, p: 0, on: false },
+      { d: 'Director', n: '', dd: 1, u: 1, p: 0, on: false },
       { d: 'DOP', n: '', dd: 1, u: 1, p: 0, on: false },
-      { d: 'Photographer', n: 'Mattia Baruffaldi', dd: 1, u: 1, p: 0, on: false },
+      { d: 'Photographer', n: '', dd: 1, u: 1, p: 0, on: false },
       { d: 'Camera operator', n: '', dd: 1, u: 1, p: 0, on: false },
       { d: 'Sound recorder', n: '', dd: 1, u: 1, p: 0, on: false },
       { d: '1st assistant camera', n: '', dd: 1, u: 1, p: 0, on: false },
       { d: '2nd assistant camera', n: '', dd: 1, u: 1, p: 0, on: false },
-      { d: 'Drone operator', n: 'EASA certified', dd: 1, u: 1, p: 0, on: false },
+      { d: 'Drone operator', n: '', dd: 1, u: 1, p: 0, on: false },
       { d: 'Gaffer', n: '', dd: 1, u: 1, p: 0, on: false },
       { d: 'Grip', n: '', dd: 1, u: 1, p: 0, on: false },
       { d: 'Talent', n: '', dd: 1, u: 1, p: 0, on: false },
@@ -86,17 +89,17 @@
       { d: 'Canon EOS R5 + RF lens', n: '', dd: 1, u: 1, p: 0, on: false },
       { d: 'Cinema camera + cinema lens', n: '', dd: 1, u: 1, p: 0, on: false },
       { d: 'Lighting kit', n: '', dd: 1, u: 1, p: 0, on: false },
-      { d: 'Focus, transmitter, monitor', n: 'Focus nucleus, DJI transmitter, monitor', dd: 1, u: 1, p: 0, on: false },
+      { d: 'Focus, transmitter, monitor', n: '', dd: 1, u: 1, p: 0, on: false },
       { d: 'Grip package', n: '', dd: 1, u: 1, p: 0, on: false },
-      { d: 'Drone', n: 'DJI Inspire III', dd: 1, u: 1, p: 0, on: false },
-      { d: 'Hard drives', n: 'master + backup', dd: 0, u: 2, p: 0, on: false }
+      { d: 'Drone', n: '', dd: 1, u: 1, p: 0, on: false },
+      { d: 'Hard drives', n: '', dd: 0, u: 2, p: 0, on: false }
     ]},
     { t: 'Post production', i: [
-      { d: 'Documentary', n: '16:9 · 60’ · 4K', dd: 0, u: 1, p: 0, on: false },
-      { d: 'Main film', n: '16:9 · 1’30” · 4K', dd: 0, u: 1, p: 0, on: false },
-      { d: 'Teaser', n: '16:9 · 1’ · 4K', dd: 0, u: 1, p: 0, on: false },
-      { d: 'Social contents', n: '9:16 · 10-30” · 1080p', dd: 0, u: 3, p: 0, on: false },
-      { d: 'Photo editing', n: 'selected images', dd: 0, u: 1, p: 0, on: false },
+      { d: 'Documentary', n: '', dd: 0, u: 1, p: 0, on: false },
+      { d: 'Main film', n: '', dd: 0, u: 1, p: 0, on: false },
+      { d: 'Teaser', n: '', dd: 0, u: 1, p: 0, on: false },
+      { d: 'Social contents', n: '', dd: 0, u: 3, p: 0, on: false },
+      { d: 'Photo editing', n: '', dd: 0, u: 1, p: 0, on: false },
       { d: 'Colorist', n: '', dd: 0, u: 1, p: 0, on: false },
       { d: 'Sound designer', n: '', dd: 0, u: 1, p: 0, on: false },
       { d: 'Music licence', n: '', dd: 0, u: 1, p: 0, on: false },

@@ -231,6 +231,15 @@ dalla dicitura, e mezze voci (Make-up "By client", Canon "Included", Travel
 - **Scrivere una cifra accende la riga da sola**, se no sarebbe un click in
   piu' per ogni voce. Togliere la spunta resta un gesto suo, e il prezzo non
   lo disfa.
+- **Note vuote** (ago 2026): nel catalogo `n: ''` su tutte le voci. Via
+  "Mattia Baruffaldi" da Director e Photographer, "EASA certified" dal
+  drone, "master + backup" dai dischi e i formati video dalla post. Le
+  scrive lui quando servono. Vale per i preventivi **nuovi**: quelli gia'
+  in archivio tengono le note che hanno dentro.
+- **Una voce aggiunta a mano nasce a giornata** (`dd: 1`), come le voci di
+  troupe: con `dd: 0` il campo Giorni nasceva spento e non c'era modo di
+  riaccenderlo, quindi le voci nuove non contavano mai le giornate. Vale per
+  "+ voce", per il blocco nuovo e per il comando vocale "aggiungi…".
 - Diciture tolte dai predefiniti: "By client" su make-up e stylist,
   "Included" su Canon e Photo editing. Restano i "TBD" su trasferte e
   Miscellaneous, che lui non ha chiesto di togliere.

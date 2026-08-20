@@ -824,7 +824,7 @@
 
 <div id="menu" popover></div>
 
-<script src="/js/quote.js?v=73a087f4"></script>
+<script src="/js/quote.js?v=2af7f3b8"></script>
 <script>
 (function () {
   'use strict';
@@ -1759,7 +1759,10 @@
     if (s.next !== undefined) { aperto = +s.next + 1; disegnaVoci();
       document.querySelectorAll('.blocco')[aperto].scrollIntoView({ block: 'nearest', behavior: 'smooth' }); return; }
     if (s.add !== undefined) {
-      d.g[s.add].i.push({ d: 'Nuova voce', n: '', dd: 0, u: 1, p: 0, on: true });
+      // `dd: 1` = la voce segue le giornate di produzione scritte in cima.
+      // Con `dd: 0` il campo giorni nasceva spento e non c'era modo di
+      // accenderlo: una voce aggiunta a mano non contava mai le giornate.
+      d.g[s.add].i.push({ d: 'Nuova voce', n: '', dd: 1, u: 1, p: 0, on: true });
       disegnaVoci(); aggiorna();
       var r = document.querySelectorAll('.blocco')[+s.add].querySelectorAll('.riga');
       r[r.length - 1].querySelector('[data-f=d]').select();
@@ -1829,7 +1832,7 @@
 
   $('#b-blocco').addEventListener('click', function () {
     var nome = prompt('Nome del blocco'); if (!nome) return;
-    d.g.push({ t: nome, i: [{ d: 'Nuova voce', n: '', dd: 0, u: 1, p: 0, on: true }] });
+    d.g.push({ t: nome, i: [{ d: 'Nuova voce', n: '', dd: 1, u: 1, p: 0, on: true }] });
     aperto = d.g.length - 1;
     disegnaVoci(); aggiorna();
   });
@@ -2137,7 +2140,7 @@
 
     // La maiuscola iniziale, come le altre voci del catalogo.
     var titolo = nome.charAt(0).toUpperCase() + nome.slice(1);
-    d.g[gi].i.push({ d: titolo, n: '', dd: 0, u: 1, p: cifra || 0, on: true });
+    d.g[gi].i.push({ d: titolo, n: '', dd: 1, u: 1, p: cifra || 0, on: true });
     aperto = gi;
     disegnaVoci(); aggiorna();
     if (inAscolto) disegnaDettato({ gi: gi, vi: d.g[gi].i.length - 1 });
