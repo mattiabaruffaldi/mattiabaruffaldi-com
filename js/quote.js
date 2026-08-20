@@ -241,9 +241,40 @@
       pg: 'Bank transfer, 60 days end of month.',
       wd: 'Documented expenses and lost profit, set at 60% of the agreed fee.',
       nt: 'Operazione senza applicazione dell’IVA ai sensi dell’art. 1, commi 54-89, L. 190/2014.'
+    },
+
+    // Versione 4 (ago 2026): testi presi dal suo preventivo Unreal.
+    // `excn` e' la nota sotto la colonna degli esclusi; `{nome}` diventa
+    // l'intestatario, cosi' non c'e' scritto "Unreal Srl" su un preventivo
+    // intestato a lui.
+    4: {
+      dl: [
+        { d: 'Main video', n: '16:9 · @1’ · 4K', q: '1', on: false },
+        { d: 'Social video contents', n: '9:16 · @10-30” · FHD', q: '3', on: false },
+        { d: 'Retouched still images', n: '', q: '@50', on: false }
+      ],
+      inc: [
+        'No. 3 reworks for each produced video.'
+      ],
+      exc: [
+        'Additional shooting days beyond those estimated, required due to unforeseen production needs.',
+        'Travel and accommodation quotations are valid as of the date of this offer and are subject to possible variations until final confirmation.'
+      ],
+      excn: 'Should such services be necessary, {nome} will provide, upon Client’s approval, a detailed and appropriate quotation for the aforementioned items not included in this offer.',
+      ur: [
+        { b: 'Web Use', t: 'publication on websites and company digital channels' },
+        { b: 'BTL Promotional Materials', t: 'non-mass distribution promotional materials (e.g. brochures, flyers, catalogues, presentations)' },
+        { b: 'Magazines – Printed Media', t: 'publication in magazines and printed materials of editorial or promotional nature' }
+      ],
+      urn: 'Any additional uses (e.g. TV advertising, billboards, OOH, sponsored social media, etc.) are not included and will be subject to a separate quotation.',
+      vl: 'This offer is valid for 10 days from the date of presentation.',
+      iv: 'Upon acceptance: advance invoice of 30%, by direct bank transfer. Upon delivery of the completed videos: balance invoice of 70%.',
+      pg: 'Bank transfer, 60 days end of month.',
+      wd: 'In case of withdrawal, the Client shall in any case be required to pay documented expenses and lost profit, which the parties agree to set at 60% of the agreed fee.',
+      nt: 'Operazione senza applicazione dell’IVA ai sensi dell’art. 1, commi 54-89, L. 190/2014.'
     }
   };
-  PREVENTIVO.DV = 3;
+  PREVENTIVO.DV = 4;
 
   // Le consegne spuntate, senza la spunta: e' quello che va nel link e nel
   // documento. Le altre restano solo nello studio.
@@ -321,6 +352,14 @@
     if (Array.isArray(d.mag)) return d.mag.filter(function (m) { return m && m.p; });
     if (d.rv) return [{ l: d.rvl || 'Maggiorazione', p: Number(d.rv) }];  // formato vecchio
     return [];
+  };
+
+  // C'e' l'IVA fra le maggiorazioni? Serve a far sparire la nota del
+  // regime forfettario, che direbbe il contrario.
+  PREVENTIVO.conIva = function (d) {
+    return PREVENTIVO.maggiorazioni(d).some(function (m) {
+      return /\b(iva|vat)\b/i.test(m.l || '');
+    });
   };
 
   PREVENTIVO.conti = function (d) {
@@ -512,7 +551,10 @@
       righeMag(c) +
       '<div class="q-grand"><span>Total</span><strong>' +
       PREVENTIVO.euro(c.tot, 1) + '</strong></div></div>' +
-      (d.nt ? '<p class="q-note">' + esc(d.nt) + '</p>' : '') +
+      // La nota fiscale dice "operazione senza IVA" (regime forfettario):
+      // se sul preventivo c'e' l'IVA e' una contraddizione, quindi sparisce
+      // da sola. Non serve che se ne ricordi lui.
+      (d.nt && !PREVENTIVO.conIva(d) ? '<p class="q-note">' + esc(d.nt) + '</p>' : '') +
       '</div><div class="q-num">1 / 3</div></section>';
 
     /* ---- foglio 2: dettaglio ---- */
@@ -565,10 +607,15 @@
       (consegne ? '<div class="q-section"><h3 class="q-h2">Deliverables</h3>' +
         '<ul class="q-list">' + consegne + '</ul></div>' : '') +
       '<div class="q-cols">' +
-      '<div><h4 class="q-h3">Included</h4><ul class="q-bul">' + elenco(d.inc) + '</ul></div>' +
-      '<div><h4 class="q-h3">Excluded</h4><ul class="q-bul">' + elenco(d.exc) + '</ul></div>' +
+      '<div><h4 class="q-h3">Included in the quotation</h4><ul class="q-bul">' +
+        elenco(d.inc) + '</ul></div>' +
+      '<div><h4 class="q-h3">Excluded from the quotation</h4><ul class="q-bul">' +
+        elenco(d.exc) + '</ul>' +
+        (d.excn ? '<p class="q-note">' +
+          esc(String(d.excn).replace('{nome}', h.nome)) + '</p>' : '') +
       '</div>' +
-      (diritti ? '<div class="q-section"><h3 class="q-h2">Usage rights</h3>' +
+      '</div>' +
+      (diritti ? '<div class="q-section"><h3 class="q-h2">Image usage rights</h3>' +
         '<ul class="q-bul" style="margin-top:4mm">' + diritti + '</ul>' +
         (d.urn ? '<p class="q-note">' + esc(d.urn) + '</p>' : '') + '</div>' : '') +
       '<div class="q-section"><h3 class="q-h2">Terms</h3><div class="q-terms">' +

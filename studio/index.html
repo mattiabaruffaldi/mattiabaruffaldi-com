@@ -631,15 +631,15 @@
               <option value="mb">Mattia Baruffaldi</option>
               <option value="unreal">Unreal Srl</option>
             </select></div>
-          <div class="campo"><label for="f-cl">Cliente</label><input id="f-cl" data-k="cl" placeholder="VVENA"></div>
+          <div class="campo"><label for="f-cl">Cliente</label><input id="f-cl" data-k="cl" placeholder="Nome del cliente"></div>
           <div class="campo"><label for="f-n">N. preventivo</label><input id="f-n" data-k="n"></div>
           <div class="campo"><label for="f-dt">Data</label><input id="f-dt" data-k="dt"></div>
           <div class="campo"><label for="f-gg">Giornate di produzione</label>
             <input id="f-gg" data-k="gg" type="number" min="1" step="1"></div>
           <div class="campo campo--largo"><label for="f-t">Titolo</label>
-            <input id="f-t" data-k="t" placeholder="VVENA Campaign 2026"></div>
+            <input id="f-t" data-k="t" placeholder="Titolo del progetto"></div>
           <div class="campo campo--largo"><label for="f-s">Sottotitolo</label>
-            <input id="f-s" data-k="s" placeholder="Asset shooting · 2 days · 2 talent"></div>
+            <input id="f-s" data-k="s" placeholder="Es. Asset shooting · 2 days · 2 talent"></div>
           <div class="campo campo--largo"><label for="f-sc">Scope</label>
             <textarea id="f-sc" data-k="sc"></textarea></div>
         </div>
@@ -693,6 +693,9 @@
             <textarea id="f-inc" data-k="inc"></textarea></div>
           <div class="campo"><label for="f-exc">Escluso — una riga per voce</label>
             <textarea id="f-exc" data-k="exc"></textarea></div>
+          <div class="campo campo--largo"><label for="f-excn">Nota sotto gli esclusi</label>
+            <textarea id="f-excn" data-k="excn" style="min-height:52px"></textarea>
+            <p class="aiuto">Dove scrivi <code>{nome}</code> compare l’intestatario del preventivo.</p></div>
         </div>
       </section>
 
@@ -723,7 +726,7 @@
 
 <div id="menu" popover></div>
 
-<script src="/js/quote.js?v=0dc5770e"></script>
+<script src="/js/quote.js?v=98dd736f"></script>
 <script>
 (function () {
   'use strict';
