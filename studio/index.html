@@ -173,6 +173,9 @@
   }
   .clienti li:hover .cl-rin, .cl-rin:focus-visible { opacity: 1; }
   .cl-rin:hover { color: var(--s-oro); }
+  .clienti__sep { height: 1px; margin: var(--sp-2) var(--sp-2); background: var(--s-bordo); }
+  .cl--cestino .cl__n { color: var(--s-tenue); }
+  .cl--cestino[aria-current="true"] .cl__n { color: var(--s-oro); }
 
   .corpo { padding: var(--sp-5) clamp(var(--sp-3), 2vw, var(--sp-5)) var(--sp-7); min-width: 0; }
   .corpo__t {
@@ -332,6 +335,13 @@
     padding: var(--sp-2) clamp(var(--sp-3), 2vw, var(--sp-5));
     background: var(--s-piano); border-bottom: 1px solid var(--s-bordo);
   }
+  .micro { display: inline-flex; align-items: center; gap: 6px; }
+  .micro.is-ascolto {
+    border-color: var(--s-oro); color: var(--s-oro);
+    animation: pulsa 1.4s ease-in-out infinite;
+  }
+  @keyframes pulsa { 50% { border-color: #6a5326; } }
+
   /* Quante pagine viene il PDF, senza doverlo stampare per scoprirlo. */
   .pagine {
     font-size: var(--fs-2); color: var(--s-tenue); white-space: nowrap;
@@ -429,7 +439,10 @@
   .riga .num { text-align: right; font-variant-numeric: tabular-nums; }
   .riga .tot { text-align: right; font-variant-numeric: tabular-nums; font-size: var(--fs-3); padding-right: var(--sp-2); }
   .riga input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--s-oro); padding: 0; }
-  .riga.spenta > *:not(:first-child):not(:nth-child(2)) { opacity: .3; pointer-events: none; }
+  /* Una riga spenta si vede smorta ma resta USABILE: prima aveva
+     `pointer-events: none` e non si poteva scrivere il prezzo ne' premere
+     la × senza prima spuntarla. Due gesti dove ne basta uno. */
+  .riga.spenta > *:not(:first-child):not(:nth-child(2)) { opacity: .55; }
   .riga.spenta input:nth-child(2) { color: var(--s-tenue); }
   .riga .pers { color: var(--s-oro); border-color: #6a5326; }
   .x { width: 26px; height: 26px; border: 0; background: none; color: var(--s-tenue);
@@ -613,6 +626,15 @@
     <span class="stato" id="e-stato-w" data-v="bozza">
       <select id="e-stato" aria-label="Stato del preventivo"></select>
     </span>
+    <button class="b micro" type="button" id="b-voce" hidden
+            title="Detta le voci: «director 1000, dop 800»">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+           stroke-width="1.5" aria-hidden="true">
+        <rect x="5.5" y="1.5" width="5" height="8" rx="2.5"/>
+        <path d="M3 7.5a5 5 0 0 0 10 0M8 12.5V15"/>
+      </svg>
+      <span id="b-voce-t">Detta</span>
+    </button>
     <span class="pagine" id="t-pag" title="Quante pagine viene il PDF"></span>
     <div class="barra__t"><small>Totale</small><b id="t-tot">0,00 €</b></div>
     <button class="b" type="button" id="b-ante">Anteprima</button>
@@ -688,6 +710,9 @@
 
       <section class="sez">
         <h2 class="sez__t">Testi</h2>
+        <div class="azioni-b" style="margin:0 0 12px">
+          <button class="b b--min" type="button" id="b-standard">Riporta ai testi standard</button>
+        </div>
         <div class="griglia">
           <div class="campo"><label for="f-inc">Incluso — una riga per voce</label>
             <textarea id="f-inc" data-k="inc"></textarea></div>
@@ -726,7 +751,7 @@
 
 <div id="menu" popover></div>
 
-<script src="/js/quote.js?v=98dd736f"></script>
+<script src="/js/quote.js?v=73a087f4"></script>
 <script>
 (function () {
   'use strict';
@@ -781,6 +806,33 @@
     for (var i = 0; i < a.length; i++) if (a[i].id === id) return a[i];
     return null;
   }
+  /* ---------- cestino ----------
+     Un preventivo eliminato ci resta 30 giorni, poi se ne va da solo.
+     Cosi' "Elimina" smette di essere un gesto da pensarci due volte. */
+  var CESTINO = 'mb-cestino';
+  var GIORNI_CESTINO = 30;
+
+  function cesLeggi() {
+    try { var a = JSON.parse(localStorage.getItem(CESTINO)); return Array.isArray(a) ? a : []; }
+    catch (e) { return []; }
+  }
+  function cesScrivi(a) {
+    try { localStorage.setItem(CESTINO, JSON.stringify(a)); return true; }
+    catch (e) { avvisa('Memoria del browser piena: svuota il cestino.'); return false; }
+  }
+  // Si ripulisce all'apertura: niente da ricordarsi, niente da premere.
+  function purgaCestino() {
+    var limite = Date.now() - GIORNI_CESTINO * 86400000;
+    var a = cesLeggi();
+    var resta = a.filter(function (x) { return (x.eliminato || 0) > limite; });
+    if (resta.length !== a.length) cesScrivi(resta);
+    return resta;
+  }
+  function giorniRimasti(x) {
+    var g = Math.ceil(((x.eliminato || 0) + GIORNI_CESTINO * 86400000 - Date.now()) / 86400000);
+    return Math.max(0, g);
+  }
+
   function nuovoId() {
     return 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
   }
@@ -914,6 +966,7 @@
   var rinominando = null;      // id del preventivo in rinomina
   var scelti = {};             // id spuntati per il link di gruppo
   var modoScelta = false;      // le spunte compaiono solo quando servono
+  var vistaCestino = false;    // sto guardando il cestino invece dell'archivio
 
   function cartellaDi(x) { return (x.cliente || '').trim() || SENZA; }
 
@@ -957,7 +1010,14 @@
     };
     $('#clienti').innerHTML =
       riga("Tutti", tutti.length, null, false) +
-      nomi.map(function (n) { return riga(n, conta[n], n, n !== SENZA); }).join('');
+      nomi.map(function (n) { return riga(n, conta[n], n, n !== SENZA); }).join('') +
+      (purgaCestino().length
+        ? '<li class="clienti__sep"></li>' +
+          '<li><button class="cl cl--cestino" type="button" data-cestino="1"' +
+          (vistaCestino ? ' aria-current="true"' : '') + '>' +
+          '<span class="cl__n">Cestino</span>' +
+          '<span class="cl__q">' + purgaCestino().length + '</span></button></li>'
+        : '');
   }
 
   function disegnaFiltri() {
@@ -975,7 +1035,54 @@
       }).join('');
   }
 
+  function disegnaCestino() {
+    var voci = purgaCestino().sort(function (a, b) { return (b.eliminato||0) - (a.eliminato||0); });
+    $('#titolo-vista').textContent = 'Cestino';
+    $('#conteggio').textContent = voci.length
+      ? voci.length + (voci.length === 1 ? ' preventivo' : ' preventivi')
+      : '';
+    $('#filtri').innerHTML = voci.length
+      ? '<button class="b b--min" type="button" id="ces-svuota">Svuota il cestino</button>'
+      : '';
+    $('#b-raggruppa').hidden = true;
+    $('#b-annulla-scelta').hidden = true;
+    $('#link-gruppo').hidden = true;
+
+    if (!voci.length) {
+      $('#elenco').innerHTML = '<div class="vuoto"><h2>Il cestino è vuoto</h2>' +
+        '<p>Quello che elimini finisce qui e ci resta ' + GIORNI_CESTINO +
+        ' giorni, poi se ne va da solo.</p></div>';
+      return;
+    }
+    $('#elenco').innerHTML =
+      '<table class="tab"><caption class="solo-lettori">Preventivi nel cestino</caption>' +
+      '<thead><tr><th scope="col">Preventivo</th><th scope="col" class="num">N.</th>' +
+      '<th scope="col" class="num">Eliminato</th><th scope="col" class="num">Importo</th>' +
+      '<th scope="col">Resta</th><th scope="col"><span class="solo-lettori">Azioni</span></th>' +
+      '</tr></thead><tbody>' +
+      voci.map(function (x) {
+        var g = giorniRimasti(x);
+        return '<tr data-id="' + esc(x.id) + '">' +
+          '<td data-c="tit"><span class="apri" style="cursor:default">' +
+            escT(x.titolo || 'Senza titolo') + '</span>' +
+            '<span class="sotto">' + escT(cartellaDi(x)) + '</span>' +
+            '<span class="meta-m">n. ' + escT(x.n || '—') + ' · ' + quando(x.eliminato) +
+              ' · ' + PREVENTIVO.euro(x.tot || 0, 1) + '</span></td>' +
+          '<td data-c="n" class="num">' + escT(x.n || '—') + '</td>' +
+          '<td data-c="dt" class="num">' + quando(x.eliminato) + '</td>' +
+          '<td data-c="imp" class="num">' + PREVENTIVO.euro(x.tot || 0, 1) + '</td>' +
+          '<td data-c="st"><span class="pagine">' + g +
+            (g === 1 ? ' giorno' : ' giorni') + '</span></td>' +
+          '<td data-c="mn" style="white-space:nowrap">' +
+            '<button class="b b--min" type="button" data-ripristina="' + esc(x.id) + '">Ripristina</button> ' +
+            '<button class="x" type="button" data-cesdel="' + esc(x.id) +
+            '" aria-label="Elimina per sempre">&times;</button></td>' +
+          '</tr>';
+      }).join('') + '</tbody></table>';
+  }
+
   function disegnaElenco() {
+    if (vistaCestino) { disegnaCestino(); return; }
     var voci = seleziona();
     var tutti = arcLeggi();
 
@@ -1065,11 +1172,52 @@
 
   /* ---------- interazioni della home ---------- */
   $('#clienti').addEventListener('click', function (e) {
-    var b = e.target.closest('[data-cliente],[data-rincl]');
+    var b = e.target.closest('[data-cliente],[data-rincl],[data-cestino]');
     if (!b) return;
+    if (b.dataset.cestino !== undefined) { vistaCestino = true; disegnaHome(); return; }
     if (b.dataset.rincl !== undefined) { rinominaCliente(b.dataset.rincl); return; }
+    vistaCestino = false;
     filtroCliente = b.dataset.cliente === '' ? null : b.dataset.cliente;
     disegnaHome();
+  });
+
+  // Ripristina, elimina per sempre, svuota.
+  $('#elenco').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-ripristina],[data-cesdel]');
+    if (!b) return;
+    var id = b.dataset.ripristina || b.dataset.cesdel;
+    var x = cesLeggi().filter(function (y) { return y.id === id; })[0];
+    if (!x) return;
+    cesScrivi(cesLeggi().filter(function (y) { return y.id !== id; }));
+
+    if (b.dataset.ripristina) {
+      var copia = JSON.parse(JSON.stringify(x));
+      delete copia.eliminato;
+      var a = arcLeggi().filter(function (y) { return y.id !== id; });
+      a.push(copia); arcScrivi(a);
+      if (!purgaCestino().length) vistaCestino = false;
+      disegnaHome();
+      avvisa('«' + (x.titolo || 'Senza titolo') + '» rimesso in archivio.');
+      return;
+    }
+    if (!purgaCestino().length) vistaCestino = false;
+    disegnaHome();
+    avvisa('«' + (x.titolo || 'Senza titolo') + '» eliminato per sempre.', 'Annulla', function () {
+      var c = cesLeggi(); c.push(x); cesScrivi(c);
+      vistaCestino = true; disegnaHome();
+    });
+  });
+  $('#filtri').addEventListener('click', function (e) {
+    if (!e.target.closest('#ces-svuota')) return;
+    var tutto = cesLeggi();
+    if (!tutto.length) return;
+    cesScrivi([]);
+    vistaCestino = false;
+    disegnaHome();
+    avvisa('Cestino svuotato: ' + tutto.length +
+      (tutto.length === 1 ? ' preventivo' : ' preventivi') + '.', 'Annulla', function () {
+      cesScrivi(tutto); vistaCestino = true; disegnaHome();
+    });
   });
 
   $('#filtri').addEventListener('click', function (e) {
@@ -1296,6 +1444,11 @@
       var copiaVoce = JSON.parse(JSON.stringify(x));
       var eraAperto = (id === d.id);
       arcScrivi(arcLeggi().filter(function (y) { return y.id !== id; }));
+      // Nel cestino, non nel nulla.
+      var ces = cesLeggi().filter(function (y) { return y.id !== id; });
+      copiaVoce.eliminato = Date.now();
+      ces.push(copiaVoce);
+      cesScrivi(ces);
 
       // Se elimino quello aperto nell'editor e lo lascio aperto, il
       // salvataggio automatico lo rimette in archivio un attimo dopo (ha
@@ -1312,8 +1465,11 @@
       }
 
       disegnaHome();
-      avvisa('«' + (x.titolo || 'Senza titolo') + '» eliminato.', 'Annulla', function () {
-        var a = arcLeggi(); a.push(copiaVoce); arcScrivi(a);
+      avvisa('«' + (x.titolo || 'Senza titolo') + '» spostato nel cestino.', 'Annulla', function () {
+        cesScrivi(cesLeggi().filter(function (y) { return y.id !== copiaVoce.id; }));
+        var a = arcLeggi();
+        delete copiaVoce.eliminato;
+        a.push(copiaVoce); arcScrivi(a);
         if (eraAperto) carica(copiaVoce.dati, copiaVoce.id);
         disegnaHome();
       });
@@ -1631,10 +1787,29 @@
   });
   $('#b-consegna').addEventListener('click', function () {
     if (!Array.isArray(d.dl)) d.dl = [];
-    d.dl.push({ d: 'Nuova consegna', n: '', q: '1', on: true });
+    d.dl.push({ d: '', n: '', q: '', on: true });
     disegnaConsegne(); aggiorna();
     var r = $('#consegne').querySelectorAll('.riga--cons');
     r[r.length - 1].querySelector('[data-df=d]').select();
+  });
+
+  // Un preventivo si porta dietro i testi con cui e' nato: se i testi
+  // standard cambiano, quello aperto non se ne accorge (ed e' giusto, se no
+  // cambierebbero sotto i piedi anche a un preventivo gia' mandato).
+  // Questo pulsante li riporta all'ultima versione, quando lo decide lui.
+  $('#b-standard').addEventListener('click', function () {
+    var prima = JSON.parse(JSON.stringify(d));
+    var pred = PREVENTIVO.PREDEFINITI[PREVENTIVO.DV];
+    Object.keys(pred).forEach(function (k) {
+      d[k] = JSON.parse(JSON.stringify(pred[k]));
+    });
+    d.dv = PREVENTIVO.DV;
+    daModello(); disegnaConsegne(); aggiorna();
+    avvisa('Testi riportati allo standard.', 'Annulla', function () {
+      Object.keys(pred).forEach(function (k) { d[k] = prima[k]; });
+      d.dv = prima.dv;
+      daModello(); disegnaConsegne(); aggiorna();
+    });
   });
 
   function disegnaMag() {
@@ -1740,6 +1915,136 @@
   $('#b-pdf').addEventListener('click', async function () {
     window.open(await indirizzo(), '_blank', 'noopener');
   });
+
+  /* ==================================================================
+     Comando vocale
+
+     "director mille, dop ottocento" riempie i prezzi. Usa il
+     riconoscimento vocale di Chrome: l'audio passa dai server di Google
+     per essere trascritto, i prezzi no — quelli restano qui.
+     ================================================================== */
+  var Ascolto = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var ascoltatore = null, inAscolto = false;
+
+  function senzaAccenti(s) {
+    return String(s || '').toLowerCase()
+      .normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+  }
+
+  // Chrome di solito trascrive i numeri in cifre, ma non sempre: qui sotto
+  // i casi che capitano davvero a voce ("mille", "milleduecento", "800").
+  var UNITA = { zero:0, uno:1, un:1, due:2, tre:3, quattro:4, cinque:5, sei:6,
+    sette:7, otto:8, nove:9, dieci:10, undici:11, dodici:12, tredici:13,
+    quattordici:14, quindici:15, sedici:16, diciassette:17, diciotto:18,
+    diciannove:19, venti:20, trenta:30, quaranta:40, cinquanta:50,
+    sessanta:60, settanta:70, ottanta:80, novanta:90 };
+
+  function numeroDaParola(p) {
+    if (/^\d+$/.test(p)) return Number(p);
+    if (UNITA[p] !== undefined) return UNITA[p];
+    var m = p.match(/^(.*?)(mila|mille)(.*)$/);
+    if (m) {
+      var migliaia = m[1] ? (UNITA[m[1]] || numeroDaParola(m[1]) || 1) : 1;
+      var resto = m[3] ? (numeroDaParola(m[3]) || 0) : 0;
+      if (migliaia) return migliaia * 1000 + resto;
+    }
+    var c = p.match(/^(.*?)cento(.*)$/);
+    if (c) {
+      var centinaia = c[1] ? (UNITA[c[1]] || 1) : 1;
+      var r2 = c[2] ? (numeroDaParola(c[2]) || 0) : 0;
+      if (centinaia) return centinaia * 100 + r2;
+    }
+    return null;
+  }
+
+  // La voce piu' vicina a quello che ha detto. Preferisce quella col nome
+  // piu' corto fra quelle che combaciano: "director" non deve pescare
+  // "drone operator" solo perche' contiene le stesse lettere.
+  function trovaVoce(nome) {
+    var n = senzaAccenti(nome);
+    if (!n) return null;
+    var scelta = null, lung = 1e9;
+    d.g.forEach(function (g, gi) {
+      g.i.forEach(function (v, vi) {
+        var voce = senzaAccenti(v.d);
+        if (!voce) return;
+        var combacia = voce === n || voce.indexOf(n) === 0 ||
+                       voce.indexOf(' ' + n) > -1 || n.indexOf(voce) === 0;
+        if (combacia && voce.length < lung) { scelta = { gi: gi, vi: vi }; lung = voce.length; }
+      });
+    });
+    return scelta;
+  }
+
+  // Divide "director 1000 dop 800" in coppie nome/cifra.
+  function coppie(testo) {
+    var parole = senzaAccenti(testo).split(' ');
+    var fuori = [], nome = [];
+    parole.forEach(function (p) {
+      var n = numeroDaParola(p);
+      if (n !== null && n > 0 && nome.length) {
+        fuori.push({ nome: nome.join(' '), cifra: n });
+        nome = [];
+      } else if (n === null) {
+        if (p !== 'euro' && p !== 'e') nome.push(p);
+      }
+    });
+    return fuori;
+  }
+
+  function applicaVoce(testo) {
+    var fatte = [], perse = [];
+    coppie(testo).forEach(function (c) {
+      var dove = trovaVoce(c.nome);
+      if (!dove) { perse.push(c.nome); return; }
+      var v = d.g[dove.gi].i[dove.vi];
+      v.p = c.cifra;
+      v.on = true;
+      fatte.push(v.d + ' ' + PREVENTIVO.euro(c.cifra, 1));
+    });
+    if (fatte.length) { disegnaVoci(); aggiorna(); }
+    if (fatte.length && !perse.length) avvisa('Scritto: ' + fatte.join(' · '));
+    else if (fatte.length) avvisa('Scritto: ' + fatte.join(' · ') + '. Non trovate: ' + perse.join(', '));
+    else avvisa('Ho sentito «' + testo + '» ma non ho trovato la voce.');
+  }
+
+  function fermaAscolto() {
+    inAscolto = false;
+    $('#b-voce').classList.remove('is-ascolto');
+    $('#b-voce-t').textContent = 'Detta';
+    if (ascoltatore) { try { ascoltatore.stop(); } catch (e) {} }
+  }
+
+  if (Ascolto) {
+    $('#b-voce').hidden = false;
+    $('#b-voce').addEventListener('click', function () {
+      if (inAscolto) { fermaAscolto(); return; }
+      ascoltatore = new Ascolto();
+      ascoltatore.lang = 'it-IT';
+      ascoltatore.continuous = true;
+      ascoltatore.interimResults = false;
+      ascoltatore.onresult = function (e) {
+        for (var i = e.resultIndex; i < e.results.length; i++) {
+          if (e.results[i].isFinal) applicaVoce(e.results[i][0].transcript);
+        }
+      };
+      ascoltatore.onerror = function (e) {
+        fermaAscolto();
+        avvisa(e.error === 'not-allowed'
+          ? 'Il browser non mi da il microfono: consentilo dal lucchetto accanto all’indirizzo.'
+          : 'Il riconoscimento vocale si e fermato (' + e.error + ').');
+      };
+      ascoltatore.onend = function () { if (inAscolto) fermaAscolto(); };
+      try {
+        ascoltatore.start();
+        inAscolto = true;
+        $('#b-voce').classList.add('is-ascolto');
+        $('#b-voce-t').textContent = 'Ascolto…';
+        avvisa('Dimmi le voci: «director mille, dop ottocento». Premi di nuovo per fermare.');
+      } catch (e) { fermaAscolto(); }
+    });
+  }
 
   /* ---------- scorciatoie ---------- */
   document.addEventListener('keydown', function (e) {

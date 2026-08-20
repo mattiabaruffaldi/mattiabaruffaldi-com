@@ -272,9 +272,36 @@
       pg: 'Bank transfer, 60 days end of month.',
       wd: 'In case of withdrawal, the Client shall in any case be required to pay documented expenses and lost profit, which the parties agree to set at 60% of the agreed fee.',
       nt: 'Operazione senza applicazione dell’IVA ai sensi dell’art. 1, commi 54-89, L. 190/2014.'
+    },
+
+    // Versione 5 (ago 2026): solo le due consegne che usa davvero.
+    5: {
+      dl: [
+        { d: 'Main video', n: '16:9 · @1’ · 4K', q: '1', on: false },
+        { d: 'Social video contents', n: '9:16 · @10-30” · FHD', q: '3', on: false }
+      ],
+      inc: [
+        'No. 3 reworks for each produced video.'
+      ],
+      exc: [
+        'Additional shooting days beyond those estimated, required due to unforeseen production needs.',
+        'Travel and accommodation quotations are valid as of the date of this offer and are subject to possible variations until final confirmation.'
+      ],
+      excn: 'Should such services be necessary, {nome} will provide, upon Client’s approval, a detailed and appropriate quotation for the aforementioned items not included in this offer.',
+      ur: [
+        { b: 'Web Use', t: 'publication on websites and company digital channels' },
+        { b: 'BTL Promotional Materials', t: 'non-mass distribution promotional materials (e.g. brochures, flyers, catalogues, presentations)' },
+        { b: 'Magazines – Printed Media', t: 'publication in magazines and printed materials of editorial or promotional nature' }
+      ],
+      urn: 'Any additional uses (e.g. TV advertising, billboards, OOH, sponsored social media, etc.) are not included and will be subject to a separate quotation.',
+      vl: 'This offer is valid for 10 days from the date of presentation.',
+      iv: 'Upon acceptance: advance invoice of 30%, by direct bank transfer. Upon delivery of the completed videos: balance invoice of 70%.',
+      pg: 'Bank transfer, 60 days end of month.',
+      wd: 'In case of withdrawal, the Client shall in any case be required to pay documented expenses and lost profit, which the parties agree to set at 60% of the agreed fee.',
+      nt: 'Operazione senza applicazione dell’IVA ai sensi dell’art. 1, commi 54-89, L. 190/2014.'
     }
   };
-  PREVENTIVO.DV = 4;
+  PREVENTIVO.DV = 5;
 
   // Le consegne spuntate, senza la spunta: e' quello che va nel link e nel
   // documento. Le altre restano solo nello studio.
