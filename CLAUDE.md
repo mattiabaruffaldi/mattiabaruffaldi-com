@@ -260,7 +260,7 @@ prezzi: spunta · nome · formato · quantita' · elimina.
 - La quantita' e' testo, non numero: certe consegne si scrivono "@50".
 - La sezione nello studio si chiama **Delivery** (sua parola). Nel documento
   del cliente il titolo resta **Deliverables**.
-- **Testi standard alla versione 3** (`PREVENTIVO.DV = 3`). La 1 e la 2 non
+- **Testi standard alla versione 5** (`PREVENTIVO.DV = 5`). La 1 e la 2 non
   si toccano: i tre VVENA hanno `dv: 1` e continuano a mostrare le consegne
   di allora. Verificato dopo ogni cambio.
   E' esattamente il motivo per cui quel meccanismo esiste: **quando cambi
@@ -302,6 +302,27 @@ dietro una seconda pagina quasi vuota e il PDF usciva di 6 pagine invece di 3.
 - Per i preventivi davvero lunghi il dettaglio continua sulla pagina dopo:
   e' giusto. Le regole di stampa tengono interi totali, firme e condizioni,
   e non lasciano l'intestazione di un blocco da sola in fondo alla pagina.
+
+### Modelli: da dove parte un preventivo nuovo (ago 2026)
+Chi rifa' sempre lo stesso tipo di lavoro non deve ricompilare tutto ogni
+volta. Dal menu di una riga d'archivio, **"Salva come modello"**; poi
+"+ Nuovo preventivo" apre **"Da dove parti?"** — preventivo vuoto oppure
+uno dei modelli.
+
+- **Elenco a parte** (`mb-modelli`), non un flag sui preventivi: un modello
+  non ha cliente ne' stato, non va in archivio, non entra nei filtri e non
+  conta nei totali.
+- **Senza modelli il pulsante si comporta come prima**: apre subito un
+  preventivo vuoto. Chi non li usa non si becca un passaggio in piu'.
+- Un modello si porta dietro tariffe, giornate, consegne, maggiorazioni,
+  intestazione e condizioni. `mdlRipulisci()` azzera cliente, titolo,
+  sottotitolo e id; **numero e data si rigenerano sempre** in `nuovoDa()`,
+  se no due preventivi diversi uscirebbero con lo stesso numero.
+- Il nome parte dal titolo del preventivo: si salva senza compilare niente,
+  e si rinomina dalla scheda (matita, Invio conferma / Esc annulla).
+- **I modelli stanno nel file di Esporta / Importa** (`v: 2` del pacco, campo
+  `modelli`). Si uniscono per `id` come i preventivi. I backup vecchi non ce
+  l'hanno e vanno bene lo stesso.
 
 ### `/quotes/` — piu' preventivi in un link solo (ago 2026)
 Pagina con una casella per preventivo (numero, titolo, sottotitolo, scope,

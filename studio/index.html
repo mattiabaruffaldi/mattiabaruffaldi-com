@@ -443,6 +443,61 @@
   .ante__t b { color: var(--s-testo); font-weight: 500; }
   .ante__f { flex: 1; width: 100%; border: 0; background: #fff; }
 
+  /* ---- "Da dove parti?": vuoto o uno dei modelli salvati ----
+     E' un <dialog>: niente `display` sulla classe nuda, solo su [open]
+     (vedi la nota sopra su .ante). L'impaginazione sta su .scelta__box. */
+  .scelta {
+    width: min(660px, calc(100vw - 2 * var(--sp-4)));
+    max-height: calc(100vh - 2 * var(--sp-6));
+    margin: auto; padding: 0; overflow: auto;
+    border: 1px solid var(--s-bordo); border-radius: var(--r);
+    background: var(--s-piano); color: var(--s-testo);
+  }
+  .scelta[open] { display: block; }
+  .scelta::backdrop { background: rgba(10, 10, 12, .72); }
+  .scelta__box { padding: var(--sp-5); }
+  .scelta__t { display: flex; align-items: baseline; gap: var(--sp-3); margin-bottom: var(--sp-4); }
+  .scelta__t h2 { margin: 0; font-size: var(--fs-6); font-weight: 600; }
+  .scelta__g {
+    display: grid; gap: var(--sp-3);
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+  .scelta__n {
+    margin: var(--sp-4) 0 0; font-size: var(--fs-2); color: var(--s-tenue); line-height: 1.5;
+  }
+  .mdl { position: relative; }
+  .mdl__b {
+    display: flex; flex-direction: column; gap: var(--sp-1);
+    width: 100%; height: 100%; min-height: 76px; padding: var(--sp-3);
+    border: 1px solid var(--s-bordo); border-radius: var(--r);
+    background: var(--s-fondo); color: inherit; cursor: pointer; text-align: left;
+    transition: border-color .12s var(--ease), background .12s var(--ease);
+  }
+  .mdl__b:hover { border-color: var(--s-bordo2); background: var(--s-piano2); }
+  /* Lo spazio a destra tiene il nome lontano da matita e cestino, che
+     compaiono sopra la scheda quando ci passi con il mouse. */
+  .mdl__b b {
+    padding-right: 46px; font-size: var(--fs-4); font-weight: 500; overflow-wrap: anywhere;
+  }
+  .mdl__b span { font-size: var(--fs-2); color: var(--s-tenue); }
+  .mdl__b--vuoto { border-style: dashed; }
+  /* Matita e cestino compaiono sulla scheda; da tastiera restano raggiungibili. */
+  .mdl__a { position: absolute; top: var(--sp-2); right: var(--sp-2); display: flex; gap: 2px; opacity: 0; }
+  .mdl:hover .mdl__a, .mdl__a:focus-within { opacity: 1; }
+  .mdl__a button {
+    display: grid; place-items: center; width: 22px; height: 22px; padding: 0;
+    border: 0; border-radius: var(--r); background: var(--s-piano2);
+    color: var(--s-tenue); cursor: pointer; line-height: 1;
+  }
+  .mdl__a button:hover { color: var(--s-testo); }
+  .mdl__a button:last-child:hover { color: var(--s-rosso); }
+  .mdl__n {
+    width: 100%; min-height: 76px; padding: var(--sp-3);
+    border: 1px solid var(--s-oro); border-radius: var(--r);
+    background: var(--s-fondo); color: inherit;
+    font: inherit; font-size: var(--fs-4);
+  }
+
   .sez { margin-bottom: var(--sp-6); }
   .sez__t { font-size: var(--fs-1); letter-spacing: .2em; text-transform: uppercase;
             color: var(--s-oro); margin: 0 0 var(--sp-3); }
@@ -815,6 +870,22 @@
   <iframe class="ante__f" id="ante-f" title="Il preventivo come lo vede il cliente"></iframe>
 </dialog>
 
+<!-- Compare solo se c'e' almeno un modello salvato: senza, "+ Nuovo
+     preventivo" apre subito un preventivo vuoto come ha sempre fatto. -->
+<dialog class="scelta" id="scelta" aria-labelledby="scelta-t">
+  <div class="scelta__box">
+    <div class="scelta__t">
+      <h2 id="scelta-t">Da dove parti?</h2>
+      <span class="sp"></span>
+      <button class="b" type="button" id="scelta-x">Chiudi</button>
+    </div>
+    <div class="scelta__g" id="scelta-g"></div>
+    <p class="scelta__n">Un modello si porta dietro tariffe, giornate, consegne,
+      maggiorazioni e condizioni. Cliente, titolo e sottotitolo restano da
+      riempire, e numero e data sono sempre nuovi.</p>
+  </div>
+</dialog>
+
 </div><!-- /#app -->
 
 <div class="avviso" id="avviso" role="status" aria-live="polite">
@@ -824,7 +895,7 @@
 
 <div id="menu" popover></div>
 
-<script src="/js/quote.js?v=2af7f3b8"></script>
+<script src="/js/quote.js?v=8cc8694d"></script>
 <script>
 (function () {
   'use strict';
@@ -878,6 +949,34 @@
     var a = arcLeggi();
     for (var i = 0; i < a.length; i++) if (a[i].id === id) return a[i];
     return null;
+  }
+
+  /* ---------- modelli ----------
+     Chi rifa' sempre lo stesso tipo di lavoro non deve ricompilare tutto
+     ogni volta: salva un preventivo come modello e i successivi partono
+     da li'. Elenco a parte (`mb-modelli`), non un flag sui preventivi:
+     un modello non ha cliente ne' stato, non va nell'archivio, non entra
+     nei filtri e non conta nei totali. */
+  var MODELLI = 'mb-modelli';
+  function mdlLeggi() {
+    try { var a = JSON.parse(localStorage.getItem(MODELLI)); return Array.isArray(a) ? a : []; }
+    catch (e) { return []; }
+  }
+  function mdlScrivi(a) {
+    try { localStorage.setItem(MODELLI, JSON.stringify(a)); return true; }
+    catch (e) {
+      avvisa('Memoria del browser piena. Esporta l’archivio e togli qualche preventivo.');
+      return false;
+    }
+  }
+  // Quello che di un preventivo NON e' riusabile: chi era il cliente, come
+  // si chiamava il lavoro, che numero aveva. Il resto — tariffe, giornate,
+  // consegne, maggiorazioni, intestazione, condizioni — e' la base.
+  function mdlRipulisci(dati) {
+    var b = JSON.parse(JSON.stringify(dati || {}));
+    delete b.id;
+    b.cl = ''; b.t = ''; b.s = ''; b.st = 'bozza';
+    return b;
   }
   /* ---------- cestino ----------
      Un preventivo eliminato ci resta 30 giorni, poi se ne va da solo.
@@ -1470,6 +1569,7 @@
       '<button class="mv" type="button" data-m="apri">Apri</button>' +
       '<button class="mv" type="button" data-m="rin">Rinomina</button>' +
       '<button class="mv" type="button" data-m="dup">Duplica</button>' +
+      '<button class="mv" type="button" data-m="mdl">Salva come modello</button>' +
       '<div class="mv__sep"></div>' +
       '<button class="mv" type="button" data-m="link">Copia il link per il cliente</button>' +
       '<button class="mv" type="button" data-m="pdf">Apri la versione cliente</button>' +
@@ -1504,6 +1604,24 @@
       archiviaBozza(true);
       vaiA('edit');
       avvisa('Copia aperta. Cambia quello che serve: si salva da sola.');
+      return;
+    }
+    // Il nome parte dal titolo del preventivo: nessuna finestra da compilare
+    // adesso, si rinomina dalla scelta se quel nome non va bene.
+    if (b.dataset.m === 'mdl') {
+      var mod = {
+        id: nuovoId(),
+        nome: (x.titolo || 'Senza nome').trim(),
+        agg: Date.now(),
+        dati: mdlRipulisci(x.dati)
+      };
+      var lista = mdlLeggi();
+      lista.push(mod);
+      if (!mdlScrivi(lista)) return;
+      avvisa('Modello «' + mod.nome + '» salvato. Lo trovi in «+ Nuovo preventivo».',
+        'Annulla', function () {
+          mdlScrivi(mdlLeggi().filter(function (y) { return y.id !== mod.id; }));
+        });
       return;
     }
     if (b.dataset.m === 'link' || b.dataset.m === 'pdf') {
@@ -1553,15 +1671,21 @@
   $('#esporta').addEventListener('click', function () {
     archiviaBozza(true);
     var voci = arcLeggi();
-    if (!voci.length) { avvisa('Non c’è ancora niente da esportare.'); return; }
-    var pacco = { tipo: 'mb-archivio', v: 1, esportato: new Date().toISOString(), voci: voci };
+    var modelli = mdlLeggi();
+    if (!voci.length && !modelli.length) { avvisa('Non c’è ancora niente da esportare.'); return; }
+    // I modelli stanno nel file di backup: se svuota il browser deve
+    // ritrovare anche quelli, non solo i preventivi.
+    var pacco = { tipo: 'mb-archivio', v: 2, esportato: new Date().toISOString(),
+                  voci: voci, modelli: modelli };
     var url = URL.createObjectURL(new Blob([JSON.stringify(pacco)], { type: 'application/json' }));
     var a = document.createElement('a');
     a.href = url;
     a.download = 'preventivi-' + new Date().toISOString().slice(0, 10) + '.json';
     a.click();
     setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
-    avvisa(voci.length + (voci.length === 1 ? ' preventivo esportato.' : ' preventivi esportati.'));
+    avvisa(voci.length + (voci.length === 1 ? ' preventivo esportato' : ' preventivi esportati') +
+      (modelli.length ? ', più ' + modelli.length +
+        (modelli.length === 1 ? ' modello.' : ' modelli.') : '.'));
   });
   $('#importa').addEventListener('click', function () { $('#file').click(); });
   $('#file').addEventListener('change', function () {
@@ -1570,12 +1694,29 @@
     if (!f) return;
     var lettore = new FileReader();
     lettore.onload = function () {
-      var voci = null;
+      var voci = null, modelli = null;
       try {
         var j = JSON.parse(lettore.result);
         voci = Array.isArray(j) ? j : (j && j.voci);
+        modelli = j && j.modelli;                     // manca nei backup v1
       } catch (e) {}
       if (!Array.isArray(voci)) { avvisa('Questo file non sembra un archivio di preventivi.'); return; }
+
+      // Anche i modelli si uniscono per id, come i preventivi: reimportare
+      // due volte lo stesso file non ne crea di doppi.
+      var quantiMod = 0;
+      if (Array.isArray(modelli) && modelli.length) {
+        var m = mdlLeggi();
+        modelli.forEach(function (x) {
+          if (!x || !x.id || !x.dati) return;
+          var i = -1;
+          for (var k = 0; k < m.length; k++) if (m[k].id === x.id) { i = k; break; }
+          if (i < 0) { m.push(x); quantiMod++; }
+          else if ((x.agg || 0) > (m[i].agg || 0)) { m[i] = x; quantiMod++; }
+        });
+        mdlScrivi(m);
+      }
+
       var a = arcLeggi(), nuovi = 0, agg = 0;
       voci.forEach(function (x) {
         if (!x || !x.id || !x.dati) return;
@@ -1585,9 +1726,10 @@
         else if ((x.agg || 0) > (a[i].agg || 0)) { a[i] = x; agg++; }
       });
       arcScrivi(a); disegnaHome();
-      avvisa(nuovi + agg === 0
+      var coda = quantiMod ? ' Più ' + quantiMod + (quantiMod === 1 ? ' modello.' : ' modelli.') : '';
+      avvisa((nuovi + agg === 0
         ? 'Erano già tutti in archivio: niente da aggiungere.'
-        : 'Importati: ' + nuovi + ' nuovi, ' + agg + ' aggiornati.');
+        : 'Importati: ' + nuovi + ' nuovi, ' + agg + ' aggiornati.') + coda);
     };
     lettore.readAsText(f);
   });
@@ -1632,9 +1774,26 @@
     var voce = arcTrova(id);
     if (voce) segnaSalvataggio(voce.agg);
   }
+  // Con almeno un modello salvato si passa dalla scelta; senza, il pulsante
+  // apre subito un preventivo vuoto come ha sempre fatto: chi non usa i
+  // modelli non si becca un passaggio in piu'.
   function nuovoPreventivo() {
+    if (mdlLeggi().length) { apriScelta(); return; }
+    nuovoDa(null);
+  }
+  function nuovoDa(base) {
     archiviaBozza(true);
-    d = PREVENTIVO.vuoto();
+    var fresco = PREVENTIVO.vuoto();
+    if (base) {
+      d = mdlRipulisci(base);
+      // Numero e data non si ereditano mai: sono di questo preventivo.
+      d.n = fresco.n;
+      d.dt = fresco.dt;
+      if (!d.dv) d.dv = fresco.dv;
+      if (!d.g) d.g = fresco.g;
+    } else {
+      d = fresco;
+    }
     d.mag = Array.isArray(d.mag) ? d.mag : [];
     d.st = 'bozza';
     d.id = nuovoId();
@@ -1643,6 +1802,105 @@
     vaiA('edit', d.id);
     $('#f-cl').focus();
   }
+
+  /* ---------- la scelta "Da dove parti?" ---------- */
+  var mdlRinominando = null;
+  function apriScelta() {
+    mdlRinominando = null;
+    disegnaScelta();
+    // showModal() su un <dialog> gia' aperto e' un errore.
+    if (!$('#scelta').open) $('#scelta').showModal();
+  }
+  function disegnaScelta() {
+    var elenco = mdlLeggi();
+    $('#scelta-g').innerHTML =
+      '<div class="mdl">' +
+        '<button class="mdl__b mdl__b--vuoto" type="button" data-usa="">' +
+          '<b>Preventivo vuoto</b><span>Catalogo pulito, nessuna tariffa</span>' +
+        '</button>' +
+      '</div>' +
+      elenco.map(function (x) {
+        if (mdlRinominando === x.id) {
+          return '<div class="mdl"><input class="mdl__n" data-rin="' + esc(x.id) + '" ' +
+            'value="' + esc(x.nome) + '" aria-label="Nome del modello"></div>';
+        }
+        var c = PREVENTIVO.conti(x.dati || {});
+        var quante = (x.dati && x.dati.g || []).reduce(function (s, g) {
+          return s + (g.i || []).filter(function (v) { return v.on !== false && v.p > 0; }).length;
+        }, 0);
+        return '<div class="mdl">' +
+          '<button class="mdl__b" type="button" data-usa="' + esc(x.id) + '">' +
+            '<b>' + escT(x.nome || 'Senza nome') + '</b>' +
+            '<span>' + (quante ? quante + (quante === 1 ? ' voce · ' : ' voci · ') : '') +
+              PREVENTIVO.euro(c.tot, 1) + '</span>' +
+          '</button>' +
+          '<span class="mdl__a">' +
+            '<button type="button" data-mrin="' + esc(x.id) + '" ' +
+              'aria-label="Rinomina il modello ' + esc(x.nome) + '">' +
+              '<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" ' +
+              'stroke-width="1.5" aria-hidden="true"><path d="M11.5 2.5l2 2L6 12l-3 1 1-3z"/></svg>' +
+            '</button>' +
+            '<button type="button" data-mdel="' + esc(x.id) + '" ' +
+              'aria-label="Elimina il modello ' + esc(x.nome) + '">' +
+              '<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" ' +
+              'stroke-width="1.5" aria-hidden="true"><path d="M3.5 3.5l9 9M12.5 3.5l-9 9"/></svg>' +
+            '</button>' +
+          '</span>' +
+        '</div>';
+      }).join('');
+
+    var box = $('#scelta-g').querySelector('.mdl__n');
+    if (box) { box.focus(); box.select(); }
+  }
+  $('#scelta-x').addEventListener('click', function () { $('#scelta').close(); });
+  $('#scelta').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-usa],[data-mrin],[data-mdel]');
+    if (!b) return;
+
+    if (b.dataset.usa !== undefined) {
+      var base = null;
+      if (b.dataset.usa) {
+        var x = mdlLeggi().filter(function (y) { return y.id === b.dataset.usa; })[0];
+        if (!x) { avvisa('Quel modello non c’è più.'); disegnaScelta(); return; }
+        base = x.dati;
+      }
+      $('#scelta').close();
+      nuovoDa(base);
+      return;
+    }
+    if (b.dataset.mrin !== undefined) { mdlRinominando = b.dataset.mrin; disegnaScelta(); return; }
+    if (b.dataset.mdel !== undefined) {
+      var id = b.dataset.mdel;
+      var tolto = mdlLeggi().filter(function (y) { return y.id === id; })[0];
+      mdlScrivi(mdlLeggi().filter(function (y) { return y.id !== id; }));
+      // Senza modelli la scelta non ha piu' senso: si torna al vuoto diretto.
+      if (!mdlLeggi().length) $('#scelta').close(); else disegnaScelta();
+      avvisa('Modello «' + (tolto && tolto.nome || '') + '» eliminato.', 'Annulla', function () {
+        var a = mdlLeggi();
+        a.push(tolto); mdlScrivi(a);
+        apriScelta();
+      });
+    }
+  });
+  // Rinomina in linea, come nell'archivio: Invio conferma, Esc annulla.
+  $('#scelta').addEventListener('keydown', function (e) {
+    var campo = e.target.closest('[data-rin]');
+    if (!campo) return;
+    if (e.key === 'Enter') { e.preventDefault(); campo.blur(); }
+    else if (e.key === 'Escape') { e.stopPropagation(); mdlRinominando = null; disegnaScelta(); }
+  });
+  $('#scelta').addEventListener('focusout', function (e) {
+    var campo = e.target.closest('[data-rin]');
+    if (!campo || mdlRinominando !== campo.dataset.rin) return;
+    var nome = campo.value.trim();
+    if (nome) {
+      var a = mdlLeggi();
+      a.forEach(function (y) { if (y.id === campo.dataset.rin) y.nome = nome; });
+      mdlScrivi(a);
+    }
+    mdlRinominando = null;
+    disegnaScelta();
+  });
   $('#nuovo').addEventListener('click', nuovoPreventivo);
   $('#b-home').addEventListener('click', function () { archiviaBozza(true); vaiA('home'); });
 
