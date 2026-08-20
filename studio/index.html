@@ -145,9 +145,17 @@
     /* senza questo, da stretto la striscia dei clienti allarga la
        colonna della griglia invece di scorrere, e sfonda la pagina */
     min-width: 0;
-    padding: var(--sp-5) var(--sp-3) var(--sp-6);
+    padding: var(--sp-5) var(--sp-3) var(--sp-4);
     border-right: 1px solid var(--s-bordo);
+    /* colonna: il cestino sta in fondo (`margin-top: auto`), non in coda
+       all'elenco dei clienti dove finiva sotto la piega */
+    display: flex; flex-direction: column;
   }
+  .fianco__giu {
+    margin-top: auto; padding-top: var(--sp-3);
+    border-top: 1px solid var(--s-bordo);
+  }
+  .fianco__giu .clienti { margin-bottom: 0; }
   .fianco__t {
     font-size: var(--fs-1); letter-spacing: .18em; text-transform: uppercase;
     color: var(--s-tenue); margin: 0 0 var(--sp-2); padding-inline: var(--sp-2);
@@ -396,12 +404,11 @@
   }
   @keyframes pulsa { 50% { border-color: #6a5326; } }
 
-  /* Quante pagine viene il PDF, senza doverlo stampare per scoprirlo. */
-  .pagine {
-    font-size: var(--fs-2); color: var(--s-tenue); white-space: nowrap;
-    padding: 3px var(--sp-2); border: 1px solid var(--s-bordo); border-radius: 999px;
-  }
-  .pagine[data-lungo="1"] { color: var(--s-oro); border-color: #6a5326; }
+  /* Quante pagine viene il PDF, senza doverlo stampare per scoprirlo.
+     E' un'informazione, non un comando: niente pastiglia col bordo, che
+     in mezzo ai pulsanti si legge come un pulsante spento. */
+  .pagine { font-size: var(--fs-2); color: var(--s-tenue); white-space: nowrap; }
+  .pagine[data-lungo="1"] { color: var(--s-oro); }
   .indietro {
     display: inline-flex; align-items: center; gap: 6px;
     padding: var(--sp-2) var(--sp-3); border: 1px solid transparent; border-radius: var(--r);
@@ -417,6 +424,11 @@
   .barra__t small { display: block; font-size: var(--fs-1); letter-spacing: .14em;
                     text-transform: uppercase; color: var(--s-tenue); }
   .barra__t b { font-size: var(--fs-6); font-weight: 600; font-variant-numeric: tabular-nums; }
+  /* Divide quello che il preventivo DICE (stato, pagine, totale) da quello
+     che ci puoi FARE (menu, link cliente). */
+  .barra__sep { width: 1px; height: 24px; background: var(--s-bordo); }
+  .piu--barra { color: var(--s-tenue); }
+  .piu--barra:hover { color: var(--s-testo); }
 
   .scena { display: grid; grid-template-columns: 1fr; }
   .modulo { padding: var(--sp-5) clamp(var(--sp-3), 2vw, var(--sp-5)) 90px;
@@ -491,6 +503,29 @@
   }
   .mdl__a button:hover { color: var(--s-testo); }
   .mdl__a button:last-child:hover { color: var(--s-rosso); }
+  /* Chiede un nome e basta. Stesso <dialog>, stessa regola: display solo
+     su [open]. */
+  .chiedi {
+    width: min(420px, calc(100vw - 2 * var(--sp-4)));
+    margin: auto; padding: 0;
+    border: 1px solid var(--s-bordo); border-radius: var(--r);
+    background: var(--s-piano); color: var(--s-testo);
+  }
+  .chiedi[open] { display: block; }
+  .chiedi::backdrop { background: rgba(10, 10, 12, .72); }
+  .chiedi__box { display: flex; flex-direction: column; gap: var(--sp-2); padding: var(--sp-5); }
+  .chiedi__box h2 { margin: 0 0 var(--sp-2); font-size: var(--fs-6); font-weight: 600; }
+  .chiedi__box label {
+    font-size: var(--fs-1); letter-spacing: .12em; text-transform: uppercase; color: var(--s-tenue);
+  }
+  .chiedi__box input {
+    padding: var(--sp-2) var(--sp-3); border: 1px solid var(--s-bordo2); border-radius: var(--r);
+    background: var(--s-fondo); color: inherit; font: inherit; font-size: var(--fs-4);
+  }
+  .chiedi__box input:focus-visible { outline: 2px solid var(--s-oro); outline-offset: 1px; }
+  .chiedi__n { margin: 0; font-size: var(--fs-2); color: var(--s-tenue); line-height: 1.5; }
+  .chiedi__a { display: flex; justify-content: flex-end; gap: var(--sp-2); margin-top: var(--sp-3); }
+
   .mdl__n {
     width: 100%; min-height: 76px; padding: var(--sp-3);
     border: 1px solid var(--s-oro); border-radius: var(--r);
@@ -704,6 +739,7 @@
       </div>
       <p class="fianco__t">Clienti</p>
       <ul class="clienti" id="clienti"></ul>
+      <div class="fianco__giu"><ul class="clienti" id="cestino-w"></ul></div>
     </nav>
 
     <main class="corpo">
@@ -746,8 +782,15 @@
     </button>
     <span class="pagine" id="t-pag" title="Quante pagine viene il PDF"></span>
     <div class="barra__t"><small>Totale</small><b id="t-tot">0,00 €</b></div>
-    <button class="b" type="button" id="b-ante">Anteprima</button>
-    <button class="b" type="button" id="b-pdf">PDF</button>
+    <span class="barra__sep" aria-hidden="true"></span>
+    <!-- Anteprima, PDF e "salva come modello" stavano tutti scoperti sulla
+         barra, allo stesso peso del pulsante che conta. Ora stanno qui. -->
+    <button class="piu piu--barra" type="button" id="b-altro"
+            aria-label="Altre azioni per questo preventivo" aria-haspopup="menu">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+        <circle cx="3" cy="8" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="13" cy="8" r="1.4"/>
+      </svg>
+    </button>
     <button class="b b--pieno" type="button" id="b-link">Link cliente</button>
   </div>
 
@@ -781,7 +824,10 @@
               <option value="mb">Mattia Baruffaldi</option>
               <option value="unreal">Unreal Srl</option>
             </select></div>
-          <div class="campo"><label for="f-cl">Cliente</label><input id="f-cl" data-k="cl" placeholder="Nome del cliente"></div>
+          <div class="campo"><label for="f-cl">Cliente</label>
+            <input id="f-cl" data-k="cl" placeholder="Nome del cliente"
+                   list="clienti-noti" autocomplete="off">
+            <datalist id="clienti-noti"></datalist></div>
           <div class="campo"><label for="f-n">N. preventivo</label><input id="f-n" data-k="n"></div>
           <div class="campo"><label for="f-dt">Data</label><input id="f-dt" data-k="dt"></div>
           <div class="campo"><label for="f-gg">Giornate di produzione</label>
@@ -886,6 +932,21 @@
   </div>
 </dialog>
 
+<dialog class="chiedi" id="chiedi" aria-labelledby="chiedi-t">
+  <form class="chiedi__box" id="chiedi-f">
+    <h2 id="chiedi-t">Salva come modello</h2>
+    <label for="chiedi-i">Come lo chiamiamo?</label>
+    <input id="chiedi-i" autocomplete="off" spellcheck="false"
+           placeholder="Es. Shooting 3 giorni con troupe">
+    <p class="chiedi__n">È il nome che ritrovi in «+ Nuovo preventivo».
+      Non finisce nel documento del cliente.</p>
+    <div class="chiedi__a">
+      <button class="b" type="button" id="chiedi-x">Annulla</button>
+      <button class="b b--pieno" type="submit">Salva modello</button>
+    </div>
+  </form>
+</dialog>
+
 </div><!-- /#app -->
 
 <div class="avviso" id="avviso" role="status" aria-live="polite">
@@ -895,7 +956,7 @@
 
 <div id="menu" popover></div>
 
-<script src="/js/quote.js?v=8cc8694d"></script>
+<script src="/js/quote.js?v=84a6f82b"></script>
 <script>
 (function () {
   'use strict';
@@ -977,6 +1038,38 @@
     delete b.id;
     b.cl = ''; b.t = ''; b.s = ''; b.st = 'bozza';
     return b;
+  }
+  // Chiede il nome prima di salvare: un modello si sceglie dall'elenco mesi
+  // dopo, e "Senza nome" o il titolo di un lavoro vecchio non dicono niente.
+  function chiediNome(iniziale, poi) {
+    var dg = $('#chiedi'), campo = $('#chiedi-i');
+    campo.value = iniziale || '';
+    chiediPoi = poi;
+    if (!dg.open) dg.showModal();
+    campo.focus(); campo.select();
+  }
+  var chiediPoi = null;
+  $('#chiedi-x').addEventListener('click', function () { $('#chiedi').close(); });
+  $('#chiedi').addEventListener('close', function () { chiediPoi = null; });
+  $('#chiedi-f').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var nome = $('#chiedi-i').value.trim();
+    if (!nome) { $('#chiedi-i').focus(); return; }
+    var poi = chiediPoi;
+    $('#chiedi').close();
+    if (poi) poi(nome);
+  });
+  // Salva `dati` come modello col nome dato. Da qui passano tutti e due i
+  // punti di salvataggio: la barra dell'editor e il menu dell'archivio.
+  function salvaModello(dati, nome) {
+    var mod = { id: nuovoId(), nome: nome, agg: Date.now(), dati: mdlRipulisci(dati) };
+    var lista = mdlLeggi();
+    lista.push(mod);
+    if (!mdlScrivi(lista)) return;
+    avvisa('Modello «' + mod.nome + '» salvato. Lo trovi in «+ Nuovo preventivo».',
+      'Annulla', function () {
+        mdlScrivi(mdlLeggi().filter(function (y) { return y.id !== mod.id; }));
+      });
   }
   /* ---------- cestino ----------
      Un preventivo eliminato ci resta 30 giorni, poi se ne va da solo.
@@ -1182,14 +1275,20 @@
     };
     $('#clienti').innerHTML =
       riga("Tutti", tutti.length, null, false) +
-      nomi.map(function (n) { return riga(n, conta[n], n, n !== SENZA); }).join('') +
-      (purgaCestino().length
-        ? '<li class="clienti__sep"></li>' +
-          '<li><button class="cl cl--cestino" type="button" data-cestino="1"' +
-          (vistaCestino ? ' aria-current="true"' : '') + '>' +
-          '<span class="cl__n">Cestino</span>' +
-          '<span class="cl__q">' + purgaCestino().length + '</span></button></li>'
-        : '');
+      nomi.map(function (n) { return riga(n, conta[n], n, n !== SENZA); }).join('');
+
+    // Il cestino sta in fondo alla colonna, staccato dai clienti: non e'
+    // una cartella, e con molti clienti finiva sotto la piega. Col cestino
+    // vuoto sparisce tutto il blocco, se no resta un filetto senza niente
+    // sotto.
+    var quanti = purgaCestino().length;
+    $('#cestino-w').innerHTML = quanti
+      ? '<li><button class="cl cl--cestino" type="button" data-cestino="1"' +
+        (vistaCestino ? ' aria-current="true"' : '') + '>' +
+        '<span class="cl__n">Cestino</span>' +
+        '<span class="cl__q">' + quanti + '</span></button></li>'
+      : '';
+    $('#cestino-w').parentNode.hidden = !quanti;
   }
 
   function disegnaFiltri() {
@@ -1343,7 +1442,9 @@
   function disegnaHome() { disegnaClienti(); disegnaFiltri(); disegnaElenco(); }
 
   /* ---------- interazioni della home ---------- */
-  $('#clienti').addEventListener('click', function (e) {
+  // Sul fianco, non sull'elenco: il cestino sta in fondo alla colonna, fuori
+  // dai clienti.
+  document.querySelector('.fianco').addEventListener('click', function (e) {
     var b = e.target.closest('[data-cliente],[data-rincl],[data-cestino]');
     if (!b) return;
     if (b.dataset.cestino !== undefined) { vistaCestino = true; disegnaHome(); return; }
@@ -1606,22 +1707,8 @@
       avvisa('Copia aperta. Cambia quello che serve: si salva da sola.');
       return;
     }
-    // Il nome parte dal titolo del preventivo: nessuna finestra da compilare
-    // adesso, si rinomina dalla scelta se quel nome non va bene.
     if (b.dataset.m === 'mdl') {
-      var mod = {
-        id: nuovoId(),
-        nome: (x.titolo || 'Senza nome').trim(),
-        agg: Date.now(),
-        dati: mdlRipulisci(x.dati)
-      };
-      var lista = mdlLeggi();
-      lista.push(mod);
-      if (!mdlScrivi(lista)) return;
-      avvisa('Modello «' + mod.nome + '» salvato. Lo trovi in «+ Nuovo preventivo».',
-        'Annulla', function () {
-          mdlScrivi(mdlLeggi().filter(function (y) { return y.id !== mod.id; }));
-        });
+      chiediNome((x.titolo || '').trim(), function (nome) { salvaModello(x.dati, nome); });
       return;
     }
     if (b.dataset.m === 'link' || b.dataset.m === 'pdf') {
@@ -1749,9 +1836,24 @@
     $('#app').dataset.vista = vista;
     if (vista === 'home') { disegnaHome(); window.scrollTo(0, 0); }
     else {
+      clientiNoti();
       aggiorna();
       if (!(d.t || '').trim()) $('#f-t').focus();
     }
+  }
+  // I clienti gia' in archivio, nel menu a discesa del campo Cliente: si
+  // scrive lo stesso, ma "Ducati" non diventa "ducati" o "Ducati Motor" per
+  // sbaglio — e in archivio quelli sarebbero due cartelle diverse.
+  function clientiNoti() {
+    var visti = {};
+    arcLeggi().forEach(function (x) {
+      var n = (x.cliente || '').trim();
+      if (n) visti[n] = 1;
+    });
+    $('#clienti-noti').innerHTML = Object.keys(visti)
+      .sort(function (a, b) { return a.localeCompare(b, 'it'); })
+      .map(function (n) { return '<option value="' + esc(n) + '"></option>'; })
+      .join('');
   }
   function apriPreventivo(id) {
     var x = arcTrova(id);
@@ -2225,13 +2327,45 @@
     archiviaBozza();
   }
 
+  /* ---------- menu della barra ----------
+     Le azioni che non sono "manda il preventivo al cliente" stanno qui
+     sotto, invece di occupare la barra allo stesso peso del pulsante che
+     conta davvero. */
+  $('#b-altro').addEventListener('click', function () {
+    var m = $('#menu');
+    menuPer = null;                      // non e' una riga d'archivio
+    m.innerHTML =
+      '<button class="mv" type="button" data-e="ante">Anteprima</button>' +
+      '<button class="mv" type="button" data-e="pdf">Apri la versione cliente</button>' +
+      '<div class="mv__sep"></div>' +
+      '<button class="mv" type="button" data-e="mdl">Salva come modello</button>';
+    m.showPopover();
+    var r = this.getBoundingClientRect();
+    var mr = m.getBoundingClientRect();
+    m.style.left = Math.max(8, Math.min(r.right - mr.width, window.innerWidth - mr.width - 8)) + 'px';
+    m.style.top = (r.bottom + 6) + 'px';
+    m.querySelector('.mv').focus();
+  });
+  $('#menu').addEventListener('click', async function (e) {
+    var b = e.target.closest('[data-e]');
+    if (!b) return;
+    $('#menu').hidePopover();
+    if (b.dataset.e === 'ante') { apriAnteprima(); return; }
+    if (b.dataset.e === 'pdf') { window.open(await indirizzo(), '_blank', 'noopener'); return; }
+    if (b.dataset.e === 'mdl') {
+      // Salva quello che ha davanti adesso, anche se il preventivo non e'
+      // ancora in archivio perche' non gli ha dato un titolo.
+      chiediNome((d.t || '').trim(), function (nome) { salvaModello(d, nome); });
+    }
+  });
+
   // L'anteprima carica /quote/ col preventivo dentro: e' la stessa pagina,
   // con lo stesso foglio di stile e a grandezza vera. Da li' si stampa il PDF
   // col pulsante della pagina stessa.
-  $('#b-ante').addEventListener('click', async function () {
+  async function apriAnteprima() {
     $('#ante-f').src = await indirizzo();
     $('#ante').showModal();
-  });
+  }
   function chiudiAnte() {
     if ($('#ante').open) $('#ante').close();
     $('#ante-f').removeAttribute('src');     // ferma la pagina dentro l'iframe
@@ -2258,9 +2392,6 @@
       $('#msg').textContent = 'Link copiato (' + u.length + ' caratteri). Incollalo nella mail.';
       avvisa('Link copiato negli appunti.');
     } catch (e) { $('#msg').textContent = 'Selezionalo qui sotto e copialo a mano.'; }
-  });
-  $('#b-pdf').addEventListener('click', async function () {
-    window.open(await indirizzo(), '_blank', 'noopener');
   });
 
   /* ==================================================================

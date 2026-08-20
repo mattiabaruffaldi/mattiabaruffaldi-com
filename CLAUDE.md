@@ -318,8 +318,12 @@ uno dei modelli.
   intestazione e condizioni. `mdlRipulisci()` azzera cliente, titolo,
   sottotitolo e id; **numero e data si rigenerano sempre** in `nuovoDa()`,
   se no due preventivi diversi uscirebbero con lo stesso numero.
-- Il nome parte dal titolo del preventivo: si salva senza compilare niente,
-  e si rinomina dalla scheda (matita, Invio conferma / Esc annulla).
+- **Si salva da due posti e tutti e due chiedono il nome**: dal menu `···`
+  della barra mentre compili (anche se il preventivo non e' ancora in
+  archivio perche' non ha titolo) e dal menu di una riga d'archivio. Il
+  campo parte dal titolo. Un modello si sceglie mesi dopo: "Senza nome" o
+  il titolo di un lavoro vecchio non direbbero niente.
+- Si rinomina anche dalla scheda (matita, Invio conferma / Esc annulla).
 - **I modelli stanno nel file di Esporta / Importa** (`v: 2` del pacco, campo
   `modelli`). Si uniscono per `id` come i preventivi. I backup vecchi non ce
   l'hanno e vanno bene lo stesso.
@@ -341,6 +345,29 @@ Si genera dallo studio: filtra per cliente e premi **"Link con questi N"**.
 - La formattazione dei numeri e' scritta a mano, non con `Intl`: in alcuni
   browser la localizzazione italiana e' incompleta e sparisce il punto delle
   migliaia (5500 invece di 5.500).
+
+### La barra dell'editor (ago 2026)
+Aveva sette controlli tutti allo stesso peso: Anteprima, PDF e Link cliente
+sembravano la stessa cosa, e "3 pagine" era una pastiglia col bordo che in
+mezzo ai pulsanti si leggeva come un pulsante spento.
+
+- Ora: **un solo pulsante pieno, "Link cliente"** (quello che manda il lavoro
+  fuori), e un menu `···` con Anteprima, Apri la versione cliente e Salva
+  come modello. "Detta" resta fuori perche' cambia da solo in "Ascolto…".
+- "3 pagine" e' **testo, non pastiglia**: e' un'informazione, non un comando.
+  Resta ambra quando un foglio non ci sta in una pagina.
+- Un filetto (`.barra__sep`) divide quello che il preventivo **dice** (stato,
+  pagine, totale) da quello che ci puoi **fare**.
+- **Il cestino sta in fondo alla colonna dei clienti** (`.fianco__giu`,
+  `margin-top: auto`), non in coda all'elenco dove con molti clienti finiva
+  sotto la piega. Col cestino vuoto sparisce tutto il blocco, se no resta
+  un filetto senza niente sotto. Il click e' delegato su `.fianco`, non piu'
+  su `#clienti`.
+- **Campo Cliente con menu a discesa** (`<datalist>` nativo, riempito da
+  `clientiNoti()` a ogni apertura dell'editor): si scrive lo stesso, ma
+  "Ducati" non diventa "ducati" per sbaglio — in archivio sarebbero due
+  cartelle diverse.
+- **La data del preventivo e' il giorno**, non solo il mese: "20 August 2026".
 
 ### Archivio dei preventivi — FATTO (ago 2026)
 `/studio/` e' un **gestionale a due viste** in un solo file: `#v-home`

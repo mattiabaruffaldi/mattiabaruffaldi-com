@@ -340,7 +340,9 @@
     var d = JSON.parse(JSON.stringify(PREVENTIVO.PREDEFINITI[PREVENTIVO.DV]));
     d.dv = PREVENTIVO.DV;
     d.n = PREVENTIVO.numero(oggi);
-    d.dt = mesi[oggi.getMonth()] + ' ' + oggi.getFullYear();
+    // Giorno per esteso: e' la data del preventivo, e il cliente deve
+    // sapere di quale giorno si parla, non solo di quale mese.
+    d.dt = oggi.getDate() + ' ' + mesi[oggi.getMonth()] + ' ' + oggi.getFullYear();
     d.t = '';
     d.s = '';
     d.sc = '';
