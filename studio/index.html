@@ -458,6 +458,13 @@
     text-transform: uppercase; color: var(--s-tenue);
   }
   .lato__t b { font-size: var(--fs-7); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .lato__m {
+    display: block; margin-top: var(--sp-2); padding-top: var(--sp-2);
+    border-top: 1px solid var(--s-bordo);
+    font-size: var(--fs-2); color: var(--s-tenue); line-height: 1.5;
+  }
+  .lato__m b { font-size: var(--fs-3); font-weight: 600; color: var(--s-testo); }
+  .lato__m[data-neg="1"] b { color: var(--s-rosso); }
   .lato__a { display: flex; flex-direction: column; gap: var(--sp-2); }
   .lato__b { justify-content: center; }
   /* Da stretto la colonna torna una riga sola sopra i campi. */
@@ -617,7 +624,7 @@
 
   .intest, .riga {
     display: grid; align-items: center; gap: var(--sp-2);
-    grid-template-columns: 24px minmax(9rem, 1.4fr) minmax(7rem, 1fr) 4.2rem 4.2rem 6.5rem 6.5rem 6.5rem 30px;
+    grid-template-columns: 24px minmax(8rem, 1.3fr) minmax(6rem, .9fr) 4rem 4rem 5.5rem 5.6rem 5.6rem 6rem 5.6rem 30px;
   }
   .intest { font-size: var(--fs-1); letter-spacing: .12em; text-transform: uppercase;
             color: var(--s-tenue); padding: var(--sp-2) 0 6px; border-bottom: 1px solid var(--s-bordo); }
@@ -635,6 +642,14 @@
   .riga.spenta > *:not(:first-child):not(:nth-child(2)) { opacity: .55; }
   .riga.spenta input:nth-child(2) { color: var(--s-tenue); }
   .riga .pers { color: var(--s-oro); border-color: #6a5326; }
+  /* Il costo suo e il margine: si vedono solo qui dentro, mai nel documento
+     del cliente. Smorti, perche' la colonna che conta e' il prezzo. */
+  .riga .cst { color: var(--s-tenue); }
+  .riga .marg {
+    text-align: right; font-variant-numeric: tabular-nums; font-size: var(--fs-2);
+    padding-right: var(--sp-2); color: var(--s-tenue);
+  }
+  .riga .marg[data-neg="1"] { color: var(--s-rosso); }
   .x { width: 26px; height: 26px; border: 0; background: none; color: var(--s-tenue);
        cursor: pointer; border-radius: var(--r); font-size: var(--fs-5); line-height: 1; }
   .x:hover { background: #3a2320; color: var(--s-rosso); }
@@ -813,14 +828,10 @@
     </button>
     <div class="barra__id"><b id="e-tit">Nuovo preventivo</b><small id="e-salv">Non ancora salvato</small></div>
     <span class="sp"></span>
-    <!-- In alto solo le due cose che riguardano il preventivo intero. Stato,
-         totale, dettato e salvataggio stanno nella colonna a destra. -->
-    <button class="piu piu--barra" type="button" id="b-altro"
-            aria-label="Altre azioni per questo preventivo" aria-haspopup="menu">
-      <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-        <circle cx="3" cy="8" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="13" cy="8" r="1.4"/>
-      </svg>
-    </button>
+    <!-- Il menu "..." non c'e' piu': erano tre voci, di cui una ("Apri la
+         versione cliente") faceva quello che fa gia' l'anteprima. -->
+    <button class="b" type="button" id="b-mdl">Salva come modello</button>
+    <button class="b" type="button" id="b-salva">Salva</button>
     <button class="b b--pieno" type="button" id="b-link">Link cliente</button>
   </div>
 
@@ -847,8 +858,8 @@
     <!-- La colonna di lavoro: com'e' messo il preventivo (stato, totale) e i
          due gesti che si fanno mentre lo compili (dettare, salvare). -->
     <aside class="lato" aria-label="Stato del preventivo">
-      <div class="lato__t"><small>Totale</small><b id="t-tot">0,00 €</b></div>
       <div class="lato__a">
+        <button class="b lato__b" type="button" id="b-ante">Anteprima</button>
         <button class="b micro lato__b" type="button" id="b-voce" hidden
                 title="Detta le voci: «director 1000, dop 800»">
           <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor"
@@ -858,7 +869,11 @@
           </svg>
           <span id="b-voce-t">Detta</span>
         </button>
-        <button class="b lato__b" type="button" id="b-salva">Salva</button>
+      </div>
+      <div class="lato__t">
+        <small>Totale</small><b id="t-tot">0,00 €</b>
+        <!-- Costo e margine: solo per lui, mai nel documento del cliente. -->
+        <span class="lato__m" id="t-marg" hidden></span>
       </div>
     </aside>
 
@@ -1021,7 +1036,7 @@
 
 <div id="menu" popover></div>
 
-<script src="/js/quote.js?v=84a6f82b"></script>
+<script src="/js/quote.js?v=18920b39"></script>
 <script>
 (function () {
   'use strict';
@@ -2208,6 +2223,7 @@
     $('#gruppi').innerHTML = d.g.map(function (g, gi) {
       var righe = g.i.map(function (v, vi) {
         var attiva = (v.on === undefined) ? (v.p > 0 || !!v.f) : !!v.on;
+        var margine = PREVENTIVO.totaleVoce(v, d) - PREVENTIVO.costoVoce(v, d);
         return '<div class="riga' + (attiva ? '' : ' spenta') + '" data-g="' + gi + '" data-v="' + vi + '">' +
           '<input type="checkbox"' + (attiva ? ' checked' : '') + ' aria-label="Includi">' +
           '<input value="' + esc(v.d) + '" data-f="d" aria-label="Voce">' +
@@ -2218,7 +2234,11 @@
           '<input class="num" type="number" value="' + (v.u || 1) + '" data-f="u" aria-label="Quantità">' +
           '<input value="' + esc(v.f) + '" data-f="f" placeholder="—" aria-label="Dicitura">' +
           '<input class="num" type="number" value="' + (v.p || '') + '" data-f="p" placeholder="€" aria-label="Prezzo">' +
+          '<input class="num cst" type="number" value="' + (v.c || '') + '" data-f="c" placeholder="€" ' +
+            'aria-label="Costo mio, non lo vede il cliente">' +
           '<span class="tot">' + (PREVENTIVO.totaleVoce(v, d) ? PREVENTIVO.euro(PREVENTIVO.totaleVoce(v, d)) : '') + '</span>' +
+          '<span class="marg"' + (margine < 0 ? ' data-neg="1"' : '') + '>' +
+            (PREVENTIVO.costoVoce(v, d) ? PREVENTIVO.euro(margine) : '') + '</span>' +
           '<button class="x" type="button" data-delv="' + gi + '.' + vi + '" aria-label="Elimina voce">&times;</button>' +
           '</div>';
       }).join('');
@@ -2234,7 +2254,8 @@
         '<div class="campo" style="margin-bottom:6px"><label>Nome del blocco</label>' +
         '<input value="' + esc(g.t) + '" data-gt="' + gi + '"></div>' +
         '<div class="intest"><span></span><span>Voce</span><span>Nota</span><span>Giorni</span>' +
-        '<span>Q.tà</span><span>Dicitura</span><span>Prezzo</span><span>Totale</span><span></span></div>' +
+        '<span>Q.tà</span><span>Dicitura</span><span>Prezzo</span><span>Costo mio</span>' +
+        '<span>Totale</span><span>Margine</span><span></span></div>' +
         righe +
         '<div class="azioni-b">' +
         '<button class="b b--min" type="button" data-tutte="' + gi + '">' +
@@ -2271,7 +2292,7 @@
       // `dd: 1` = la voce segue le giornate di produzione scritte in cima.
       // Con `dd: 0` il campo giorni nasceva spento e non c'era modo di
       // accenderlo: una voce aggiunta a mano non contava mai le giornate.
-      d.g[s.add].i.push({ d: 'Nuova voce', n: '', dd: 1, u: 1, p: 0, on: true });
+      d.g[s.add].i.push({ d: 'Nuova voce', n: '', dd: 1, u: 1, p: 0, c: 0, on: true });
       disegnaVoci(); aggiorna();
       var r = document.querySelectorAll('.blocco')[+s.add].querySelectorAll('.riga');
       r[r.length - 1].querySelector('[data-f=d]').select();
@@ -2336,12 +2357,19 @@
     }
     var cella = box.querySelector('.tot');
     if (cella) { var t = PREVENTIVO.totaleVoce(v, d); cella.textContent = t ? PREVENTIVO.euro(t) : ''; }
+    var cm = box.querySelector('.marg');
+    if (cm) {
+      var co = PREVENTIVO.costoVoce(v, d);
+      var mg = PREVENTIVO.totaleVoce(v, d) - co;
+      cm.textContent = co ? PREVENTIVO.euro(mg) : '';
+      if (mg < 0) cm.dataset.neg = '1'; else delete cm.dataset.neg;
+    }
     aggiorna();
   });
 
   $('#b-blocco').addEventListener('click', function () {
     var nome = prompt('Nome del blocco'); if (!nome) return;
-    d.g.push({ t: nome, i: [{ d: 'Nuova voce', n: '', dd: 1, u: 1, p: 0, on: true }] });
+    d.g.push({ t: nome, i: [{ d: 'Nuova voce', n: '', dd: 1, u: 1, p: 0, c: 0, on: true }] });
     aperto = d.g.length - 1;
     disegnaVoci(); aggiorna();
   });
@@ -2471,6 +2499,17 @@
       PREVENTIVO.euro(c.tot, 1) + '</b></div>';
 
     $('#t-tot').textContent = PREVENTIVO.euro(c.tot, 1);
+
+    // Costo suo e margine: compaiono solo se ha scritto almeno un costo.
+    var k = PREVENTIVO.costi(d);
+    var box = $('#t-marg');
+    box.hidden = !k.costo;
+    if (k.costo) {
+      var perc = k.ricavo ? Math.round(k.margine / k.ricavo * 100) : 0;
+      box.innerHTML = 'Costi ' + PREVENTIVO.euro(k.costo, 1) +
+        '<br>Margine <b>' + PREVENTIVO.euro(k.margine, 1) + '</b> · ' + perc + '%';
+      if (k.margine < 0) box.dataset.neg = '1'; else delete box.dataset.neg;
+    }
     try { localStorage.setItem(CHIAVE, JSON.stringify(d)); } catch (e) {}
     archiviaBozza();
   }
@@ -2479,32 +2518,11 @@
      Le azioni che non sono "manda il preventivo al cliente" stanno qui
      sotto, invece di occupare la barra allo stesso peso del pulsante che
      conta davvero. */
-  $('#b-altro').addEventListener('click', function () {
-    var m = $('#menu');
-    menuPer = null;                      // non e' una riga d'archivio
-    m.innerHTML =
-      '<button class="mv" type="button" data-e="ante">Anteprima</button>' +
-      '<button class="mv" type="button" data-e="pdf">Apri la versione cliente</button>' +
-      '<div class="mv__sep"></div>' +
-      '<button class="mv" type="button" data-e="mdl">Salva come modello</button>';
-    m.showPopover();
-    var r = this.getBoundingClientRect();
-    var mr = m.getBoundingClientRect();
-    m.style.left = Math.max(8, Math.min(r.right - mr.width, window.innerWidth - mr.width - 8)) + 'px';
-    m.style.top = (r.bottom + 6) + 'px';
-    m.querySelector('.mv').focus();
-  });
-  $('#menu').addEventListener('click', async function (e) {
-    var b = e.target.closest('[data-e]');
-    if (!b) return;
-    $('#menu').hidePopover();
-    if (b.dataset.e === 'ante') { apriAnteprima(); return; }
-    if (b.dataset.e === 'pdf') { window.open(await indirizzo(), '_blank', 'noopener'); return; }
-    if (b.dataset.e === 'mdl') {
-      // Salva quello che ha davanti adesso, anche se il preventivo non e'
-      // ancora in archivio perche' non gli ha dato un titolo.
-      chiediNome((d.t || '').trim(), function (nome) { salvaModello(d, nome); });
-    }
+  $('#b-ante').addEventListener('click', apriAnteprima);
+  // Salva quello che ha davanti adesso, anche se il preventivo non e' ancora
+  // in archivio perche' non gli ha dato un titolo.
+  $('#b-mdl').addEventListener('click', function () {
+    chiediNome((d.t || '').trim(), function (nome) { salvaModello(d, nome); });
   });
 
   // L'anteprima carica /quote/ col preventivo dentro: e' la stessa pagina,
@@ -2677,7 +2695,7 @@
 
     // La maiuscola iniziale, come le altre voci del catalogo.
     var titolo = nome.charAt(0).toUpperCase() + nome.slice(1);
-    d.g[gi].i.push({ d: titolo, n: '', dd: 1, u: 1, p: cifra || 0, on: true });
+    d.g[gi].i.push({ d: titolo, n: '', dd: 1, u: 1, p: cifra || 0, c: 0, on: true });
     aperto = gi;
     disegnaVoci(); aggiorna();
     if (inAscolto) disegnaDettato({ gi: gi, vi: d.g[gi].i.length - 1 });

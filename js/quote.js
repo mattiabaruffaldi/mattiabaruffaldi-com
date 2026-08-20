@@ -373,6 +373,27 @@
   function totaleGruppo(g, d) {
     return (g.i || []).reduce(function (s, v) { return s + totaleVoce(v, d); }, 0);
   }
+  // Quello che il lavoro costa a LUI. `v.c` e' il costo unitario: il
+  // fotografo che paga 800 mentre al cliente fattura 1000. Vive solo nello
+  // studio — `compatta()` sotto non lo copia, quindi non esce mai nel link
+  // ne' nel PDF del cliente.
+  function costoVoce(v, d) {
+    if (v.on === false || !v.c) return 0;
+    var g = giorni(v, d);
+    return v.c * (v.u || 1) * (g > 0 ? g : 1);
+  }
+  function costi(d) {
+    var costo = 0, ricavo = 0;
+    (d.g || []).forEach(function (g) {
+      (g.i || []).forEach(function (v) {
+        costo += costoVoce(v, d);
+        ricavo += totaleVoce(v, d);
+      });
+    });
+    return { costo: costo, margine: ricavo - costo, ricavo: ricavo };
+  }
+  PREVENTIVO.costoVoce = costoVoce;
+  PREVENTIVO.costi = costi;
   PREVENTIVO.giorni = giorni;
   PREVENTIVO.totaleVoce = totaleVoce;
   PREVENTIVO.totaleGruppo = totaleGruppo;
@@ -430,7 +451,7 @@
     var pred = PREVENTIVO.predefiniti(d.dv);
     Object.keys(d).forEach(function (k) {
       var v = d[k];
-      if (k === 'id' || k === 'st') return;
+      if (k === 'id' || k === 'st' || k === 'nx') return;
       // Le consegne viaggiano gia' filtrate: nel link vanno solo quelle
       // spuntate, senza la spunta. Se coincidono col predefinito si saltano
       // come tutto il resto.
@@ -463,6 +484,8 @@
         if (v.u && v.u !== 1) o.u = v.u;
         if (v.p) o.p = v.p;
         if (v.f) o.f = v.f;
+        // `v.c` (il costo suo) NON si copia mai: e' il motivo per cui questa
+        // e' una lista di campi scelti a mano e non una copia dell'oggetto.
         return o;
       }) };
     }).filter(function (g) { return g.i.length; });

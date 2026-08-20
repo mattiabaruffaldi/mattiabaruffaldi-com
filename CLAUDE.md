@@ -346,15 +346,33 @@ Si genera dallo studio: filtra per cliente e premi **"Link con questi N"**.
   browser la localizzazione italiana e' incompleta e sparisce il punto delle
   migliaia (5500 invece di 5.500).
 
+### Costo interno e margine (ago 2026)
+Nel loro mestiere un preventivo ha **due colonne di prezzo**: quella che va al
+cliente e quella che paga lui. Chiama un fotografo a 800 e al cliente lo mette
+a 1.000: quei 200 sono il suo margine.
+
+- Ogni voce ha **`v.c`**, il costo unitario suo, accanto a `v.p`. Nelle righe
+  ci sono "Costo mio" e "Margine"; nella colonna a destra, sotto il totale,
+  "Costi X · Margine Y · Z%". Il margine negativo va in rosso.
+- **`v.c` non esce MAI dallo studio.** `PREVENTIVO.compatta()` costruisce ogni
+  voce con una lista di campi scelti a mano (`d, n, dd, u, p, f`): e' esatta-
+  mente per questo che non e' una copia dell'oggetto. **Se un domani aggiungi
+  un campo interno, non toccare quella lista.** Verificato: col costo a 800 nel
+  link decodificato non c'e' ne' `"c"` ne' `800`, e il documento non li stampa.
+- Il margine si conta sul **netto** (somma delle voci), non sul totale con
+  rivalsa e IVA: le maggiorazioni non sono suoi ricavi.
+
 ### La barra dell'editor e la colonna di lavoro (ago 2026)
 La barra aveva sette controlli tutti allo stesso peso: Anteprima, PDF e Link
 cliente sembravano la stessa cosa.
 
-- **In alto restano due cose sole**: il menu `···` (Anteprima, Apri la
-  versione cliente, Salva come modello) e **"Link cliente"**, l'unico
-  pulsante pieno, l'unica azione che manda il lavoro fuori.
-- **Il resto sta nella colonna a destra** (`.lato`, sua richiesta): totale,
-  "Detta" e **"Salva"**, **allineati in basso** (`justify-content: flex-end`).
+- **In alto: "Salva come modello", "Salva" e "Link cliente"** (l'unico
+  pulsante pieno, l'unica azione che manda il lavoro fuori). **Il menu `···`
+  non c'e' piu'**: erano tre voci, e "Apri la versione cliente" faceva quello
+  che fa gia' l'anteprima.
+- **Colonna a destra** (`.lato`, sua richiesta), dall'alto in basso:
+  **Anteprima · Detta · Totale**, il tutto allineato in basso
+  (`justify-content: flex-end`).
   **Lo stato non c'e'**: mentre compili non serve, si cambia dall'archivio
   dove serve a confrontare i preventivi fra loro. Nel documento la colonna viene PRIMA del
   modulo, cosi' sotto 62rem si legge sopra i campi invece di finire in fondo
