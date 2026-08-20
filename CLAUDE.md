@@ -359,6 +359,19 @@ a 1.000: quei 200 sono il suo margine.
   mente per questo che non e' una copia dell'oggetto. **Se un domani aggiungi
   un campo interno, non toccare quella lista.** Verificato: col costo a 800 nel
   link decodificato non c'e' ne' `"c"` ne' `800`, e il documento non li stampa.
+- **Due versioni del documento**, dall'interruttore nella barra dell'anteprima:
+  **Cliente** e **La mia** (`PREVENTIVO.disegnaInterno`), che aggiunge un
+  foglio "Costi e margine" con banda rossa "USO INTERNO — NON INVIARE AL
+  CLIENTE" e bordo rosso, visibili anche stampati in bianco e nero. Da li' si
+  salva il PDF di entrambe.
+- **La versione interna NON ha un indirizzo**, ed e' la garanzia vera: quella
+  del cliente vive in un link (`/quote/#...`) che si copia e si manda, questa
+  si scrive dentro l'iframe con `srcdoc` e non esiste da nessun'altra parte.
+  Non c'e' niente da copiare per sbaglio. **Non darle un URL.**
+- Trappola trovata subito: `f.src = await indirizzo()` scriveva DOPO l'attesa,
+  quindi passando a "La mia" mentre il link si comprimeva la copia interna
+  veniva sovrascritta da quella del cliente. Ora la versione scelta si
+  ricontrolla dopo l'`await`, e la barra si aggiorna prima.
 - Il margine si conta sul **netto** (somma delle voci), non sul totale con
   rivalsa e IVA: le maggiorazioni non sono suoi ricavi.
 

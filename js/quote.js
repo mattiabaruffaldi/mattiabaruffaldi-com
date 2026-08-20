@@ -697,5 +697,59 @@
     return uno + due + tre;
   };
 
+  /* ------------------------------------------------------------------
+     La versione sua: lo stesso documento del cliente piu' un foglio con
+     costi e margini.
+
+     NON HA UN INDIRIZZO. Il documento del cliente vive dentro un link
+     (`/quote/#...`) che si puo' copiare e mandare; questo si disegna e
+     basta, e chi lo apre lo riceve gia' scritto dentro l'anteprima. Non
+     esiste un indirizzo da copiare per sbaglio, ed e' di proposito: e'
+     l'unica garanzia vera che non finisca al cliente.
+     ------------------------------------------------------------------ */
+  PREVENTIVO.disegnaInterno = function (d) {
+    var k = costi(d);
+    var c = PREVENTIVO.conti(d);
+
+    var righe = (d.g || []).map(function (g) {
+      var voci = (g.i || []).filter(function (v) {
+        return v.on !== false && (totaleVoce(v, d) > 0 || costoVoce(v, d) > 0);
+      });
+      if (!voci.length) return '';
+      return '<tr class="q-grp"><td colspan="4">' + esc(g.t) + '</td></tr>' +
+        voci.map(function (v) {
+          var ric = totaleVoce(v, d), cos = costoVoce(v, d), mar = ric - cos;
+          return '<tr><td>' + esc(v.d) +
+            (v.n ? '<span class="q-it__n">' + esc(v.n) + '</span>' : '') +
+            '</td><td class="q-num-cell">' + (ric ? PREVENTIVO.euro(ric) : '–') +
+            '</td><td class="q-num-cell">' + (cos ? PREVENTIVO.euro(cos) : '–') +
+            '</td><td class="q-num-cell"' + (mar < 0 ? ' style="color:#b3261e"' : '') + '>' +
+            (cos ? PREVENTIVO.euro(mar) : '–') + '</td></tr>';
+        }).join('');
+    }).join('');
+
+    var perc = k.ricavo ? Math.round(k.margine / k.ricavo * 100) : 0;
+    var interno = '<section class="q-sheet q-sheet--int">' +
+      '<div class="q-int__bar">Uso interno — non inviare al cliente</div>' +
+      '<div class="q-section"><p class="q-meta">Quotation ' + esc(d.n) +
+      (d.dt ? ' · ' + esc(d.dt) : '') + (d.cl ? ' · ' + esc(d.cl) : '') + '</p>' +
+      '<h2 class="q-title">Costi e margine</h2></div>' +
+      '<table class="q-tab"><thead><tr><th>Voce</th>' +
+      '<th class="q-num-cell">Al cliente</th><th class="q-num-cell">Costo</th>' +
+      '<th class="q-num-cell">Margine</th></tr></thead><tbody>' + righe + '</tbody></table>' +
+      '<div class="q-tot">' +
+      '<div class="q-tot__row"><span class="q-tot__l">Totale al cliente (netto)</span>' +
+      '<span class="q-tot__v">' + PREVENTIVO.euro(k.ricavo, 1) + '</span></div>' +
+      '<div class="q-tot__row"><span class="q-tot__l">Costi</span>' +
+      '<span class="q-tot__v">' + PREVENTIVO.euro(k.costo, 1) + '</span></div>' +
+      '<div class="q-tot__row q-tot__row--big"><span class="q-tot__l">Margine · ' + perc + '%</span>' +
+      '<span class="q-tot__v">' + PREVENTIVO.euro(k.margine, 1) + '</span></div>' +
+      '<div class="q-tot__row"><span class="q-tot__l">Totale documento (con maggiorazioni)</span>' +
+      '<span class="q-tot__v">' + PREVENTIVO.euro(c.tot, 1) + '</span></div>' +
+      '</div></section>';
+
+    return PREVENTIVO.disegna(d) + interno;
+  };
+
   globale.PREVENTIVO = PREVENTIVO;
 })(window);

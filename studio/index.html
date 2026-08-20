@@ -6,7 +6,7 @@
 <title>Studio preventivi</title>
 <meta name="robots" content="noindex, nofollow, noarchive">
 <link rel="icon" href="/favicon-32.png" sizes="32x32">
-<link rel="stylesheet" href="/css/quote.css?v=f36b6277">
+<link rel="stylesheet" href="/css/quote.css?v=55e5150d">
 <style>
   /* ==================================================================
      Studio preventivi — due viste in una pagina:
@@ -205,6 +205,19 @@
   .fl:hover { border-color: var(--s-bordo2); color: var(--s-testo); }
   .fl[aria-pressed="true"] { background: var(--s-piano2); border-color: var(--s-bordo2); color: var(--s-testo); }
   .fl__p { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  /* Le due versioni del documento nell'anteprima. La barra vira al rosso
+     sulla copia interna: non deve poter passare per quella del cliente. */
+  .fl { padding: 3px; gap: 2px; }
+  .fl__b {
+    padding: 4px var(--sp-3); border: 0; border-radius: 999px;
+    background: none; color: var(--s-tenue); cursor: pointer;
+    font: inherit; font-size: var(--fs-2);
+  }
+  .fl__b:hover { color: var(--s-testo); }
+  .fl__b.is-on { background: var(--s-piano2); color: var(--s-testo); }
+  .ante__bar[data-v="int"] { background: #3a2320; border-bottom-color: var(--s-rosso); }
+  .ante__bar[data-v="int"] .ante__t b { color: var(--s-rosso); }
+  .ante__bar[data-v="int"] .fl__b.is-on { background: var(--s-rosso); color: #16161a; }
 
   /* ---------- tabella ----------
      Colonne a larghezza fissa a destra, titolo elastico a sinistra: i
@@ -977,9 +990,13 @@
 </div>
 
 <dialog class="ante" id="ante" aria-label="Anteprima del preventivo">
-  <div class="ante__bar">
-    <span class="ante__t"><b>Anteprima</b> — esattamente quello che vede il cliente</span>
+  <div class="ante__bar" id="ante-bar">
+    <span class="ante__t" id="ante-t"><b>Anteprima</b> — esattamente quello che vede il cliente</span>
     <span class="sp"></span>
+    <span class="fl" role="group" aria-label="Quale versione">
+      <button class="fl__b is-on" type="button" data-vers="cli">Cliente</button>
+      <button class="fl__b" type="button" data-vers="int">La mia</button>
+    </span>
     <button class="b b--pieno" type="button" id="ante-pdf">Salva come PDF</button>
     <button class="b" type="button" id="ante-x">Chiudi</button>
   </div>
@@ -1036,7 +1053,7 @@
 
 <div id="menu" popover></div>
 
-<script src="/js/quote.js?v=18920b39"></script>
+<script src="/js/quote.js?v=4d6d2736"></script>
 <script>
 (function () {
   'use strict';
@@ -2518,23 +2535,69 @@
      Le azioni che non sono "manda il preventivo al cliente" stanno qui
      sotto, invece di occupare la barra allo stesso peso del pulsante che
      conta davvero. */
-  $('#b-ante').addEventListener('click', apriAnteprima);
+  $('#b-ante').addEventListener('click', function () { apriAnteprima('cli'); });
   // Salva quello che ha davanti adesso, anche se il preventivo non e' ancora
   // in archivio perche' non gli ha dato un titolo.
   $('#b-mdl').addEventListener('click', function () {
-    chiediNome((d.t || '').trim(), function (nome) { salvaModello(d, nome); });
+    chiediNome((d.t || '').trim(), function (nome) {
+      salvaModello(d, nome);
+      // Il pulsante conferma da solo per due secondi: l'avviso in basso si
+      // guarda solo se sai gia' che c'e'.
+      var b = $('#b-mdl');
+      b.textContent = 'Salvato come modello';
+      b.classList.add('b--on');
+      clearTimeout(mdlFra);
+      mdlFra = setTimeout(function () {
+        b.textContent = 'Salva come modello';
+        b.classList.remove('b--on');
+      }, 2000);
+    });
   });
+  var mdlFra = null;
 
   // L'anteprima carica /quote/ col preventivo dentro: e' la stessa pagina,
   // con lo stesso foglio di stile e a grandezza vera. Da li' si stampa il PDF
   // col pulsante della pagina stessa.
-  async function apriAnteprima() {
-    $('#ante-f').src = await indirizzo();
-    $('#ante').showModal();
+  var versAnte = 'cli';
+  async function apriAnteprima(vers) {
+    versAnte = vers || 'cli';
+    var f = $('#ante-f');
+    // La barra si aggiorna SUBITO, prima di qualunque attesa: se no per un
+    // attimo dice "cliente" mentre sta gia' caricando la copia interna.
+    $('#ante-bar').dataset.v = versAnte;
+    $('#ante-t').innerHTML = versAnte === 'int'
+      ? '<b>La tua copia</b> — con costi e margine. Non mandarla al cliente.'
+      : '<b>Anteprima</b> — esattamente quello che vede il cliente';
+    document.querySelectorAll('#ante-bar [data-vers]').forEach(function (b) {
+      b.classList.toggle('is-on', b.dataset.vers === versAnte);
+    });
+    if (!$('#ante').open) $('#ante').showModal();
+
+    if (versAnte === 'int') {
+      // Niente `src`: il documento con i costi si scrive dentro l'iframe e
+      // non esiste da nessun'altra parte. Non c'e' un indirizzo da copiare,
+      // ed e' l'unico modo serio di garantire che non finisca al cliente.
+      f.removeAttribute('src');
+      f.srcdoc = '<!doctype html><meta charset="utf-8">' +
+        '<link rel="stylesheet" href="/css/quote.css?v=55e5150d">' +
+        '<body class="q-body">' + PREVENTIVO.disegnaInterno(d) + '</body>';
+    } else {
+      // Comprimere il link richiede un attimo: se nel frattempo ha premuto
+      // "La mia", questo `src` cancellerebbe la copia interna gia' scritta.
+      var u = await indirizzo();
+      if (versAnte !== 'cli') return;
+      f.removeAttribute('srcdoc');
+      f.src = u;
+    }
   }
+  $('#ante-bar').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-vers]');
+    if (b) apriAnteprima(b.dataset.vers);
+  });
   function chiudiAnte() {
     if ($('#ante').open) $('#ante').close();
     $('#ante-f').removeAttribute('src');     // ferma la pagina dentro l'iframe
+    $('#ante-f').removeAttribute('srcdoc');
   }
   // Il PDF lo fa lui da qui. Sulla pagina del cliente il pulsante non c'e'
   // piu': stampa la finestra dentro l'iframe, cioe' il documento e basta.

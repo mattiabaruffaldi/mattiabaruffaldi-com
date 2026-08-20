@@ -352,3 +352,23 @@
   .q-contact { text-align: left; }
   .q-contact div { white-space: normal; overflow-wrap: anywhere; }
 }
+
+/* ---- foglio "uso interno": costi e margine ----
+   Non e' il documento del cliente e non deve poterlo sembrare nemmeno
+   stampato in bianco e nero: banda in cima su ogni pagina e bordo rosso. */
+.q-sheet--int { border: 2px solid #b3261e; }
+.q-int__bar {
+  margin: calc(-1 * var(--q-pad)) calc(-1 * var(--q-pad)) var(--q-pad);
+  padding: 3mm var(--q-pad);
+  background: #b3261e; color: #fff;
+  font-size: 8pt; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+}
+.q-grp td {
+  padding-top: 4mm; font-weight: 700; font-size: 8.5pt;
+  letter-spacing: .06em; text-transform: uppercase;
+}
+.q-tot__row--big { font-weight: 700; }
+@media print {
+  .q-sheet--int { break-before: page; }
+  .q-int__bar { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
