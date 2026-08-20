@@ -439,7 +439,7 @@
     .modulo { order: 1; }
   }
   .lato {
-    display: flex; flex-direction: column; gap: var(--sp-4);
+    display: flex; flex-direction: column; justify-content: flex-end; gap: var(--sp-4);
     padding: var(--sp-5) clamp(var(--sp-3), 2vw, var(--sp-4));
     border-bottom: 1px solid var(--s-bordo);
   }
@@ -452,7 +452,6 @@
       border-bottom: 0; border-left: 1px solid var(--s-bordo);
     }
   }
-  .lato__st select { width: 100%; }
   .lato__t { line-height: 1.15; }
   .lato__t small {
     display: block; margin-bottom: 2px; font-size: var(--fs-1); letter-spacing: .14em;
@@ -570,6 +569,17 @@
   }
 
   .sez { margin-bottom: var(--sp-6); }
+  /* Il blocco Progetto si chiude quando hai finito di compilarlo: e' l'unico
+     passo "in fila", il resto della pagina resta a discesa. */
+  .prog__t {
+    display: flex; align-items: center; gap: var(--sp-3); width: 100%;
+    padding: 0 0 var(--sp-2); border: 0; background: none; color: inherit;
+    cursor: pointer; text-align: left;
+  }
+  .prog__r { font-size: var(--fs-3); color: var(--s-tenue); }
+  .prog__a { display: flex; justify-content: flex-end; }
+  .sez--prog[data-chiuso] #prog-c { display: none; }
+  .sez--prog[data-chiuso] { margin-bottom: var(--sp-5); }
   .sez__t { font-size: var(--fs-1); letter-spacing: .2em; text-transform: uppercase;
             color: var(--s-oro); margin: 0 0 var(--sp-3); }
   .griglia { display: grid; gap: var(--sp-3) var(--sp-4);
@@ -837,9 +847,6 @@
     <!-- La colonna di lavoro: com'e' messo il preventivo (stato, totale) e i
          due gesti che si fanno mentre lo compili (dettare, salvare). -->
     <aside class="lato" aria-label="Stato del preventivo">
-      <span class="stato lato__st" id="e-stato-w" data-v="bozza">
-        <select id="e-stato" aria-label="Stato del preventivo"></select>
-      </span>
       <div class="lato__t"><small>Totale</small><b id="t-tot">0,00 €</b></div>
       <div class="lato__a">
         <button class="b micro lato__b" type="button" id="b-voce" hidden
@@ -857,9 +864,13 @@
 
     <div class="modulo">
 
-      <section class="sez">
-        <h2 class="sez__t">Progetto</h2>
-        <div class="griglia">
+      <section class="sez sez--prog" id="sez-prog">
+        <button class="prog__t" type="button" id="prog-apri" aria-expanded="true"
+                aria-controls="prog-c">
+          <span class="sez__t">Progetto</span>
+          <span class="prog__r" id="prog-r"></span>
+        </button>
+        <div class="griglia" id="prog-c">
           <div class="campo"><label for="f-h">Intestato a</label>
             <select id="f-h" data-k="h">
               <option value="mb">Mattia Baruffaldi</option>
@@ -879,6 +890,9 @@
             <input id="f-s" data-k="s" placeholder="Es. Asset shooting · 2 days · 2 talent"></div>
           <div class="campo campo--largo"><label for="f-sc">Scope</label>
             <textarea id="f-sc" data-k="sc"></textarea></div>
+          <div class="campo campo--largo prog__a">
+            <button class="b b--min b--on" type="button" id="prog-avanti">Avanti &rarr;</button>
+          </div>
         </div>
       </section>
 
@@ -976,14 +990,13 @@
 <dialog class="chiedi" id="chiedi" aria-labelledby="chiedi-t">
   <form class="chiedi__box" id="chiedi-f">
     <h2 id="chiedi-t">Salva come modello</h2>
-    <label for="chiedi-i">Come lo chiamiamo?</label>
+    <label for="chiedi-i" id="chiedi-l">Come lo chiamiamo?</label>
     <input id="chiedi-i" autocomplete="off" spellcheck="false"
            placeholder="Es. Shooting 3 giorni con troupe">
-    <p class="chiedi__n">È il nome che ritrovi in «+ Nuovo preventivo».
-      Non finisce nel documento del cliente.</p>
+    <p class="chiedi__n" id="chiedi-n"></p>
     <div class="chiedi__a">
       <button class="b" type="button" id="chiedi-x">Annulla</button>
-      <button class="b b--pieno" type="submit">Salva modello</button>
+      <button class="b b--pieno" type="submit" id="chiedi-ok">Salva modello</button>
     </div>
   </form>
 </dialog>
@@ -1093,8 +1106,15 @@
   }
   // Chiede il nome prima di salvare: un modello si sceglie dall'elenco mesi
   // dopo, e "Senza nome" o il titolo di un lavoro vecchio non dicono niente.
-  function chiediNome(iniziale, poi) {
+  function chiediNome(iniziale, poi, testi) {
+    var t = testi || {};
     var dg = $('#chiedi'), campo = $('#chiedi-i');
+    $('#chiedi-t').textContent = t.titolo || 'Salva come modello';
+    $('#chiedi-l').textContent = t.etichetta || 'Come lo chiamiamo?';
+    $('#chiedi-n').textContent = t.nota ||
+      'È il nome che ritrovi in «+ Nuovo preventivo». Non finisce nel documento del cliente.';
+    $('#chiedi-ok').textContent = t.ok || 'Salva modello';
+    campo.placeholder = t.esempio || 'Es. Shooting 3 giorni con troupe';
     campo.value = iniziale || '';
     chiediPoi = poi;
     if (!dg.open) dg.showModal();
@@ -1239,13 +1259,28 @@
   // chiusura della scheda). Il pulsante non aggiunge niente di tecnico:
   // serve a poterlo fare apposta e vedere che e' fatto.
   $('#b-salva').addEventListener('click', function () {
-    archiviaBozza(true);
+    // Il titolo non serve a salvare (si salva comunque), serve a ritrovarlo:
+    // quindi qui lo chiediamo invece di lasciarlo "Senza titolo" e sperare
+    // che se ne accorga.
     if (!(d.t || '').trim()) {
-      // Salvato lo stesso: il titolo serve a ritrovarlo, non a salvarlo.
-      avvisa('Salvato come «Senza titolo». Dagli un nome per ritrovarlo al volo.');
-      $('#f-t').focus();
+      chiediNome('', function (titolo) {
+        d.t = titolo;
+        $('#f-t').value = titolo;
+        $('#e-tit').textContent = titolo;
+        pieghiProgetto($('#sez-prog').hasAttribute('data-chiuso'));
+        archiviaBozza(true);
+        aggiorna();
+        avvisa('Salvato in archivio come «' + titolo + '».');
+      }, {
+        titolo: 'Manca il titolo',
+        etichetta: 'Come si chiama questo preventivo?',
+        nota: 'Serve a ritrovarlo in archivio, ed è il titolo che legge il cliente.',
+        ok: 'Salva',
+        esempio: 'Es. Campagna estiva 2026'
+      });
       return;
     }
+    archiviaBozza(true);
     avvisa('Salvato in archivio.');
   });
   // Se chiude la scheda a meta' parola, la bozza e' comunque al sicuro.
@@ -1953,6 +1988,7 @@
     if (!d.st) d.st = 'bozza';
     aperto = 0;
     daModello(); disegnaVoci(); disegnaConsegne(); disegnaMag(); aggiorna();
+    pieghiProgetto(!!((d.cl || '').trim() || (d.t || '').trim()));
     // Il salvataggio automatico ha 700 ms di ritardo: senza questo, per
     // quel mezzo secondo la barra direbbe "scrivi un titolo" a un
     // preventivo che il titolo ce l'ha e sta gia' in archivio.
@@ -1985,6 +2021,7 @@
     d.n = numeroPer(d.cl);
     aperto = 0;
     daModello(); disegnaVoci(); disegnaConsegne(); disegnaMag();
+    pieghiProgetto(false);
     vaiA('edit', d.id);
     $('#f-cl').focus();
   }
@@ -2130,18 +2167,42 @@
     });
   });
 
+  /* ---------- il blocco Progetto ----------
+     E' l'unico passo "in fila": si compila, si preme Avanti e si chiude,
+     cosi' non resta mezzo schermo di campi gia' fatti sopra le voci. Da
+     chiuso l'intestazione dice cosa c'e' dentro, e si riapre con un click.
+     Il resto della pagina resta a discesa: un preventivo non si compila
+     in ordine, e una procedura a passi farebbe pagare ogni ripensamento. */
+  function riassuntoProgetto() {
+    var p = [];
+    if ((d.cl || '').trim()) p.push(d.cl.trim());
+    if ((d.t || '').trim()) p.push(d.t.trim());
+    var gg = Number(d.gg) || 0;
+    if (gg) p.push(gg + (gg === 1 ? ' giornata' : ' giornate'));
+    return p.join(' · ');
+  }
+  function pieghiProgetto(chiuso) {
+    var sez = $('#sez-prog');
+    if (chiuso) sez.setAttribute('data-chiuso', '1'); else sez.removeAttribute('data-chiuso');
+    $('#prog-apri').setAttribute('aria-expanded', chiuso ? 'false' : 'true');
+    $('#prog-r').textContent = chiuso ? riassuntoProgetto() : '';
+  }
+  $('#prog-apri').addEventListener('click', function () {
+    pieghiProgetto(!$('#sez-prog').hasAttribute('data-chiuso'));
+  });
+  $('#prog-avanti').addEventListener('click', function () {
+    pieghiProgetto(true);
+    aperto = 0;
+    disegnaVoci();
+    var b = document.querySelectorAll('.blocco')[0];
+    if (b) b.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  });
+
+  // Lo stato non sta piu' nell'editor (sua richiesta): mentre compili non
+  // ti serve, e in archivio serve a confrontare i preventivi fra loro.
   function mostraStatoEditor() {
-    $('#e-stato').innerHTML = STATI.map(function (s) {
-      return '<option value="' + s.v + '"' + (s.v === (d.st || 'bozza') ? ' selected' : '') + '>' + s.l + '</option>';
-    }).join('');
-    $('#e-stato-w').dataset.v = d.st || 'bozza';
     $('#e-tit').textContent = (d.t || '').trim() || 'Nuovo preventivo';
   }
-  $('#e-stato').addEventListener('change', function () {
-    d.st = this.value;
-    $('#e-stato-w').dataset.v = this.value;
-    archiviaBozza(true);
-  });
 
   function disegnaVoci() {
     $('#gruppi').innerHTML = d.g.map(function (g, gi) {

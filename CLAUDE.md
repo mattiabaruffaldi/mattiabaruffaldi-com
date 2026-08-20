@@ -353,13 +353,25 @@ cliente sembravano la stessa cosa.
 - **In alto restano due cose sole**: il menu `···` (Anteprima, Apri la
   versione cliente, Salva come modello) e **"Link cliente"**, l'unico
   pulsante pieno, l'unica azione che manda il lavoro fuori.
-- **Il resto sta nella colonna a destra** (`.lato`, sua richiesta): stato,
-  totale, "Detta" e **"Salva"**. Nel documento la colonna viene PRIMA del
+- **Il resto sta nella colonna a destra** (`.lato`, sua richiesta): totale,
+  "Detta" e **"Salva"**, **allineati in basso** (`justify-content: flex-end`).
+  **Lo stato non c'e'**: mentre compili non serve, si cambia dall'archivio
+  dove serve a confrontare i preventivi fra loro. Nel documento la colonna viene PRIMA del
   modulo, cosi' sotto 62rem si legge sopra i campi invece di finire in fondo
   alla pagina; `order` la manda a destra a schermo largo. Altezza piena come
   la colonna dei clienti, se no il filetto si ferma a meta'.
 - **"Salva" non aggiunge niente di tecnico**: il salvataggio e' gia'
   automatico. Serve a poterlo fare apposta e vedere che e' fatto.
+- **Il blocco Progetto e' l'unico passo "in fila"**: si compila, "Avanti" lo
+  chiude e apre il primo blocco di voci; da chiuso l'intestazione riassume
+  ("Ducati · Campagna estiva · 3 giornate") e un click lo riapre. Aprendo un
+  preventivo gia' compilato parte chiuso. **Il resto della pagina resta a
+  discesa, tutti i blocchi sulla stessa pagina** (deciso ago 2026): un
+  preventivo non si compila in ordine, e una procedura a passi farebbe pagare
+  ogni ripensamento con tre "indietro".
+- **"Salva" senza titolo apre "Manca il titolo"** e lo chiede, invece di
+  archiviare in silenzio come "Senza titolo". `chiediNome()` e' parametrico
+  (titolo, etichetta, nota, pulsante, esempio) e serve tutti e due i casi.
 - **Via il conta-pagine** ("3 pagine", `contaPagine`/`mostraPagine`): l'ha
   fatto togliere. Se serve di nuovo, sta nella cronologia git.
 - **Il cestino sta in fondo alla colonna dei clienti** (`.fianco__giu`,
