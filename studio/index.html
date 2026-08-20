@@ -652,12 +652,12 @@
       </section>
 
       <section class="sez">
-        <h2 class="sez__t">Consegne</h2>
-        <div class="intest intest--cons"><span></span><span>Consegna</span>
+        <h2 class="sez__t">Delivery</h2>
+        <div class="intest intest--cons"><span></span><span>Voce</span>
           <span>Formato</span><span>Quantità</span><span></span></div>
         <div id="consegne"></div>
         <div class="azioni-b">
-          <button class="b b--min" type="button" id="b-consegna">+ consegna</button>
+          <button class="b b--min" type="button" id="b-consegna">+ voce</button>
         </div>
       </section>
 
@@ -723,7 +723,7 @@
 
 <div id="menu" popover></div>
 
-<script src="/js/quote.js?v=c6f8d2d2"></script>
+<script src="/js/quote.js?v=0dc5770e"></script>
 <script>
 (function () {
   'use strict';
@@ -1567,7 +1567,15 @@
       v[f] = e.target.value;
     } else {
       v[f] = Number(e.target.value) || 0;
-      if (f === 'p' && v.p > 0 && v.on === undefined) v.on = true;
+      // Adesso il catalogo parte tutto spento: scrivere una cifra accende
+      // la riga da sola, se no sarebbe un click in piu' per ogni voce.
+      // Toglierla resta un gesto suo e non viene disfatto dal prezzo.
+      if (f === 'p' && v.p > 0 && !v.on) {
+        v.on = true;
+        box.classList.remove('spenta');
+        var spunta = box.querySelector('input[type=checkbox]');
+        if (spunta) spunta.checked = true;
+      }
     }
     var cella = box.querySelector('.tot');
     if (cella) { var t = PREVENTIVO.totaleVoce(v, d); cella.textContent = t ? PREVENTIVO.euro(t) : ''; }

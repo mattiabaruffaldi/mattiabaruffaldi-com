@@ -222,6 +222,24 @@ file. Vuota = studio aperto senza chiedere niente.
   (stessa conversazione dei link corti), oppure cifrare l'archivio con la
   password — che pero' vuol dire perdere tutto se la dimentica.
 
+### Un preventivo nuovo parte VUOTO (ago 2026)
+Nel catalogo ogni voce ha `on: false`: **niente e' spuntato di partenza**,
+lui accende quello che serve. Prima l'attivazione si deduceva dal prezzo o
+dalla dicitura, e mezze voci (Make-up "By client", Canon "Included", Travel
+"TBD") comparivano da sole nel documento del cliente.
+
+- **Scrivere una cifra accende la riga da sola**, se no sarebbe un click in
+  piu' per ogni voce. Togliere la spunta resta un gesto suo, e il prezzo non
+  lo disfa.
+- Diciture tolte dai predefiniti: "By client" su make-up e stylist,
+  "Included" su Canon e Photo editing. Restano i "TBD" su trasferte e
+  Miscellaneous, che lui non ha chiesto di togliere.
+- Voci tolte dal catalogo: Leica Q, Drone travel, Mileage, On-site expenses,
+  Set materials.
+- Il catalogo NON e' versionato e non viaggia nei link: si puo' cambiare
+  liberamente. Le **consegne** invece sono nei testi standard, e per quelle
+  serve una versione nuova (vedi qui sotto).
+
 ### Consegne da spuntare (ago 2026)
 Le Deliverables non erano modificabili: arrivavano fisse dai testi standard.
 Ora sono una sezione dello studio, con la stessa riga delle voci ma senza
@@ -231,11 +249,17 @@ prezzi: spunta · nome · formato · quantita' · elimina.
   non usate in quel preventivo. Nel link e nel documento vanno **solo le
   spuntate**, senza la spunta (`PREVENTIVO.consegneAttive`).
 - La quantita' e' testo, non numero: certe consegne si scrivono "@50".
-- **I testi standard sono passati alla versione 2** (`PREVENTIVO.DV = 2`).
-  La 1 NON e' stata toccata: i tre VVENA e ogni link gia' mandato hanno
-  `dv: 1` e continuano a mostrare le consegne di allora. Verificato.
+- La sezione nello studio si chiama **Delivery** (sua parola). Nel documento
+  del cliente il titolo resta **Deliverables**.
+- **Testi standard alla versione 3** (`PREVENTIVO.DV = 3`). La 1 e la 2 non
+  si toccano: i tre VVENA hanno `dv: 1` e continuano a mostrare le consegne
+  di allora. Verificato dopo ogni cambio.
   E' esattamente il motivo per cui quel meccanismo esiste: **quando cambi
   un testo standard aggiungi una versione, non modifichi quella vecchia.**
+  - v1: consegne originali (Main campaign film, Social contents, ...)
+  - v2: primo elenco da spuntare, con Teaser e Behind the scenes
+  - v3: elenco corto (Main video, Social video contents, Retouched still
+    images) e niente spuntato di partenza
 
 ### Il PDF deve stare in 3 pagine (ago 2026)
 Ogni `.q-sheet` deve entrare in **una** pagina A4. Prima non ci entrava: i

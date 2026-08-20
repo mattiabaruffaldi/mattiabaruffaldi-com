@@ -52,67 +52,66 @@
      ereditata di nascosto e' peggio di un campo vuoto. Le tariffe dei
      preventivi gia' fatti restano dentro i preventivi, in Archivio.
      ------------------------------------------------------------------ */
+  // NIENTE spuntato di partenza (sua richiesta, ago 2026): `on: false` su
+  // tutte. Un preventivo nuovo parte vuoto e lui accende quello che serve.
+  // Prima l'attivazione si deduceva dal prezzo o dalla dicitura, e mezze
+  // voci comparivano da sole nel documento.
   PREVENTIVO.catalogo = [
     { t: 'Script, storyboard & development', i: [
-      { d: 'Copy, script and development', n: '', dd: 0, u: 1, p: 0 },
-      { d: 'Creative concept', n: '', dd: 0, u: 1, p: 0 },
-      { d: 'Storyboard', n: '', dd: 0, u: 1, p: 0 }
+      { d: 'Copy, script and development', n: '', dd: 0, u: 1, p: 0, on: false },
+      { d: 'Creative concept', n: '', dd: 0, u: 1, p: 0, on: false },
+      { d: 'Storyboard', n: '', dd: 0, u: 1, p: 0, on: false }
     ]},
     { t: 'Pre-production', i: [
-      { d: 'Project manager', n: '', dd: 0, u: 1, p: 0 },
-      { d: 'Producer', n: '', dd: 0, u: 1, p: 0 },
-      { d: 'Production assistant', n: '', dd: 0, u: 1, p: 0 }
+      { d: 'Project manager', n: '', dd: 0, u: 1, p: 0, on: false },
+      { d: 'Producer', n: '', dd: 0, u: 1, p: 0, on: false },
+      { d: 'Production assistant', n: '', dd: 0, u: 1, p: 0, on: false }
     ]},
     { t: 'Production crew', i: [
-      { d: 'Director', n: 'Mattia Baruffaldi', dd: 1, u: 1, p: 0 },
-      { d: 'DOP', n: '', dd: 1, u: 1, p: 0 },
-      { d: 'Photographer', n: 'Mattia Baruffaldi', dd: 1, u: 1, p: 0 },
-      { d: 'Camera operator', n: '', dd: 1, u: 1, p: 0 },
-      { d: 'Sound recorder', n: '', dd: 1, u: 1, p: 0 },
-      { d: '1st assistant camera', n: '', dd: 1, u: 1, p: 0 },
-      { d: '2nd assistant camera', n: '', dd: 1, u: 1, p: 0 },
-      { d: 'Drone operator', n: 'EASA certified', dd: 1, u: 1, p: 0 },
-      { d: 'Gaffer', n: '', dd: 1, u: 1, p: 0 },
-      { d: 'Grip', n: '', dd: 1, u: 1, p: 0 },
-      { d: 'Talent', n: '', dd: 1, u: 1, p: 0 },
-      { d: 'Make-up & hair', n: '', dd: 1, u: 1, p: 0, f: 'By client' },
-      { d: 'Stylist', n: '', dd: 1, u: 1, p: 0, f: 'By client' }
+      { d: 'Director', n: 'Mattia Baruffaldi', dd: 1, u: 1, p: 0, on: false },
+      { d: 'DOP', n: '', dd: 1, u: 1, p: 0, on: false },
+      { d: 'Photographer', n: 'Mattia Baruffaldi', dd: 1, u: 1, p: 0, on: false },
+      { d: 'Camera operator', n: '', dd: 1, u: 1, p: 0, on: false },
+      { d: 'Sound recorder', n: '', dd: 1, u: 1, p: 0, on: false },
+      { d: '1st assistant camera', n: '', dd: 1, u: 1, p: 0, on: false },
+      { d: '2nd assistant camera', n: '', dd: 1, u: 1, p: 0, on: false },
+      { d: 'Drone operator', n: 'EASA certified', dd: 1, u: 1, p: 0, on: false },
+      { d: 'Gaffer', n: '', dd: 1, u: 1, p: 0, on: false },
+      { d: 'Grip', n: '', dd: 1, u: 1, p: 0, on: false },
+      { d: 'Talent', n: '', dd: 1, u: 1, p: 0, on: false },
+      { d: 'Make-up & hair', n: '', dd: 1, u: 1, p: 0, on: false },
+      { d: 'Stylist', n: '', dd: 1, u: 1, p: 0, on: false }
     ]},
     { t: 'Equipment', i: [
-      { d: 'Canon EOS R5 + RF lens', n: '', dd: 1, u: 1, p: 0, f: 'Included' },
-      { d: 'Leica Q', n: '', dd: 1, u: 1, p: 0, f: 'Included' },
-      { d: 'Cinema camera + cinema lens', n: '', dd: 1, u: 1, p: 0 },
-      { d: 'Lighting kit', n: '', dd: 1, u: 1, p: 0 },
-      { d: 'Focus, transmitter, monitor', n: 'Focus nucleus, DJI transmitter, monitor', dd: 1, u: 1, p: 0 },
-      { d: 'Grip package', n: '', dd: 1, u: 1, p: 0 },
-      { d: 'Drone', n: 'DJI Inspire III', dd: 1, u: 1, p: 0 },
-      { d: 'Hard drives', n: 'master + backup', dd: 0, u: 2, p: 0 }
+      { d: 'Canon EOS R5 + RF lens', n: '', dd: 1, u: 1, p: 0, on: false },
+      { d: 'Cinema camera + cinema lens', n: '', dd: 1, u: 1, p: 0, on: false },
+      { d: 'Lighting kit', n: '', dd: 1, u: 1, p: 0, on: false },
+      { d: 'Focus, transmitter, monitor', n: 'Focus nucleus, DJI transmitter, monitor', dd: 1, u: 1, p: 0, on: false },
+      { d: 'Grip package', n: '', dd: 1, u: 1, p: 0, on: false },
+      { d: 'Drone', n: 'DJI Inspire III', dd: 1, u: 1, p: 0, on: false },
+      { d: 'Hard drives', n: 'master + backup', dd: 0, u: 2, p: 0, on: false }
     ]},
     { t: 'Post production', i: [
-      { d: 'Documentary', n: '16:9 · 60’ · 4K', dd: 0, u: 1, p: 0 },
-      { d: 'Main film', n: '16:9 · 1’30” · 4K', dd: 0, u: 1, p: 0 },
-      { d: 'Teaser', n: '16:9 · 1’ · 4K', dd: 0, u: 1, p: 0 },
-      { d: 'Social contents', n: '9:16 · 10-30” · 1080p', dd: 0, u: 3, p: 0 },
-      { d: 'Photo editing', n: 'selected images', dd: 0, u: 1, p: 0, f: 'Included' },
-      { d: 'Colorist', n: '', dd: 0, u: 1, p: 0 },
-      { d: 'Sound designer', n: '', dd: 0, u: 1, p: 0 },
-      { d: 'Music licence', n: '', dd: 0, u: 1, p: 0 },
-      { d: 'Motion graphics', n: '', dd: 0, u: 1, p: 0 },
-      { d: 'Subtitles', n: '', dd: 0, u: 1, p: 0 }
+      { d: 'Documentary', n: '16:9 · 60’ · 4K', dd: 0, u: 1, p: 0, on: false },
+      { d: 'Main film', n: '16:9 · 1’30” · 4K', dd: 0, u: 1, p: 0, on: false },
+      { d: 'Teaser', n: '16:9 · 1’ · 4K', dd: 0, u: 1, p: 0, on: false },
+      { d: 'Social contents', n: '9:16 · 10-30” · 1080p', dd: 0, u: 3, p: 0, on: false },
+      { d: 'Photo editing', n: 'selected images', dd: 0, u: 1, p: 0, on: false },
+      { d: 'Colorist', n: '', dd: 0, u: 1, p: 0, on: false },
+      { d: 'Sound designer', n: '', dd: 0, u: 1, p: 0, on: false },
+      { d: 'Music licence', n: '', dd: 0, u: 1, p: 0, on: false },
+      { d: 'Motion graphics', n: '', dd: 0, u: 1, p: 0, on: false },
+      { d: 'Subtitles', n: '', dd: 0, u: 1, p: 0, on: false }
     ]},
     { t: 'Travel & accommodation', i: [
-      { d: 'Travel', n: '', dd: 1, u: 1, p: 0, f: 'TBD' },
-      { d: 'Drone travel', n: '', dd: 1, u: 1, p: 0, f: 'TBD' },
-      { d: 'Mileage', n: '', dd: 0, u: 1, p: 0, f: 'TBD' },
-      { d: 'Hotel', n: '', dd: 1, u: 1, p: 0, f: 'TBD' },
-      { d: 'Food lunch', n: '', dd: 1, u: 1, p: 0, f: 'TBD' },
-      { d: 'Food dinner', n: '', dd: 1, u: 1, p: 0, f: 'TBD' }
+      { d: 'Travel', n: '', dd: 1, u: 1, p: 0, f: 'TBD', on: false },
+      { d: 'Hotel', n: '', dd: 1, u: 1, p: 0, f: 'TBD', on: false },
+      { d: 'Food lunch', n: '', dd: 1, u: 1, p: 0, f: 'TBD', on: false },
+      { d: 'Food dinner', n: '', dd: 1, u: 1, p: 0, f: 'TBD', on: false }
     ]},
     { t: 'Miscellaneous', i: [
-      { d: 'Location & permits', n: '', dd: 0, u: 1, p: 0, f: 'TBD' },
-      { d: 'Production insurance', n: '', dd: 0, u: 1, p: 0, f: 'TBD' },
-      { d: 'On-site expenses', n: 'rental of furnishing materials', dd: 0, u: 1, p: 0, f: 'TBD' },
-      { d: 'Set materials', n: '', dd: 0, u: 1, p: 0, f: 'TBD' }
+      { d: 'Location & permits', n: '', dd: 0, u: 1, p: 0, f: 'TBD', on: false },
+      { d: 'Production insurance', n: '', dd: 0, u: 1, p: 0, f: 'TBD', on: false }
     ]}
   ];
 
@@ -210,9 +209,41 @@
       pg: 'Bank transfer, 60 days end of month.',
       wd: 'Documented expenses and lost profit, set at 60% of the agreed fee.',
       nt: 'Operazione senza applicazione dell’IVA ai sensi dell’art. 1, commi 54-89, L. 190/2014.'
+    },
+
+    // Versione 3 (ago 2026): elenco piu' corto e NIENTE spuntato di
+    // partenza, come per le voci. Il preventivo parte pulito.
+    3: {
+      dl: [
+        { d: 'Main video', n: '16:9 · @1’ · 4K', q: '1', on: false },
+        { d: 'Social video contents', n: '9:16 · @10-30” · FHD', q: '3', on: false },
+        { d: 'Retouched still images', n: '', q: '@50', on: false }
+      ],
+      inc: [
+        'Full camera, lens and lighting package',
+        'Editing and retouch of selected images',
+        'Color correction on film and social contents'
+      ],
+      exc: [
+        'Location and permits',
+        'Make-up, hair and styling',
+        'Shooting days beyond those estimated',
+        'Travel and accommodation'
+      ],
+      ur: [
+        { b: 'Web', t: 'websites and company digital channels' },
+        { b: 'BTL materials', t: 'brochures, flyers, catalogues, presentations' },
+        { b: 'Print', t: 'magazines and printed editorial or promotional media' }
+      ],
+      urn: 'TV advertising, billboards, OOH and sponsored social media are not included and will be quoted separately.',
+      vl: '10 days from presentation.',
+      iv: '30% on acceptance, 70% on delivery.',
+      pg: 'Bank transfer, 60 days end of month.',
+      wd: 'Documented expenses and lost profit, set at 60% of the agreed fee.',
+      nt: 'Operazione senza applicazione dell’IVA ai sensi dell’art. 1, commi 54-89, L. 190/2014.'
     }
   };
-  PREVENTIVO.DV = 2;
+  PREVENTIVO.DV = 3;
 
   // Le consegne spuntate, senza la spunta: e' quello che va nel link e nel
   // documento. Le altre restano solo nello studio.
