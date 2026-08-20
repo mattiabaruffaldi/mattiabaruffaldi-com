@@ -335,6 +335,42 @@
     padding: var(--sp-2) clamp(var(--sp-3), 2vw, var(--sp-5));
     background: var(--s-piano); border-bottom: 1px solid var(--s-bordo);
   }
+  /* ---------- pannello del dettato ----------
+     Tutte le voci in una schermata: i blocchi sono a fisarmonica e mentre
+     detta non saprebbe che nomi puo' dire. Colonne strette e nomi soli:
+     serve a leggere, non a modificare. */
+  .dettato {
+    position: sticky; top: 53px; z-index: calc(var(--z-barra) - 1);
+    max-height: 42vh; overflow-y: auto;
+    padding: var(--sp-3) clamp(var(--sp-3), 2vw, var(--sp-5)) var(--sp-4);
+    background: var(--s-piano); border-bottom: 1px solid var(--s-oro);
+  }
+  .dettato[hidden] { display: none; }
+  .dettato__t {
+    display: flex; align-items: baseline; gap: var(--sp-2); flex-wrap: wrap;
+    font-size: var(--fs-2); color: var(--s-tenue); margin-bottom: var(--sp-3);
+  }
+  .dettato__t b { color: var(--s-oro); font-weight: 600; }
+  .dettato__q { font-variant-numeric: tabular-nums; }
+  .dettato__c {
+    display: grid; gap: var(--sp-3) var(--sp-4);
+    grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  }
+  .dettato__g { break-inside: avoid; }
+  .dettato__n {
+    font-size: var(--fs-1); letter-spacing: .14em; text-transform: uppercase;
+    color: var(--s-tenue); margin: 0 0 4px; padding-bottom: 3px;
+    border-bottom: 1px solid var(--s-bordo);
+  }
+  .dettato__v {
+    display: flex; justify-content: space-between; gap: var(--sp-2);
+    font-size: var(--fs-2); line-height: 1.5; color: var(--s-testo);
+  }
+  .dettato__v.is-vuota { color: var(--s-tenue); }
+  .dettato__v.is-piena b { color: var(--s-oro); font-variant-numeric: tabular-nums; }
+  .dettato__v.is-nuova { animation: acceso 1s var(--ease); }
+  @keyframes acceso { from { background: color-mix(in srgb, var(--s-oro) 30%, transparent); } }
+
   .micro { display: inline-flex; align-items: center; gap: 6px; }
   .micro.is-ascolto {
     border-color: var(--s-oro); color: var(--s-oro);
@@ -640,6 +676,16 @@
     <button class="b" type="button" id="b-ante">Anteprima</button>
     <button class="b" type="button" id="b-pdf">PDF</button>
     <button class="b b--pieno" type="button" id="b-link">Link cliente</button>
+  </div>
+
+  <!-- Mentre detta: tutte le voci sotto gli occhi, per sapere cosa dire. -->
+  <div class="dettato" id="dettato" hidden>
+    <div class="dettato__t">
+      <b>Voci disponibili</b> — dì il nome e la cifra: «director mille»
+      <span class="sp"></span>
+      <span class="dettato__q" id="dettato-q"></span>
+    </div>
+    <div class="dettato__c" id="dettato-c"></div>
   </div>
 
   <div class="scena" id="scena">
@@ -1993,17 +2039,38 @@
     return fuori;
   }
 
+  // L'elenco di tutto quello che puo' dire, con le cifre gia' messe.
+  function disegnaDettato(appena) {
+    var quante = 0, piene = 0;
+    $('#dettato-c').innerHTML = d.g.map(function (g, gi) {
+      return '<div class="dettato__g"><p class="dettato__n">' + escT(g.t) + '</p>' +
+        g.i.map(function (v, vi) {
+          quante++;
+          var ha = v.p > 0 && v.on !== false;
+          if (ha) piene++;
+          var nuova = appena && appena.gi === gi && appena.vi === vi;
+          return '<div class="dettato__v ' + (ha ? 'is-piena' : 'is-vuota') +
+            (nuova ? ' is-nuova' : '') + '">' +
+            '<span>' + escT(v.d) + '</span>' +
+            (ha ? '<b>' + PREVENTIVO.euro(v.p) + '</b>' : '') + '</div>';
+        }).join('') + '</div>';
+    }).join('');
+    $('#dettato-q').textContent = piene + ' su ' + quante + ' compilate';
+  }
+
   function applicaVoce(testo) {
-    var fatte = [], perse = [];
+    var fatte = [], perse = [], ultima = null;
     coppie(testo).forEach(function (c) {
       var dove = trovaVoce(c.nome);
       if (!dove) { perse.push(c.nome); return; }
       var v = d.g[dove.gi].i[dove.vi];
       v.p = c.cifra;
       v.on = true;
+      ultima = dove;
       fatte.push(v.d + ' ' + PREVENTIVO.euro(c.cifra, 1));
     });
     if (fatte.length) { disegnaVoci(); aggiorna(); }
+    if (inAscolto) disegnaDettato(ultima);
     if (fatte.length && !perse.length) avvisa('Scritto: ' + fatte.join(' · '));
     else if (fatte.length) avvisa('Scritto: ' + fatte.join(' · ') + '. Non trovate: ' + perse.join(', '));
     else avvisa('Ho sentito «' + testo + '» ma non ho trovato la voce.');
@@ -2013,6 +2080,7 @@
     inAscolto = false;
     $('#b-voce').classList.remove('is-ascolto');
     $('#b-voce-t').textContent = 'Detta';
+    $('#dettato').hidden = true;
     if (ascoltatore) { try { ascoltatore.stop(); } catch (e) {} }
   }
 
@@ -2041,6 +2109,9 @@
         inAscolto = true;
         $('#b-voce').classList.add('is-ascolto');
         $('#b-voce-t').textContent = 'Ascolto…';
+        disegnaDettato(null);
+        $('#dettato').hidden = false;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         avvisa('Dimmi le voci: «director mille, dop ottocento». Premi di nuovo per fermare.');
       } catch (e) { fermaAscolto(); }
     });
