@@ -228,6 +228,11 @@
   .tab.con-scelta th:nth-child(5) { width: 9.5rem; }
   .tab.con-scelta th:nth-child(6) { width: 9rem; }
   .tab.con-scelta th:nth-child(7) { width: 3.5rem; }
+  /* Nel cestino l'ultima colonna tiene "Ripristina" piu' la ×: con i 3,5rem
+     della tabella normale il contenuto usciva dai filetti della riga. */
+  .tab--ces th:nth-child(5) { width: 7rem; }
+  .tab--ces th:nth-child(6) { width: 10.5rem; }
+  .tab--ces td[data-c=mn] { text-align: right; }
   .tab td[data-c=sel] { padding-right: 0; }
   /* La casella e' 16px, ma il dito ne vuole 40: il <label> le sta intorno
      con del margine di tocco che non sposta l'impaginato. */
@@ -985,7 +990,7 @@
 
 <dialog class="chiedi" id="conferma" aria-labelledby="conferma-t">
   <div class="chiedi__box">
-    <h2 id="conferma-t">Un momento</h2>
+    <h2 id="conferma-t">Attenzione</h2>
     <p class="chiedi__n" id="conferma-d"></p>
     <div class="chiedi__a">
       <button class="b" type="button" id="conferma-x">Annulla</button>
@@ -1372,7 +1377,7 @@
       return;
     }
     $('#elenco').innerHTML =
-      '<table class="tab"><caption class="solo-lettori">Preventivi nel cestino</caption>' +
+      '<table class="tab tab--ces"><caption class="solo-lettori">Preventivi nel cestino</caption>' +
       '<thead><tr><th scope="col">Preventivo</th><th scope="col" class="num">N.</th>' +
       '<th scope="col" class="num">Eliminato</th><th scope="col" class="num">Importo</th>' +
       '<th scope="col">Resta</th><th scope="col"><span class="solo-lettori">Azioni</span></th>' +
@@ -1997,7 +2002,7 @@
     $('#scelta-g').innerHTML =
       '<div class="mdl">' +
         '<button class="mdl__b mdl__b--vuoto" type="button" data-usa="">' +
-          '<b>Preventivo vuoto</b><span>Catalogo pulito, nessuna tariffa</span>' +
+          '<b>Nuovo</b>' +
         '</button>' +
       '</div>' +
       elenco.map(function (x) {
