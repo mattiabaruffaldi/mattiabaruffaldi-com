@@ -581,6 +581,34 @@
   .chiedi__n { margin: 0; font-size: var(--fs-2); color: var(--s-tenue); line-height: 1.5; }
   .chiedi__a { display: flex; justify-content: flex-end; gap: var(--sp-2); margin-top: var(--sp-3); }
 
+  /* Intestatari: piu' larga della finestra "chiedi un nome", e con l'elenco
+     che scorre se ne ha tre o quattro. */
+  .chiedi--largo { width: min(560px, calc(100vw - 2 * var(--sp-4))); }
+  .int__elenco { display: flex; flex-direction: column; gap: var(--sp-3);
+    max-height: min(56vh, 460px); overflow: auto; padding-right: 2px; }
+  .int__b { display: flex; flex-direction: column; gap: var(--sp-2);
+    padding: var(--sp-3); border: 1px solid var(--s-bordo); border-radius: var(--r);
+    background: var(--s-fondo); }
+  .int__b input, .int__b textarea {
+    width: 100%; padding: var(--sp-2) var(--sp-3);
+    border: 1px solid var(--s-bordo2); border-radius: var(--r);
+    background: var(--s-piano); color: inherit; font: inherit; font-size: var(--fs-3);
+  }
+  .int__b textarea { min-height: 84px; resize: vertical; line-height: 1.5; }
+  .int__b input:focus-visible, .int__b textarea:focus-visible {
+    outline: 2px solid var(--s-oro); outline-offset: 1px;
+  }
+  .int__t { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-2); }
+  .int__t span { font-size: var(--fs-1); letter-spacing: .12em;
+    text-transform: uppercase; color: var(--s-tenue); }
+  .int__t button { border: 0; background: none; color: var(--s-tenue);
+    cursor: pointer; font: inherit; font-size: var(--fs-2); padding: 0; }
+  .int__t button:hover { color: var(--s-rosso); }
+  .int__e { font-size: var(--fs-1); letter-spacing: .12em;
+    text-transform: uppercase; color: var(--s-tenue); }
+  .campo__riga { display: flex; gap: var(--sp-2); align-items: stretch; }
+  .campo__riga select { flex: 1 1 auto; min-width: 0; }
+
   .mdl__n {
     width: 100%; min-height: 76px; padding: var(--sp-3);
     border: 1px solid var(--s-oro); border-radius: var(--r);
@@ -900,10 +928,10 @@
         </button>
         <div class="griglia" id="prog-c">
           <div class="campo"><label for="f-h">Intestato a</label>
-            <select id="f-h" data-k="h">
-              <option value="mb">Mattia Baruffaldi</option>
-              <option value="unreal">Unreal Srl</option>
-            </select></div>
+            <div class="campo__riga">
+              <select id="f-h" data-k="h"></select>
+              <button class="b b--min" type="button" id="int-apri">Modifica</button>
+            </div></div>
           <div class="campo"><label for="f-cl">Cliente</label>
             <input id="f-cl" data-k="cl" placeholder="Nome del cliente"
                    list="clienti-noti" autocomplete="off">
@@ -1033,6 +1061,26 @@
   </form>
 </dialog>
 
+<!-- Intestatari — i dati di chi emette il preventivo.
+     Stanno nel browser (`mb-intestatari`), MAI nei file del sito: questo
+     repository e' pubblico. Nel preventivo del cliente viaggiano dentro il
+     link, come tutto il resto. -->
+<dialog class="chiedi chiedi--largo" id="int" aria-labelledby="int-t">
+  <div class="chiedi__box">
+    <h2 id="int-t">Intestatari</h2>
+    <p class="chiedi__n">Chi emette il preventivo. Restano nel browser di
+      questo computer, non nel sito: se cambi computer li riscrivi.</p>
+    <div id="int-elenco" class="int__elenco"></div>
+    <div class="chiedi__a" style="justify-content:space-between">
+      <button class="b b--min" type="button" id="int-piu">+ intestatario</button>
+      <span style="display:flex;gap:var(--sp-2)">
+        <button class="b" type="button" id="int-x">Annulla</button>
+        <button class="b b--pieno" type="button" id="int-ok">Salva</button>
+      </span>
+    </div>
+  </div>
+</dialog>
+
 <dialog class="chiedi" id="conferma" aria-labelledby="conferma-t">
   <div class="chiedi__box">
     <h2 id="conferma-t">Attenzione</h2>
@@ -1053,7 +1101,7 @@
 
 <div id="menu" popover></div>
 
-<script src="/js/quote.js?v=4d6d2736"></script>
+<script src="/js/quote.js?v=acc1c476"></script>
 <script>
 (function () {
   'use strict';
@@ -1163,6 +1211,93 @@
     $('#conferma-x').focus();
   }
   var confermaPoi = null;
+
+  /* ---------- Intestatari ----------
+     I dati di chi emette il preventivo non stanno piu' nel codice: questo
+     repository e' pubblico, e li' dentro c'erano indirizzo, telefono, IBAN
+     e i dati della societa'. Ora vivono nel browser (`mb-intestatari`) e
+     viaggiano nel link del cliente dentro il preventivo (campo `he`).
+
+     Se l'elenco e' vuoto, il documento esce senza intestazione: non
+     inventiamo niente al posto suo. */
+  function intCampi(x, n) {
+    var b = document.createElement('div');
+    b.className = 'int__b';
+    b.innerHTML =
+      '<div class="int__t"><span>Intestatario ' + (n + 1) + '</span>' +
+        '<button type="button" data-int-del>Elimina</button></div>' +
+      '<label class="int__e">Nome</label>' +
+      '<input data-i="nome" placeholder="Es. Studio Rossi">' +
+      '<label class="int__e">Sotto il nome</label>' +
+      '<input data-i="ruolo" placeholder="Es. Rossi Srl · oppure Director / DOP">' +
+      '<label class="int__e">Righe — una per riga</label>' +
+      '<textarea data-i="righe" placeholder="Indirizzo&#10;P.IVA&#10;Email&#10;Telefono&#10;IBAN"></textarea>' +
+      '<label class="int__e">Piede di pagina</label>' +
+      '<input data-i="piede" placeholder="Facoltativo">';
+    b.querySelector('[data-i="nome"]').value = x.nome || '';
+    b.querySelector('[data-i="ruolo"]').value = x.ruolo || '';
+    b.querySelector('[data-i="righe"]').value = (x.righe || []).join('\n');
+    b.querySelector('[data-i="piede"]').value = x.piede || '';
+    return b;
+  }
+  function intDisegna(elenco) {
+    var box = $('#int-elenco');
+    box.textContent = '';
+    if (!elenco.length) elenco.push({ nome: '', ruolo: '', righe: [], piede: '' });
+    elenco.forEach(function (x, i) { box.appendChild(intCampi(x, i)); });
+  }
+  function intLeggi() {
+    return [].slice.call($('#int-elenco').children).map(function (b) {
+      function v(k) { return (b.querySelector('[data-i="' + k + '"]').value || '').trim(); }
+      return {
+        nome: v('nome'), ruolo: v('ruolo'),
+        righe: v('righe').split('\n').map(function (r) { return r.trim(); })
+                 .filter(function (r) { return r; }),
+        piede: v('piede')
+      };
+    }).filter(function (x) {
+      return x.nome || x.ruolo || x.righe.length || x.piede;
+    });
+  }
+  // Riempie il menu "Intestato a". Il valore e' la posizione nell'elenco.
+  function intMenu() {
+    var s = $('#f-h'), a = PREVENTIVO.intestatari();
+    s.textContent = '';
+    if (!a.length) {
+      s.appendChild(new Option('— nessuno, premi Modifica —', ''));
+    } else {
+      a.forEach(function (x, i) {
+        s.appendChild(new Option(x.nome || x.ruolo || ('Intestatario ' + (i + 1)), String(i)));
+      });
+    }
+    var scelto = parseInt(d && d.h, 10);
+    s.value = (scelto >= 0 && scelto < a.length) ? String(scelto) : (a.length ? '0' : '');
+  }
+  $('#int-apri').addEventListener('click', function () {
+    intDisegna(PREVENTIVO.intestatari());
+    if (!$('#int').open) $('#int').showModal();
+  });
+  $('#int-piu').addEventListener('click', function () {
+    var box = $('#int-elenco');
+    box.appendChild(intCampi({}, box.children.length));
+    box.lastChild.querySelector('input').focus();
+  });
+  $('#int-elenco').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-int-del]');
+    if (!b) return;
+    b.closest('.int__b').remove();
+    if (!$('#int-elenco').children.length) intDisegna([]);
+  });
+  $('#int-x').addEventListener('click', function () { $('#int').close(); });
+  $('#int-ok').addEventListener('click', function () {
+    PREVENTIVO.salvaIntestatari(intLeggi());
+    $('#int').close();
+    intMenu();
+    if (d) d.h = $('#f-h').value;
+    aggiorna();
+    avvisa('Intestatari salvati');
+  });
+
   $('#conferma-x').addEventListener('click', function () { $('#conferma').close(); });
   $('#conferma').addEventListener('close', function () { confermaPoi = null; });
   $('#conferma-ok').addEventListener('click', function () {
@@ -2178,7 +2313,11 @@
      ================================================================== */
   var campi = [].slice.call(document.querySelectorAll('[data-k]'));
   function daModello() {
+    // Il menu degli intestatari si rifa' a ogni apertura: le voci arrivano
+    // dal browser, non dall'HTML, e possono essere cambiate un attimo prima.
+    intMenu();
     campi.forEach(function (el) {
+      if (el.id === 'f-h') return;   // gia' impostato da intMenu()
       var v = d[el.dataset.k];
       el.value = Array.isArray(v) ? v.join('\n') : (v == null ? '' : v);
     });

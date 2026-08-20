@@ -9,34 +9,60 @@
   var PREVENTIVO = {};
 
   /* ------------------------------------------------------------------
-     Intestazione: i suoi dati
+     Intestatari — chi emette il preventivo
+
+     ** QUI DENTRO NON C'E' NESSUN DATO, E NON DEVE TORNARCENE NESSUNO. **
+     Prima in questo file c'erano indirizzo, telefono e IBAN suoi, e i dati
+     della societa' con cui lavora. Questo repository e' pubblico: era come
+     pubblicarli su una pagina. Ora stanno in due posti, tutti e due fuori
+     dal codice:
+
+     1. nel **browser** di chi compila (`localStorage`, chiave
+        `mb-intestatari`), scritti una volta dal pannello "Intestatari"
+        dello studio;
+     2. dentro il **preventivo** (campo `he`), cosi' viaggiano nel link e
+        la pagina del cliente li vede senza doverli avere nel codice.
+
+     Chi legge un preventivo usa sempre il punto 2. Il punto 1 serve solo a
+     lui mentre compila.
      ------------------------------------------------------------------ */
-  PREVENTIVO.intestazioni = {
-    mb: {
-      nome: 'Mattia Baruffaldi',
-      ruolo: 'Director / DOP',
-      righe: [
-        'Via Vallarsa 11, 20139 Milano',
-        'info@mattiabaruffaldi.com',
-        '+39 346 475 5599',
-        'IBAN IT67G0306952290100000005478'
-      ],
-      piede: ''
-    },
-    unreal: {
-      nome: 'Unreal Media House',
-      ruolo: 'Unreal Srl',
-      righe: [
-        'Via Amedeo Avogadro 24, Torino',
-        'P.IVA e C.F. 13384890011',
-        'ciao@weareunreal.it',
-        '+39 393 916 9952'
-      ],
-      piede: 'Unreal Srl · ciao@weareunreal.it · +39 393 916 9952 · weareunreal.it'
-    }
+  PREVENTIVO.CHIAVE_INTESTATARI = 'mb-intestatari';
+  PREVENTIVO.INTESTATARIO_VUOTO = { nome: '', ruolo: '', righe: [], piede: '' };
+
+  function normalizzaTesta(h) {
+    if (!h) return PREVENTIVO.INTESTATARIO_VUOTO;
+    return {
+      nome: h.nome || '',
+      ruolo: h.ruolo || '',
+      righe: (h.righe || []).filter(function (r) { return r && String(r).trim(); }),
+      piede: h.piede || ''
+    };
+  }
+
+  // L'elenco salvato nel browser. Vuoto = non ancora configurato.
+  PREVENTIVO.intestatari = function () {
+    try {
+      var a = JSON.parse(localStorage.getItem(PREVENTIVO.CHIAVE_INTESTATARI) || '[]');
+      return Array.isArray(a) ? a : [];
+    } catch (e) { return []; }
   };
+  PREVENTIVO.salvaIntestatari = function (a) {
+    try {
+      localStorage.setItem(PREVENTIVO.CHIAVE_INTESTATARI, JSON.stringify(a || []));
+    } catch (e) {}
+  };
+
+  // `d.he` = l'intestatario gia' dentro il preventivo: e' quello che vede il
+  // cliente, ed e' l'unico che esiste sulla pagina /quote/. `d.h` e' l'indice
+  // scelto nello studio, e vale solo mentre lui compila.
   PREVENTIVO.testa = function (d) {
-    return PREVENTIVO.intestazioni[(d && d.h) || 'mb'] || PREVENTIVO.intestazioni.mb;
+    if (d && d.he) return normalizzaTesta(d.he);
+    var a = PREVENTIVO.intestatari();
+    // `h` arriva dal <select> come stringa ("0", "1"). I preventivi vecchi
+    // ce l'hanno come parola ('mb', 'unreal'): quelli cadono sul primo.
+    var i = parseInt(d && d.h, 10);
+    if (!(i >= 0)) i = 0;
+    return normalizzaTesta(a[i] || a[0]);
   };
 
   /* ------------------------------------------------------------------
@@ -246,9 +272,9 @@
       nt: 'Operazione senza applicazione dell’IVA ai sensi dell’art. 1, commi 54-89, L. 190/2014.'
     },
 
-    // Versione 4 (ago 2026): testi presi dal suo preventivo Unreal.
+    // Versione 4 (ago 2026): testi presi da un suo preventivo vero.
     // `excn` e' la nota sotto la colonna degli esclusi; `{nome}` diventa
-    // l'intestatario, cosi' non c'e' scritto "Unreal Srl" su un preventivo
+    // l'intestatario, cosi' non c'e' scritto il nome sbagliato su un preventivo
     // intestato a lui.
     4: {
       dl: [
@@ -452,6 +478,10 @@
     Object.keys(d).forEach(function (k) {
       var v = d[k];
       if (k === 'id' || k === 'st' || k === 'nx') return;
+      // `h` e' l'indice dell'intestatario nel SUO browser: al cliente non
+      // dice niente. Al suo posto viaggia `he`, l'intestatario per esteso
+      // (vedi sotto), perche' i dati non stanno piu' nel codice.
+      if (k === 'h' || k === 'he') return;
       // Le consegne viaggiano gia' filtrate: nel link vanno solo quelle
       // spuntate, senza la spunta. Se coincidono col predefinito si saltano
       // come tutto il resto.
@@ -473,6 +503,11 @@
       c[k] = v;
     });
     if (pred) c.dv = d.dv;
+    // L'intestatario per esteso: e' l'unico modo che ha la pagina del
+    // cliente di sapere chi manda il preventivo, ora che i dati non sono
+    // piu' scritti in questo file. Se e' vuoto non lo mando.
+    var he = PREVENTIVO.testa(d);
+    if (he.nome || he.ruolo || he.righe.length || he.piede) c.he = he;
     c.g = (d.g || []).map(function (g) {
       return { t: g.t, i: (g.i || []).filter(function (v) {
         return v.on !== false && (PREVENTIVO.totaleVoce(v, d) > 0 || v.f);
