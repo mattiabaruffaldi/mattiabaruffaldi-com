@@ -172,9 +172,59 @@
       pg: 'Bank transfer, 60 days end of month.',
       wd: 'Documented expenses and lost profit, set at 60% of the agreed fee.',
       nt: 'Operazione senza applicazione dell’IVA ai sensi dell’art. 1, commi 54-89, L. 190/2014.'
+    },
+
+    // Versione 2 (ago 2026): le consegne diventano un elenco da spuntare.
+    // `on: false` vuol dire "disponibile ma non in questo preventivo": nel
+    // documento non compare, nello studio si vede con la spunta vuota.
+    // Le due in cima sono quelle che usa quasi sempre.
+    2: {
+      dl: [
+        { d: 'Main video', n: '16:9 · @1’ · 4K', q: '1', on: true },
+        { d: 'Social video contents', n: '9:16 · @10-30” · FHD', q: '3', on: true },
+        { d: 'Retouched still images', n: '', q: '@50', on: false },
+        { d: 'Reworks per produced video', n: '', q: '3', on: false },
+        { d: 'Hard drives', n: 'master + backup', q: '2', on: false },
+        { d: 'Teaser', n: '16:9 · @30” · 4K', q: '1', on: false },
+        { d: 'Behind the scenes', n: '16:9 · @1’ · 4K', q: '1', on: false }
+      ],
+      inc: [
+        'Full camera, lens and lighting package',
+        'Editing and retouch of selected images',
+        'Color correction on film and social contents'
+      ],
+      exc: [
+        'Location and permits',
+        'Make-up, hair and styling',
+        'Shooting days beyond those estimated',
+        'Travel and accommodation'
+      ],
+      ur: [
+        { b: 'Web', t: 'websites and company digital channels' },
+        { b: 'BTL materials', t: 'brochures, flyers, catalogues, presentations' },
+        { b: 'Print', t: 'magazines and printed editorial or promotional media' }
+      ],
+      urn: 'TV advertising, billboards, OOH and sponsored social media are not included and will be quoted separately.',
+      vl: '10 days from presentation.',
+      iv: '30% on acceptance, 70% on delivery.',
+      pg: 'Bank transfer, 60 days end of month.',
+      wd: 'Documented expenses and lost profit, set at 60% of the agreed fee.',
+      nt: 'Operazione senza applicazione dell’IVA ai sensi dell’art. 1, commi 54-89, L. 190/2014.'
     }
   };
-  PREVENTIVO.DV = 1;
+  PREVENTIVO.DV = 2;
+
+  // Le consegne spuntate, senza la spunta: e' quello che va nel link e nel
+  // documento. Le altre restano solo nello studio.
+  PREVENTIVO.consegneAttive = function (dl) {
+    return (dl || []).filter(function (x) { return x && x.on !== false; })
+      .map(function (x) {
+        var o = { d: x.d };
+        if (x.n) o.n = x.n;
+        if (x.q) o.q = x.q;
+        return o;
+      });
+  };
   PREVENTIVO.predefiniti = function (dv) {
     return PREVENTIVO.PREDEFINITI[dv] || null;
   };
@@ -279,6 +329,15 @@
     Object.keys(d).forEach(function (k) {
       var v = d[k];
       if (k === 'id' || k === 'st') return;
+      // Le consegne viaggiano gia' filtrate: nel link vanno solo quelle
+      // spuntate, senza la spunta. Se coincidono col predefinito si saltano
+      // come tutto il resto.
+      if (k === 'dl') {
+        var mie = PREVENTIVO.consegneAttive(v);
+        var suo = pred ? PREVENTIVO.consegneAttive(pred.dl) : null;
+        if (!suo || JSON.stringify(mie) !== JSON.stringify(suo)) c.dl = mie;
+        return;
+      }
       if (pred && Object.prototype.hasOwnProperty.call(pred, k)) {
         // Campo con un testo standard: lo salto solo se e' IDENTICO. Se lui
         // l'ha svuotato va scritto lo stesso, se no chi legge ci rimetterebbe
@@ -452,10 +511,12 @@
       '<div class="q-num">2 / 3</div></section>';
 
     /* ---- foglio 3: consegne e condizioni ---- */
-    var consegne = (d.dl || []).map(function (x) {
+    // Solo le consegne spuntate: le altre stanno nell'elenco dello studio
+    // per essere pescate al volo, non nel documento del cliente.
+    var consegne = PREVENTIVO.consegneAttive(d.dl).map(function (x) {
       return '<li><span><b>' + esc(x.d) + '</b>' +
         (x.n ? '<span class="q-it__n">' + esc(x.n) + '</span>' : '') +
-        '</span><span class="q-qty">' + esc(x.q) + '</span></li>';
+        '</span><span class="q-qty">' + esc(x.q || '') + '</span></li>';
     }).join('');
     var elenco = function (a) {
       return (a || []).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('');

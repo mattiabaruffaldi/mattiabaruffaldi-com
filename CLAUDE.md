@@ -222,6 +222,21 @@ file. Vuota = studio aperto senza chiedere niente.
   (stessa conversazione dei link corti), oppure cifrare l'archivio con la
   password — che pero' vuol dire perdere tutto se la dimentica.
 
+### Consegne da spuntare (ago 2026)
+Le Deliverables non erano modificabili: arrivavano fisse dai testi standard.
+Ora sono una sezione dello studio, con la stessa riga delle voci ma senza
+prezzi: spunta · nome · formato · quantita' · elimina.
+
+- `d.dl` e' l'elenco **completo**, con `on: false` su quelle disponibili ma
+  non usate in quel preventivo. Nel link e nel documento vanno **solo le
+  spuntate**, senza la spunta (`PREVENTIVO.consegneAttive`).
+- La quantita' e' testo, non numero: certe consegne si scrivono "@50".
+- **I testi standard sono passati alla versione 2** (`PREVENTIVO.DV = 2`).
+  La 1 NON e' stata toccata: i tre VVENA e ogni link gia' mandato hanno
+  `dv: 1` e continuano a mostrare le consegne di allora. Verificato.
+  E' esattamente il motivo per cui quel meccanismo esiste: **quando cambi
+  un testo standard aggiungi una versione, non modifichi quella vecchia.**
+
 ### Il PDF deve stare in 3 pagine (ago 2026)
 Ogni `.q-sheet` deve entrare in **una** pagina A4. Prima non ci entrava: i
 fogli venivano 302-369mm contro i 297 disponibili, quindi ognuno si portava

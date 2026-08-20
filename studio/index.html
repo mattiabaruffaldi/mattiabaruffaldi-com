@@ -436,6 +436,20 @@
        cursor: pointer; border-radius: var(--r); font-size: var(--fs-5); line-height: 1; }
   .x:hover { background: #3a2320; color: var(--s-rosso); }
 
+  /* Consegne: stessa riga delle voci ma senza prezzi. La quantita' e' un
+     campo di testo, non un numero: certe consegne si scrivono "@50". */
+  .intest--cons, .riga--cons {
+    grid-template-columns: 24px minmax(9rem, 1.4fr) minmax(9rem, 1.2fr) 6rem 30px;
+  }
+  .intest--cons span:nth-child(4) { text-align: right; }
+  .riga--cons .qta { text-align: right; }
+  @media (max-width: 52rem) {
+    .intest--cons { display: none; }
+    .riga--cons { grid-template-columns: 24px 1fr 30px; row-gap: var(--sp-1); }
+    .riga--cons > :nth-child(3) { grid-column: 2 / 4; }
+    .riga--cons > :nth-child(4) { grid-column: 2 / 4; text-align: left; }
+  }
+
   .azioni-b { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--sp-3); }
   .mag { display: grid; gap: var(--sp-2); }
   .mag__r { display: grid; grid-template-columns: 1fr 6rem 7rem 30px; gap: var(--sp-2); align-items: center; }
@@ -638,6 +652,16 @@
       </section>
 
       <section class="sez">
+        <h2 class="sez__t">Consegne</h2>
+        <div class="intest intest--cons"><span></span><span>Consegna</span>
+          <span>Formato</span><span>Quantità</span><span></span></div>
+        <div id="consegne"></div>
+        <div class="azioni-b">
+          <button class="b b--min" type="button" id="b-consegna">+ consegna</button>
+        </div>
+      </section>
+
+      <section class="sez">
         <h2 class="sez__t">Cosa si aggiunge al totale</h2>
         <div class="mag" id="mag"></div>
         <div class="azioni-b">
@@ -699,7 +723,7 @@
 
 <div id="menu" popover></div>
 
-<script src="/js/quote.js?v=6b706fd1"></script>
+<script src="/js/quote.js?v=c6f8d2d2"></script>
 <script>
 (function () {
   'use strict';
@@ -1281,7 +1305,7 @@
         d.mag = Array.isArray(d.mag) ? d.mag : [];
         d.st = 'bozza';
         aperto = 0;
-        daModello(); disegnaVoci(); disegnaMag(); aggiorna();
+        daModello(); disegnaVoci(); disegnaConsegne(); disegnaMag(); aggiorna();
       }
 
       disegnaHome();
@@ -1369,7 +1393,7 @@
     if (!Array.isArray(d.mag)) d.mag = [];
     if (!d.st) d.st = 'bozza';
     aperto = 0;
-    daModello(); disegnaVoci(); disegnaMag(); aggiorna();
+    daModello(); disegnaVoci(); disegnaConsegne(); disegnaMag(); aggiorna();
     // Il salvataggio automatico ha 700 ms di ritardo: senza questo, per
     // quel mezzo secondo la barra direbbe "scrivi un titolo" a un
     // preventivo che il titolo ce l'ha e sta gia' in archivio.
@@ -1383,7 +1407,7 @@
     d.st = 'bozza';
     d.id = nuovoId();
     aperto = 0;
-    daModello(); disegnaVoci(); disegnaMag();
+    daModello(); disegnaVoci(); disegnaConsegne(); disegnaMag();
     vaiA('edit', d.id);
     $('#f-cl').focus();
   }
@@ -1557,6 +1581,51 @@
     disegnaVoci(); aggiorna();
   });
 
+  /* ---------- consegne ----------
+     Un elenco da spuntare: quelle che usa spesso stanno gia' li', le altre
+     si aggiungono. Nel documento del cliente vanno solo le spuntate. */
+  function disegnaConsegne() {
+    if (!Array.isArray(d.dl)) d.dl = [];
+    $('#consegne').innerHTML = d.dl.map(function (x, i) {
+      var on = x.on !== false;
+      return '<div class="riga riga--cons' + (on ? '' : ' spenta') + '" data-dl="' + i + '">' +
+        '<input type="checkbox"' + (on ? ' checked' : '') + ' aria-label="Includi">' +
+        '<input value="' + esc(x.d) + '" data-df="d" aria-label="Consegna">' +
+        '<input value="' + esc(x.n) + '" data-df="n" placeholder="16:9 · @1’ · 4K" aria-label="Formato">' +
+        '<input class="qta" value="' + esc(x.q) + '" data-df="q" placeholder="1" aria-label="Quantità">' +
+        '<button class="x" type="button" data-deldl="' + i + '" aria-label="Elimina consegna">&times;</button>' +
+        '</div>';
+    }).join('') || '<p class="aiuto">Nessuna consegna: la sezione non compare nel documento.</p>';
+  }
+  $('#consegne').addEventListener('input', function (e) {
+    var box = e.target.closest('[data-dl]'); if (!box) return;
+    var x = d.dl[box.dataset.dl]; if (!x) return;
+    if (e.target.type === 'checkbox') {
+      x.on = e.target.checked;
+      box.classList.toggle('spenta', !e.target.checked);
+    } else {
+      x[e.target.dataset.df] = e.target.value;
+    }
+    aggiorna();
+  });
+  $('#consegne').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-deldl]'); if (!b) return;
+    var i = +b.dataset.deldl;
+    var tolta = d.dl[i];
+    d.dl.splice(i, 1);
+    disegnaConsegne(); aggiorna();
+    avvisa('Consegna «' + (tolta.d || 'senza nome') + '» eliminata.', 'Annulla', function () {
+      d.dl.splice(i, 0, tolta); disegnaConsegne(); aggiorna();
+    });
+  });
+  $('#b-consegna').addEventListener('click', function () {
+    if (!Array.isArray(d.dl)) d.dl = [];
+    d.dl.push({ d: 'Nuova consegna', n: '', q: '1', on: true });
+    disegnaConsegne(); aggiorna();
+    var r = $('#consegne').querySelectorAll('.riga--cons');
+    r[r.length - 1].querySelector('[data-df=d]').select();
+  });
+
   function disegnaMag() {
     var c = PREVENTIVO.conti(d);
     $('#mag').innerHTML = d.mag.map(function (m, i) {
@@ -1702,7 +1771,7 @@
 
   function avvia() {
     $('#chiave').hidden = true;
-    daModello(); disegnaVoci(); disegnaMag();
+    daModello(); disegnaVoci(); disegnaConsegne(); disegnaMag();
     segnaSalvataggio(null);
     dallIndirizzo();
   }
