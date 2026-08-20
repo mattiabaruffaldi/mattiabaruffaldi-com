@@ -346,18 +346,22 @@ Si genera dallo studio: filtra per cliente e premi **"Link con questi N"**.
   browser la localizzazione italiana e' incompleta e sparisce il punto delle
   migliaia (5500 invece di 5.500).
 
-### La barra dell'editor (ago 2026)
-Aveva sette controlli tutti allo stesso peso: Anteprima, PDF e Link cliente
-sembravano la stessa cosa, e "3 pagine" era una pastiglia col bordo che in
-mezzo ai pulsanti si leggeva come un pulsante spento.
+### La barra dell'editor e la colonna di lavoro (ago 2026)
+La barra aveva sette controlli tutti allo stesso peso: Anteprima, PDF e Link
+cliente sembravano la stessa cosa.
 
-- Ora: **un solo pulsante pieno, "Link cliente"** (quello che manda il lavoro
-  fuori), e un menu `···` con Anteprima, Apri la versione cliente e Salva
-  come modello. "Detta" resta fuori perche' cambia da solo in "Ascolto…".
-- "3 pagine" e' **testo, non pastiglia**: e' un'informazione, non un comando.
-  Resta ambra quando un foglio non ci sta in una pagina.
-- Un filetto (`.barra__sep`) divide quello che il preventivo **dice** (stato,
-  pagine, totale) da quello che ci puoi **fare**.
+- **In alto restano due cose sole**: il menu `···` (Anteprima, Apri la
+  versione cliente, Salva come modello) e **"Link cliente"**, l'unico
+  pulsante pieno, l'unica azione che manda il lavoro fuori.
+- **Il resto sta nella colonna a destra** (`.lato`, sua richiesta): stato,
+  totale, "Detta" e **"Salva"**. Nel documento la colonna viene PRIMA del
+  modulo, cosi' sotto 62rem si legge sopra i campi invece di finire in fondo
+  alla pagina; `order` la manda a destra a schermo largo. Altezza piena come
+  la colonna dei clienti, se no il filetto si ferma a meta'.
+- **"Salva" non aggiunge niente di tecnico**: il salvataggio e' gia'
+  automatico. Serve a poterlo fare apposta e vedere che e' fatto.
+- **Via il conta-pagine** ("3 pagine", `contaPagine`/`mostraPagine`): l'ha
+  fatto togliere. Se serve di nuovo, sta nella cronologia git.
 - **Il cestino sta in fondo alla colonna dei clienti** (`.fianco__giu`,
   `margin-top: auto`), non in coda all'elenco dove con molti clienti finiva
   sotto la piega. Col cestino vuoto sparisce tutto il blocco, se no resta
@@ -368,6 +372,24 @@ mezzo ai pulsanti si leggeva come un pulsante spento.
   "Ducati" non diventa "ducati" per sbaglio — in archivio sarebbero due
   cartelle diverse.
 - **La data del preventivo e' il giorno**, non solo il mese: "20 August 2026".
+- **Numero del preventivo: "Ducati 0001"** (ago 2026) — nome del cliente piu'
+  un progressivo a quattro cifre, contato sui preventivi che quel cliente ha
+  gia' in archivio; senza cliente restano le quattro cifre. Si riscrive da
+  solo mentre scrivi il cliente finche' non tocchi il campo: da quel momento
+  `nx` lo lascia in pace, come `ddx` con le giornate. Anche "Duplica"
+  rinumera, se no al cliente arrivano due preventivi con lo stesso numero.
+  **Questo rovescia la decisione di prima** ("niente contatore, un n. 3 dice
+  al cliente quanti preventivi hai fatto"): l'ha chiesto lui, e il conto e'
+  per cliente, quindi dice solo a che punto siete voi due.
+- **Un preventivo si salva anche SENZA titolo** (ago 2026): basta il titolo
+  **oppure** una cifra. Prima serviva il titolo, e chi compilava tutto
+  dimenticandoselo perdeva il lavoro alla chiusura. In archivio finisce come
+  "Senza titolo", che si rinomina in un secondo. Il **solo nome del cliente
+  non basta** di proposito: se no ogni preventivo aperto e abbandonato
+  lascerebbe una riga vuota.
+- **Svuota il cestino chiede conferma** ("L'azione è irreversibile"), ed e'
+  l'**unico** posto: dappertutto si annulla dopo, ma da li' non si torna.
+  `chiediConferma()` sta accanto a `chiediNome()`, stesso stile di finestra.
 
 ### Archivio dei preventivi — FATTO (ago 2026)
 `/studio/` e' un **gestionale a due viste** in un solo file: `#v-home`
@@ -468,10 +490,15 @@ costruiscono i sistemi ad agenti. Non c'entra col sito e riempirebbe l'elenco.
 - **Non provare l'archivio sul suo browser vero senza mettere via i suoi dati.**
   Il salvataggio automatico scatta anche su `beforeunload`, quindi rimettere a
   posto `localStorage` e poi ricaricare **non serve a niente**: alla chiusura la
-  pagina riscrive tutto dai dati che ha in memoria. Per ripulire davvero si
-  passa **dai campi dell'interfaccia** (svuotare il Titolo basta a fermare
-  l'archiviazione), non da `localStorage`. Successo ad agosto 2026: la bozza che
-  aveva aperta e' stata sovrascritta con dati di prova.
+  pagina riscrive tutto dai dati che ha in memoria. Successo ad agosto 2026: la
+  bozza che aveva aperta e' stata sovrascritta con dati di prova.
+  **Il modo giusto e' provare su un'altra porta**: `python3 -m http.server 8013
+  --directory <copia>` con `CHIAVE_HASH` svuotata nella copia. Origine diversa
+  = `localStorage` diverso, quindi i suoi dati non si toccano nemmeno per
+  sbaglio. (Svuotare il Titolo **non** ferma piu' l'archiviazione: adesso basta
+  una cifra.) E attenzione ai click a coordinate su una pagina che non e' quella
+  che credi: due volte sono finito su **Esporta**, che scarica un file vero
+  nei suoi Download.
 - **MAI mettere `display` su `.player` / `.viewer` senza `[open]`.** Il browser
   nasconde un `<dialog>` chiuso con `dialog:not([open]) { display: none }`, ma
   quella regola sta nel foglio del *browser* e qualunque `display` scritto nel

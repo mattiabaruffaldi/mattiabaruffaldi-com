@@ -104,6 +104,8 @@
   .b--pieno:hover { background: #f6c47f; border-color: #f6c47f; color: #16161a; }
   .b--on { border-color: var(--s-oro); color: var(--s-oro); }
   .b--min { padding: 6px 10px; font-size: var(--fs-1); border-style: dashed; }
+  .b--rosso { border-color: #6a3328; color: var(--s-rosso); }
+  .b--rosso:hover { background: #3a2320; border-color: var(--s-rosso); color: var(--s-rosso); }
   .b[disabled] { opacity: .45; cursor: not-allowed; }
 
   /* ==================================================================
@@ -407,8 +409,6 @@
   /* Quante pagine viene il PDF, senza doverlo stampare per scoprirlo.
      E' un'informazione, non un comando: niente pastiglia col bordo, che
      in mezzo ai pulsanti si legge come un pulsante spento. */
-  .pagine { font-size: var(--fs-2); color: var(--s-tenue); white-space: nowrap; }
-  .pagine[data-lungo="1"] { color: var(--s-oro); }
   .indietro {
     display: inline-flex; align-items: center; gap: 6px;
     padding: var(--sp-2) var(--sp-3); border: 1px solid transparent; border-radius: var(--r);
@@ -420,17 +420,48 @@
   .barra__id b { display: block; font-size: var(--fs-4); font-weight: 600;
                  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 22rem; }
   .barra__id small { font-size: var(--fs-1); color: var(--s-tenue); }
-  .barra__t { text-align: right; line-height: 1.15; }
-  .barra__t small { display: block; font-size: var(--fs-1); letter-spacing: .14em;
-                    text-transform: uppercase; color: var(--s-tenue); }
-  .barra__t b { font-size: var(--fs-6); font-weight: 600; font-variant-numeric: tabular-nums; }
-  /* Divide quello che il preventivo DICE (stato, pagine, totale) da quello
-     che ci puoi FARE (menu, link cliente). */
-  .barra__sep { width: 1px; height: 24px; background: var(--s-bordo); }
   .piu--barra { color: var(--s-tenue); }
   .piu--barra:hover { color: var(--s-testo); }
 
+  /* Modulo a sinistra, colonna di lavoro a destra. Nel documento la colonna
+     viene PRIMA del modulo, cosi' da stretto si legge subito sopra i campi
+     invece di finire in fondo alla pagina; a schermo largo `order` la manda
+     a destra. */
   .scena { display: grid; grid-template-columns: 1fr; }
+  @media (min-width: 62rem) {
+    .scena { grid-template-columns: minmax(0, 1fr) 12.5rem; }
+    .lato { order: 2; }
+    .modulo { order: 1; }
+  }
+  .lato {
+    display: flex; flex-direction: column; gap: var(--sp-4);
+    padding: var(--sp-5) clamp(var(--sp-3), 2vw, var(--sp-4));
+    border-bottom: 1px solid var(--s-bordo);
+  }
+  @media (min-width: 62rem) {
+    .lato {
+      position: sticky; top: 57px; align-self: start;
+      /* altezza piena come la colonna dei clienti: se no il filetto si
+         ferma a meta' pagina e sembra un errore */
+      min-height: calc(100vh - 57px);
+      border-bottom: 0; border-left: 1px solid var(--s-bordo);
+    }
+  }
+  .lato__st select { width: 100%; }
+  .lato__t { line-height: 1.15; }
+  .lato__t small {
+    display: block; margin-bottom: 2px; font-size: var(--fs-1); letter-spacing: .14em;
+    text-transform: uppercase; color: var(--s-tenue);
+  }
+  .lato__t b { font-size: var(--fs-7); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .lato__a { display: flex; flex-direction: column; gap: var(--sp-2); }
+  .lato__b { justify-content: center; }
+  /* Da stretto la colonna torna una riga sola sopra i campi. */
+  @media (max-width: 61.99rem) {
+    .lato { flex-direction: row; align-items: center; gap: var(--sp-3); flex-wrap: wrap; }
+    .lato__t { margin-left: auto; text-align: right; }
+    .lato__a { flex-direction: row; }
+  }
   .modulo { padding: var(--sp-5) clamp(var(--sp-3), 2vw, var(--sp-5)) 90px;
             max-width: 82rem; margin-inline: auto; width: 100%; }
 
@@ -669,7 +700,6 @@
     .riga { grid-template-columns: 24px 1fr 30px; row-gap: var(--sp-1); }
     .riga > :nth-child(3) { grid-column: 2 / 4; }
     .barra__id b { max-width: 10rem; }
-    .barra__t { display: none; }
   }
 
   /* ---------- telefono ----------
@@ -768,23 +798,8 @@
     </button>
     <div class="barra__id"><b id="e-tit">Nuovo preventivo</b><small id="e-salv">Non ancora salvato</small></div>
     <span class="sp"></span>
-    <span class="stato" id="e-stato-w" data-v="bozza">
-      <select id="e-stato" aria-label="Stato del preventivo"></select>
-    </span>
-    <button class="b micro" type="button" id="b-voce" hidden
-            title="Detta le voci: «director 1000, dop 800»">
-      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor"
-           stroke-width="1.5" aria-hidden="true">
-        <rect x="5.5" y="1.5" width="5" height="8" rx="2.5"/>
-        <path d="M3 7.5a5 5 0 0 0 10 0M8 12.5V15"/>
-      </svg>
-      <span id="b-voce-t">Detta</span>
-    </button>
-    <span class="pagine" id="t-pag" title="Quante pagine viene il PDF"></span>
-    <div class="barra__t"><small>Totale</small><b id="t-tot">0,00 €</b></div>
-    <span class="barra__sep" aria-hidden="true"></span>
-    <!-- Anteprima, PDF e "salva come modello" stavano tutti scoperti sulla
-         barra, allo stesso peso del pulsante che conta. Ora stanno qui. -->
+    <!-- In alto solo le due cose che riguardano il preventivo intero. Stato,
+         totale, dettato e salvataggio stanno nella colonna a destra. -->
     <button class="piu piu--barra" type="button" id="b-altro"
             aria-label="Altre azioni per questo preventivo" aria-haspopup="menu">
       <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
@@ -814,6 +829,27 @@
   </div>
 
   <div class="scena" id="scena">
+    <!-- La colonna di lavoro: com'e' messo il preventivo (stato, totale) e i
+         due gesti che si fanno mentre lo compili (dettare, salvare). -->
+    <aside class="lato" aria-label="Stato del preventivo">
+      <span class="stato lato__st" id="e-stato-w" data-v="bozza">
+        <select id="e-stato" aria-label="Stato del preventivo"></select>
+      </span>
+      <div class="lato__t"><small>Totale</small><b id="t-tot">0,00 €</b></div>
+      <div class="lato__a">
+        <button class="b micro lato__b" type="button" id="b-voce" hidden
+                title="Detta le voci: «director 1000, dop 800»">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+               stroke-width="1.5" aria-hidden="true">
+            <rect x="5.5" y="1.5" width="5" height="8" rx="2.5"/>
+            <path d="M3 7.5a5 5 0 0 0 10 0M8 12.5V15"/>
+          </svg>
+          <span id="b-voce-t">Detta</span>
+        </button>
+        <button class="b lato__b" type="button" id="b-salva">Salva</button>
+      </div>
+    </aside>
+
     <div class="modulo">
 
       <section class="sez">
@@ -947,6 +983,17 @@
   </form>
 </dialog>
 
+<dialog class="chiedi" id="conferma" aria-labelledby="conferma-t">
+  <div class="chiedi__box">
+    <h2 id="conferma-t">Un momento</h2>
+    <p class="chiedi__n" id="conferma-d"></p>
+    <div class="chiedi__a">
+      <button class="b" type="button" id="conferma-x">Annulla</button>
+      <button class="b b--rosso" type="button" id="conferma-ok">Procedi</button>
+    </div>
+  </div>
+</dialog>
+
 </div><!-- /#app -->
 
 <div class="avviso" id="avviso" role="status" aria-live="polite">
@@ -1049,6 +1096,23 @@
     campo.focus(); campo.select();
   }
   var chiediPoi = null;
+  // Conferma prima di un'azione che non si annulla. Da usare con parsimonia:
+  // qui la regola resta "annullare invece di confermare".
+  function chiediConferma(testo, etichetta, poi) {
+    $('#conferma-d').textContent = testo;
+    $('#conferma-ok').textContent = etichetta;
+    confermaPoi = poi;
+    if (!$('#conferma').open) $('#conferma').showModal();
+    $('#conferma-x').focus();
+  }
+  var confermaPoi = null;
+  $('#conferma-x').addEventListener('click', function () { $('#conferma').close(); });
+  $('#conferma').addEventListener('close', function () { confermaPoi = null; });
+  $('#conferma-ok').addEventListener('click', function () {
+    var poi = confermaPoi;
+    $('#conferma').close();
+    if (poi) poi();
+  });
   $('#chiedi-x').addEventListener('click', function () { $('#chiedi').close(); });
   $('#chiedi').addEventListener('close', function () { chiediPoi = null; });
   $('#chiedi-f').addEventListener('submit', function (e) {
@@ -1119,22 +1183,34 @@
 
   // Un preventivo entra in archivio quando ha un titolo: prima non c'e'
   // niente da ritrovare, e riempirlo di "Senza titolo" lo renderebbe inutile.
+  // C'e' abbastanza da salvare? Prima serviva il titolo, e chi compilava un
+  // preventivo intero dimenticandoselo perdeva tutto alla chiusura. Ora basta
+  // il titolo OPPURE una cifra: in archivio finisce come "Senza titolo", che
+  // si rinomina in un secondo — perdere mezz'ora di lavoro no.
+  // Il solo nome del cliente NON basta di proposito: se no ogni volta che
+  // apre un preventivo e cambia idea resta una riga vuota in archivio.
+  function daSalvare() {
+    if ((d.t || '').trim()) return true;
+    return (d.g || []).some(function (g) {
+      return (g.i || []).some(function (v) { return v.on !== false && v.p > 0; });
+    });
+  }
   function archiviaBozza(subito) {
     if (salvaFra) { clearTimeout(salvaFra); salvaFra = null; }
-    if (!d.t || !d.t.trim()) { segnaSalvataggio(null); return; }
+    if (!daSalvare()) { segnaSalvataggio(null); return; }
     var fai = function () {
       salvaFra = null;
       // Ricontrollo qui: fra la chiamata e i 700 ms di attesa il preventivo
       // puo' essere stato eliminato o svuotato, e archiviare adesso vorrebbe
       // dire farlo tornare dal nulla.
-      if (!d.t || !d.t.trim()) return;
+      if (!daSalvare()) return;
       if (!d.id) d.id = nuovoId();
       var a = arcLeggi(), i = -1;
       for (var k = 0; k < a.length; k++) if (a[k].id === d.id) { i = k; break; }
       var voce = {
         id: d.id,
         cliente: (d.cl || '').trim(),
-        titolo: d.t.trim(),
+        titolo: (d.t || '').trim(),
         n: d.n,
         agg: Date.now(),
         tot: PREVENTIVO.conti(d).tot,
@@ -1147,56 +1223,26 @@
     };
     if (subito) fai(); else salvaFra = setTimeout(fai, 700);
   }
-  /* ---------- quante pagine viene il PDF ----------
-     Le spaziature del documento sono le stesse a schermo e in stampa, quindi
-     basta disegnarlo fuori campo e misurarlo contro i 297mm dell'A4. Cosi'
-     lui lo sa mentre scrive, invece di scoprirlo stampando. */
-  var A4PX = 297 / 25.4 * 96;
-  var righello = null, pagineFra = null;
-  function contaPagine() {
-    if (!righello) {
-      righello = document.createElement('div');
-      righello.className = 'q-body';          // serve per ereditare corpo e interlinea giusti
-      righello.setAttribute('aria-hidden', 'true');
-      righello.style.cssText = 'position:fixed;left:-99999px;top:0;width:210mm;' +
-                               'visibility:hidden;pointer-events:none;background:#fff';
-      document.body.appendChild(righello);
-    }
-    righello.innerHTML = PREVENTIVO.disegna(d);
-    var pagine = 0, spezzato = false;
-    righello.querySelectorAll('.q-sheet').forEach(function (s) {
-      s.style.minHeight = '0';
-      s.style.margin = '0';
-      s.style.boxShadow = 'none';
-      var n = Math.max(1, Math.ceil(s.getBoundingClientRect().height / A4PX));
-      if (n > 1) spezzato = true;
-      pagine += n;
-    });
-    return { pagine: pagine, spezzato: spezzato };
-  }
-  function mostraPagine() {
-    clearTimeout(pagineFra);
-    pagineFra = setTimeout(function () {
-      var el = $('#t-pag');
-      if (!el) return;
-      try {
-        var r = contaPagine();
-        el.textContent = r.pagine + (r.pagine === 1 ? ' pagina' : ' pagine');
-        el.dataset.lungo = r.spezzato ? '1' : '0';
-        el.title = r.spezzato
-          ? 'Il PDF viene ' + r.pagine + ' pagine: un foglio non ci sta in una sola e continua su quella dopo.'
-          : 'Il PDF viene ' + r.pagine + ' pagine, una per foglio.';
-      } catch (e) { el.textContent = ''; }
-    }, 350);
-  }
-
   function segnaSalvataggio(ms) {
     var el = $('#e-salv');
     if (!el) return;                 // la pagina si sta chiudendo
     el.textContent = ms
-      ? 'Salvato in archivio · ' + ora(ms)
-      : 'Scrivi un titolo per salvarlo in archivio';
+      ? (((d.t || '').trim() ? 'Salvato in archivio · ' : 'Salvato senza titolo · ') + ora(ms))
+      : 'Si salva da solo appena scrivi qualcosa';
   }
+  // Il salvataggio e' automatico (700 ms dopo l'ultimo tasto, piu' la
+  // chiusura della scheda). Il pulsante non aggiunge niente di tecnico:
+  // serve a poterlo fare apposta e vedere che e' fatto.
+  $('#b-salva').addEventListener('click', function () {
+    archiviaBozza(true);
+    if (!(d.t || '').trim()) {
+      // Salvato lo stesso: il titolo serve a ritrovarlo, non a salvarlo.
+      avvisa('Salvato come «Senza titolo». Dagli un nome per ritrovarlo al volo.');
+      $('#f-t').focus();
+      return;
+    }
+    avvisa('Salvato in archivio.');
+  });
   // Se chiude la scheda a meta' parola, la bozza e' comunque al sicuro.
   window.addEventListener('beforeunload', function () { archiviaBozza(true); });
 
@@ -1369,7 +1415,7 @@
       $('#elenco').innerHTML = '<div class="vuoto">' + (
         !tutti.length
           ? '<h2>Non c’è ancora niente in archivio</h2>' +
-            '<p>Ogni preventivo che compili finisce qui da solo, appena gli dai un titolo. ' +
+            '<p>Ogni preventivo che compili finisce qui da solo, appena ci scrivi dentro qualcosa. ' +
             'Non serve mandarlo a nessuno: lo trovi qui la prossima volta, pronto da riprendere.</p>' +
             '<button class="b b--pieno" type="button" data-nuovo>+ Fai il primo preventivo</button>'
           : '<h2>Nessun preventivo con questi filtri</h2>' +
@@ -1480,17 +1526,22 @@
       vistaCestino = true; disegnaHome();
     });
   });
+  // Qui la conferma prima ci vuole, ed e' l'unico posto: dappertutto si
+  // annulla dopo, ma da qui i preventivi non tornano piu'.
   $('#filtri').addEventListener('click', function (e) {
     if (!e.target.closest('#ces-svuota')) return;
     var tutto = cesLeggi();
     if (!tutto.length) return;
-    cesScrivi([]);
-    vistaCestino = false;
-    disegnaHome();
-    avvisa('Cestino svuotato: ' + tutto.length +
-      (tutto.length === 1 ? ' preventivo' : ' preventivi') + '.', 'Annulla', function () {
-      cesScrivi(tutto); vistaCestino = true; disegnaHome();
-    });
+    chiediConferma(
+      'Sicuro di voler svuotare il cestino? L’azione è irreversibile.',
+      'Svuota il cestino',
+      function () {
+        cesScrivi([]);
+        vistaCestino = false;
+        disegnaHome();
+        avvisa('Cestino svuotato: ' + tutto.length +
+          (tutto.length === 1 ? ' preventivo eliminato per sempre.' : ' preventivi eliminati per sempre.'));
+      });
   });
 
   $('#filtri').addEventListener('click', function (e) {
@@ -1702,6 +1753,11 @@
       copia.t = (x.titolo || 'Senza titolo') + ' (copia)';
       copia.st = 'bozza';
       carica(copia, nuovoId());
+      // Una copia e' un preventivo nuovo: se tiene il numero dell'originale,
+      // al cliente ne arrivano due con lo stesso.
+      delete d.nx;
+      d.n = numeroPer(d.cl);
+      $('#f-n').value = d.n;
       archiviaBozza(true);
       vaiA('edit');
       avvisa('Copia aperta. Cambia quello che serve: si salva da sola.');
@@ -1738,6 +1794,7 @@
         d = PREVENTIVO.vuoto();
         d.mag = Array.isArray(d.mag) ? d.mag : [];
         d.st = 'bozza';
+        delete d.id; delete d.nx; d.n = numeroPer('');
         aperto = 0;
         daModello(); disegnaVoci(); disegnaConsegne(); disegnaMag(); aggiorna();
       }
@@ -1841,6 +1898,27 @@
       if (!(d.t || '').trim()) $('#f-t').focus();
     }
   }
+  /* ---------- numero del preventivo ----------
+     "Ducati 0001": il nome del cliente e un progressivo a quattro cifre,
+     contato sui preventivi che quel cliente ha gia' in archivio. Senza
+     cliente restano le sole quattro cifre. Si riscrive da solo finche' lui
+     non tocca il campo: da quel momento `nx` lo lascia in pace, come `ddx`
+     fa con le giornate. */
+  function numeroPer(cliente) {
+    var c = (cliente || '').trim();
+    var quanti = arcLeggi().filter(function (x) {
+      return x.id !== d.id && (x.cliente || '').trim().toLowerCase() === c.toLowerCase();
+    }).length;
+    var n = ('000' + (quanti + 1)).slice(-4);
+    return c ? c + ' ' + n : n;
+  }
+  function rinumera() {
+    if (d.nx) return;                       // l'ha scritto lui: non si tocca
+    d.n = numeroPer(d.cl);
+    var campo = $('#f-n');
+    if (campo && document.activeElement !== campo) campo.value = d.n;
+  }
+
   // I clienti gia' in archivio, nel menu a discesa del campo Cliente: si
   // scrive lo stesso, ma "Ducati" non diventa "ducati" o "Ducati Motor" per
   // sbaglio — e in archivio quelli sarebbero due cartelle diverse.
@@ -1889,7 +1967,6 @@
     if (base) {
       d = mdlRipulisci(base);
       // Numero e data non si ereditano mai: sono di questo preventivo.
-      d.n = fresco.n;
       d.dt = fresco.dt;
       if (!d.dv) d.dv = fresco.dv;
       if (!d.g) d.g = fresco.g;
@@ -1899,6 +1976,8 @@
     d.mag = Array.isArray(d.mag) ? d.mag : [];
     d.st = 'bozza';
     d.id = nuovoId();
+    delete d.nx;
+    d.n = numeroPer(d.cl);
     aperto = 0;
     daModello(); disegnaVoci(); disegnaConsegne(); disegnaMag();
     vaiA('edit', d.id);
@@ -2038,6 +2117,10 @@
       else if (k === 'gg') v = Number(v) || 0;
       d[k] = v;
       if (k === 't') $('#e-tit').textContent = (v || '').trim() || 'Nuovo preventivo';
+      // Scrivendo il numero a mano si prende la responsabilita': da li' in
+      // poi non glielo riscriviamo piu' sotto le dita.
+      if (k === 'n') d.nx = true;
+      if (k === 'cl') rinumera();
       aggiorna();
     });
   });
@@ -2322,7 +2405,6 @@
       PREVENTIVO.euro(c.tot, 1) + '</b></div>';
 
     $('#t-tot').textContent = PREVENTIVO.euro(c.tot, 1);
-    mostraPagine();
     try { localStorage.setItem(CHIAVE, JSON.stringify(d)); } catch (e) {}
     archiviaBozza();
   }
