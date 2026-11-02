@@ -321,6 +321,24 @@ def shell(*, slug, title, desc, body, og_image=None, extra_head=""):
             s, ' aria-current="page"' if s == slug else "", n)
         for s, n in nav)
 
+    cta = "" if slug in ("about", "info") else """<div class="wrap site-foot__top">
+    <div>
+      <h2>Let&rsquo;s talk.</h2>
+      <a class="site-foot__mail" href="mailto:%(email)s">%(email)s</a>
+      <a class="site-foot__tel" href="tel:%(tel)s">%(tel_d)s</a>
+    </div>
+    <div>
+      <p class="meta" style="margin-bottom:var(--s-4)">Milan, Italy</p>
+      <ul class="site-foot__links">
+        <li><a class="link" href="%(ig)s" rel="me noopener" target="_blank">Instagram</a></li>
+        <li><a class="link" href="%(yt)s" rel="me noopener" target="_blank">YouTube</a></li>
+        <li><a class="link" href="%(li)s" rel="me noopener" target="_blank">LinkedIn</a></li>
+      </ul>
+    </div>
+  </div>""" % {"email": CONTATTI["email"], "tel": CONTATTI["tel"],
+               "tel_d": CONTATTI["tel_display"], "ig": CONTATTI["instagram"],
+               "yt": CONTATTI["youtube"], "li": CONTATTI["linkedin"]}
+
     return """<!doctype html>
 <html lang="en">
 <head>
@@ -380,21 +398,7 @@ def shell(*, slug, title, desc, body, og_image=None, extra_head=""):
 </main>
 
 <footer class="site-foot">
-  <div class="wrap site-foot__top">
-    <div>
-      <h2>Let&rsquo;s talk.</h2>
-      <a class="site-foot__mail" href="mailto:%(email)s">%(email)s</a>
-      <a class="site-foot__tel" href="tel:%(tel)s">%(tel_d)s</a>
-    </div>
-    <div>
-      <p class="meta" style="margin-bottom:var(--s-4)">Milan, Italy</p>
-      <ul class="site-foot__links">
-        <li><a class="link" href="%(ig)s" rel="me noopener" target="_blank">Instagram</a></li>
-        <li><a class="link" href="%(yt)s" rel="me noopener" target="_blank">YouTube</a></li>
-        <li><a class="link" href="%(li)s" rel="me noopener" target="_blank">LinkedIn</a></li>
-      </ul>
-    </div>
-  </div>
+  %(cta)s
   <div class="wrap site-foot__bar">
     <p class="meta">&copy; %(anno)s Mattia Baruffaldi</p>
     <p class="meta">Film and photography</p>
@@ -407,7 +411,7 @@ def shell(*, slug, title, desc, body, og_image=None, extra_head=""):
 """ % {
         "title": title, "desc": desc, "url": url, "site": SITE, "og": og_image,
         "extra": extra_head, "voci": voci, "voci_menu": voci_menu,
-        "body": body, "anno": ANNO,
+        "body": body, "anno": ANNO, "cta": cta,
         "vcss": firma("css/site.css"), "vjs": firma("js/site.js"),
         "jsonld": dati_strutturati(slug),
         "email": CONTATTI["email"], "tel": CONTATTI["tel"],
