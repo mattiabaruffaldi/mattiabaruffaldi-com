@@ -52,6 +52,7 @@ FILM = {
         ("ng4vK723AS8", "1500 TRX Lunar Edition", "RAM"),  # non fatto con Unreal
     ],
     "apparel": [
+        ("OKMkikUCAy0", "Sofia Goggia", "Unreal × Prima Assicurazioni"),
         ("CF3su928_Bc", "Kappa × Ducati", "Unreal × Kappa"),
         ("p5ZqRwjilKg", "Winter Collection", "Unreal × Kappa"),
         ("qqoSzrGkyf8", "US Ski Team", "Unreal × Kappa"),
@@ -212,10 +213,10 @@ DIETRO_LE_QUINTE = [
 # fotogramma pulito: diverse altre hanno titoli e loghi stampati sopra, che a
 # grande dimensione fanno sembrare la pagina una griglia di YouTube.
 HOME_FILM = [
+    "OKMkikUCAy0",   # Sofia Goggia
     "oxBlVDnw5Lo",   # From the Alps to the Sea
     "CF3su928_Bc",   # Kappa × Ducati
     "8vc4HPQ3ycY",   # Multistrada V4 Pikes Peak
-    "-3H7_iYdI9I",   # The Red from Borgo Panigale Enters Motocross
 ]
 
 # L'anteprima YouTube dello showreel e' una schiacciata nera col solo titolo.
@@ -272,8 +273,8 @@ def dati_strutturati(slug):
     if slug == "photo":
         grafo.append({"@type": "ImageGallery", "name": "Photography",
                       "url": SITE + "/photo/", "author": {"@id": SITE + "/#mattia"}})
-    if slug == "info":
-        grafo.append({"@type": "ProfilePage", "url": SITE + "/info/",
+    if slug == "about":
+        grafo.append({"@type": "ProfilePage", "url": SITE + "/about/",
                       "mainEntity": {"@id": SITE + "/#mattia"}})
     return json.dumps({"@context": "https://schema.org", "@graph": grafo},
                       ensure_ascii=False, separators=(",", ":"))
@@ -310,7 +311,7 @@ def shell(*, slug, title, desc, body, og_image=None, extra_head=""):
     url = SITE + ("/" if slug == "" else "/%s/" % slug)
     if og_image is None:
         og_image = "/img/og/%s.jpg" % (slug or "home")
-    nav = [("film", "Film"), ("photo", "Photo"), ("lifetalks", "LifeTalks"), ("info", "Info")]
+    nav = [("about", "About"), ("film", "Film"), ("photo", "Photo"), ("lifetalks", "LifeTalks"), ("info", "Info")]
     voci = "".join(
         '<li><a href="/%s/"%s>%s</a></li>' % (
             s, ' aria-current="page"' if s == slug else "", n)
@@ -691,7 +692,7 @@ def pagina_lifetalks():
 
 
 # ---------------------------------------------------------------- info
-def pagina_info():
+def pagina_about():
     """Biografia a tutta larghezza, poi la griglia del dietro le quinte."""
     quinte = "\n".join(
         """<figure class="shot reveal" data-stagger="%(st)d">
@@ -702,7 +703,7 @@ def pagina_info():
 
     body = """
 <div class="wrap page-head">
-  <h1>Info</h1>
+  <h1>About</h1>
 </div>
 <div class="wrap section--tight">
   <div class="info__bio">
@@ -725,9 +726,43 @@ def pagina_info():
 </div>
 """ % {"quinte": quinte}
 
-    return shell(slug="info", title="Info — Mattia Baruffaldi",
+    return shell(slug="about", title="About — Mattia Baruffaldi",
                  desc="Filmmaker and photographer from the Italian Alps, based in "
-                      "Milan. Contact, bio and links.",
+                      "Milan. Bio and behind the scenes.",
+                 body=body)
+
+
+# ---------------------------------------------------------------- Info (contatti)
+def pagina_info():
+    """Solo i contatti, impaginati con aria."""
+    body = """
+<div class="wrap page-head">
+  <h1>Info</h1>
+</div>
+<div class="wrap section--tight">
+  <div class="contact">
+    <div class="contact__lead">
+      <p class="contact__eyebrow meta">Get in touch</p>
+      <a class="contact__mail" href="mailto:%(email)s">%(email)s</a>
+      <a class="contact__tel" href="tel:%(tel)s">%(tel_d)s</a>
+    </div>
+    <div class="contact__side">
+      <p class="meta contact__loc">Milan, Italy</p>
+      <ul class="contact__links">
+        <li><a class="link" href="%(ig)s" rel="me noopener" target="_blank">Instagram</a></li>
+        <li><a class="link" href="%(yt)s" rel="me noopener" target="_blank">YouTube</a></li>
+        <li><a class="link" href="%(li)s" rel="me noopener" target="_blank">LinkedIn</a></li>
+      </ul>
+    </div>
+  </div>
+</div>
+""" % {"email": CONTATTI["email"], "tel": CONTATTI["tel"],
+       "tel_d": CONTATTI["tel_display"], "ig": CONTATTI["instagram"],
+       "yt": CONTATTI["youtube"], "li": CONTATTI["linkedin"]}
+
+    return shell(slug="info", title="Info — Mattia Baruffaldi",
+                 desc="Contact Mattia Baruffaldi — filmmaker and photographer "
+                      "based in Milan.",
                  body=body)
 
 
@@ -812,6 +847,7 @@ def timbra_a_mano():
 def main():
     print("Genero le pagine:")
     scrivi("index.html", pagina_home())
+    scrivi("about/index.html", pagina_about())
     scrivi("film/index.html", pagina_film())
     scrivi("photo/index.html", pagina_photo())
     scrivi("lifetalks/index.html", pagina_lifetalks())
@@ -820,7 +856,6 @@ def main():
 
     # Vecchi indirizzi Squarespace -> nuovi
     for vecchio, nuovo in [
-        ("about", "/info/"),
         ("contatti", "/info/"),
         ("portfolio-video", "/film/"),
         ("photo/automotive", "/photo/#automotive"),
@@ -829,7 +864,7 @@ def main():
     ]:
         scrivi("%s/index.html" % vecchio, redirect(nuovo))
 
-    pagine = ["/", "/film/", "/photo/", "/lifetalks/", "/info/"]
+    pagine = ["/", "/about/", "/film/", "/photo/", "/lifetalks/", "/info/"]
     oggi = date.today().isoformat()
     scrivi("sitemap.xml",
            '<?xml version="1.0" encoding="UTF-8"?>\n'
